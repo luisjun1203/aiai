@@ -14,7 +14,7 @@ model.add(Dense(33))
 model.add(Dense(234))
 model.add(Dense(474))
 model.add(Dense(629))
-model.add(Dense(100))
+model.add(Dense(1))
 
 
 
