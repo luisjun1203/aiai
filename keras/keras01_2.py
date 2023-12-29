@@ -8,7 +8,7 @@ from keras.layers import Dense
 #1.데이터 
 x = np.array([1,2,3,4,5,6])
 y = np.array([1,2,3,5,4,6])
-
+2662626
 #2.모델구성
 model = Sequential()
 model.add(Dense(1,input_dim=1))
