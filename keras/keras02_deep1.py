@@ -11,19 +11,10 @@ model = Sequential()
 model.add(Dense(3, input_dim=1))
 model.add(Dense(20))
 model.add(Dense(33))
-model.add(Dense(47))
-model.add(Dense(95))
-model.add(Dense(15))
-model.add(Dense(22))
-model.add(Dense(723))
-model.add(Dense(52))
-model.add(Dense(54))
-model.add(Dense(66))
-model.add(Dense(58))
-model.add(Dense(60))
-model.add(Dense(85))
-model.add(Dense(26))
-model.add(Dense(1))
+model.add(Dense(234))
+model.add(Dense(474))
+model.add(Dense(629))
+model.add(Dense(100))
 
 
 
@@ -38,7 +29,7 @@ print("로스: ", loss)
 result = model.predict([4])
 print("4의 예측값: ", result)
 
-# #로스:  0.0002875525096897036
+# #로스:  1.5958017684170045e-05
 # 1/1 [==============================] - 0s 104ms/step
-# 4의 예측값:  [[ 4.0000896]]
+# 4의 예측값:  [[ 3.9999795]]
 
