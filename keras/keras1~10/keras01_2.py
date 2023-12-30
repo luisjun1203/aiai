@@ -11,7 +11,7 @@ y = np.array([1,2,3,5,4,6])
 #2.모델구성
 model = Sequential()
 model.add(Dense(1,input_dim=1))
-
+    
 
 #3.컴파일, 훈련
 model.compile(loss='mse', optimizer='adam')
