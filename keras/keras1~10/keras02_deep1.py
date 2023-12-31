@@ -12,7 +12,7 @@ model.add(Dense(3, input_dim=1))
 model.add(Dense(202))
 model.add(Dense(334))
 model.add(Dense(463))
-model.add(Dense(100))
+model.add(Dense(100))    
 
 
 #3. 컴파일, 훈련
