@@ -9,21 +9,17 @@ y = np.array([1,2,3])
 #2. 모델 구성
 model = Sequential()
 model.add(Dense(3, input_dim=1))
-model.add(Dense(20))
-model.add(Dense(33))
-model.add(Dense(234))
-model.add(Dense(474))
-model.add(Dense(629))
-model.add(Dense(1))
-
-
+model.add(Dense(202))
+model.add(Dense(334))
+model.add(Dense(463))
+model.add(Dense(100))
 
 
 #3. 컴파일, 훈련
 model.compile(loss='mse', optimizer='adam')
 model.fit(x,y, epochs=100)
 
-#4. 평가, 훈련
+#4. 평가, 예측
 loss = model.evaluate(x,y)
 print("로스: ", loss)
 result = model.predict([4])
