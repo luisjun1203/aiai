@@ -26,3 +26,4 @@ print("x8 : ", x8.shape)    # x8 :  (2, 3)
 
 x9 = np.array([[[[1]]],[[[2]]]])
 print("x9 : ", x9.shape)    # x9 :  (2, 1, 1, 1)
+

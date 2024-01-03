@@ -37,7 +37,7 @@ model.fit(x, y, epochs=100, batch_size = 2)
 # 4. 평가, 예측
 loss = model.evaluate(x,y)
 print("로스 : ", loss)
-result = model.predict([[10, 1.3]])                # shape 중요 
+result = model.predict([[10,1.3]])                # shape 중요 
 print("[10, 1.3]의 예측값 : ", result)
 
 # [실습] : 소수 2째 자리까지 맞추기
