@@ -36,7 +36,7 @@ y = datasets.target
 # train_size 0.7 이상, 0.9이하
 # R2 0.8 이상
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.1, shuffle=True, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.15, shuffle=True, random_state=20)
 
 model = Sequential()
 model.add(Dense(33,input_dim=13))
@@ -48,7 +48,7 @@ model.add(Dense(1))
 
 model.compile(loss='mse', optimizer='adam')
 start_time = time.time()
-model.fit(X_train, y_train, epochs=1000, batch_size=20)
+model.fit(X_train, y_train, epochs=1500, batch_size=15)
 end_time = time.time()
 
 
@@ -64,6 +64,8 @@ print("R2스코어 : ", r2)
 
 print("걸린 시간  : ", round(end_time - start_time, 2), "초")
 
+
+
 # random_state=42 epochs=1000, batch_size=15, test_size=0.15
 # 로스 :  14.557331085205078
 # R2스코어 :  0.7770829847720614
@@ -72,8 +74,11 @@ print("걸린 시간  : ", round(end_time - start_time, 2), "초")
 # 로스 :  14.244630813598633
 # R2스코어 :  0.7818713632982545
 
-
-
 # random_state=42, epochs=1000, batch_size=15
 # 로스 :  13.158198356628418
 # R2스코어 :  0.7985079556506842
+
+# random_state=20, epochs=1500, batch_size=15
+# 로스 :  15.55542278289795
+# R2스코어 :  0.80151274445764
+
