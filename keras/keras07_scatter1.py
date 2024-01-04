@@ -35,20 +35,12 @@ model.compile(loss='mse', optimizer='adam')
 model.fit(X_train, y_train, epochs=500, batch_size=1)
 
 loss = model.evaluate(X_test, y_test)
-result = model.predict([11])
-print("로스 : ", loss)
-print("[11]의 예측값 ", result)
+result = model.predict([X])
+# print("로스 : ", loss)
+# print("[11]의 예측값 ", result)
 
+import matplotlib.pyplot as plt
 
-# 로스 :  0.3421463668346405
-# [11]의 예측값  [[10.928099]]
-
-
-
-
-
-
-
-
-
-
+plt.scatter(X, y)
+plt.plot(X, result, color='red')
+plt.show()
