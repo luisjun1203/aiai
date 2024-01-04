@@ -5,7 +5,7 @@ from keras.layers import Dense
 # x = np.array([1,2,3,4,5,6,7,8,9,10])
 # y = np.array([1,2,3,4,6,5,7,8,9,10])
 
-x_train = np.array([1,2,3,4,5,6,7])         # 훈련
+x_train = np.array([1,2,3,4,5,6,7])         # 훈련  항상 사용
 y_train = np.array([1,2,3,4,6,5,7])
 
 x_test = np.array([8,9,10])                 # 테스트
