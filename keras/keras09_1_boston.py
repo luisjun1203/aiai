@@ -46,7 +46,7 @@ model.add(Dense(10))
 model.add(Dense(21))
 model.add(Dense(1))
 
-model.compile(loss='mse', optimizer='adam')
+model.compile(loss='mae', optimizer='adam')
 start_time = time.time()
 model.fit(X_train, y_train, epochs=1500, batch_size=15)
 end_time = time.time()
@@ -81,4 +81,10 @@ print("걸린 시간  : ", round(end_time - start_time, 2), "초")
 # random_state=20, epochs=1500, batch_size=15
 # 로스 :  15.55542278289795
 # R2스코어 :  0.80151274445764
+
+# random_state=20, epochs=1500, batch_size=15
+# loss = 'mse'
+# R2스코어 :  0.793961027822985
+# loss = 'mae'
+# R2스코어 :  0.7919380058581664
 

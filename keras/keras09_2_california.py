@@ -21,7 +21,7 @@ y = datasets.target
 #print(datasets.DESCR)
 
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.15, shuffle=True, random_state=59)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.15, shuffle=True, random_state=33)
 
 # print(X_train)
 # print(X_test)
@@ -33,7 +33,7 @@ model.add(Dense(18))
 model.add(Dense(12))
 model.add(Dense(1))
 
-model.compile(loss='mse', optimizer='adam')
+model.compile(loss='mae', optimizer='adam')                         #loss = 'mse(squared)', 'rmse'(root), 'mae'(absolute)
 start_time = time.time()
 model.fit(X_train, y_train, epochs=500, batch_size=400)
 end_time = time.time()
@@ -54,11 +54,12 @@ print("걸린시간 : ", round(end_time - start_time, 3), "초")
 # 로스 :  0.5511764883995056
 # R2스코어 :  0.6172541292238007
 
-
-
-
-
-
+# mse
+# 로스 :  0.6345612406730652
+# R2스코어 :  0.5226054954200192
+# mae
+# 로스 :  0.5319810509681702
+# R2스코어 :  0.5684984592213133
 
 
 
