@@ -16,7 +16,7 @@ y = datasets.target
 # print(datasets.feature_names)   # ['age', 'sex', 'bmi', 'bp', 's1', 's2', 's3', 's4', 's5', 's6']
 # print(datasets.DESCR)           
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.15, shuffle=True, random_state=713)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.1, shuffle=True, random_state=1226)           # 1226 713
 
 model = Sequential()
 model.add(Dense(8,input_dim=10))
@@ -28,7 +28,7 @@ model.add(Dense(1))
 
 model.compile(loss='mse', optimizer='adam')
 start_time = time.time()
-model.fit(X_train, y_train, epochs=10, batch_size=10)
+model.fit(X_train, y_train, epochs=50, batch_size=10)
 end_time = time.time()
 
 loss = model.evaluate(X_test, y_test)
@@ -42,14 +42,15 @@ print("걸린시간 : ", round(end_time - start_time, 3), "초")
 # 로스 :  40.819854736328125
 # R2스코어 :  0.6337180345348047
 
-# loss = 'mse' , random_state=713, epochs=500, batch_size=10, test_size=0.15
-# 로스 :  2403.30859375
-# R2스코어 :  0.6379426071980379
-
-# loss = 'mse' , random_state=713, epochs=1000, batch_size=10, test_size=0.15
-# 로스 :  40.203704833984375
-# R2스코어 :  0.6417748954885589
-
 # loss = 'mse' , random_state=713, epochs=100, batch_size=10, test_size=0.15
-# 로스 :  2361.6455078125
-# R2스코어 :   0.6442191694507327
+# 로스 :  2349.983642578125
+# R2스코어 :  0.6459759837533623
+
+# loss = 'mse' , random_state=713, epochs=50, batch_size=10, test_size=0.1
+# 로스 :  2337.992431640625
+# R2스코어 :  0.6477824706165705
+
+
+# loss = 'mse' , random_state=1226, epochs=50, batch_size=10, test_size=0.1
+# 로스 :  2031.322509765625+
+# R2스코어 :  0.7246106597957658
