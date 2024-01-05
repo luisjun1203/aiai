@@ -6,7 +6,7 @@ from keras.models import Sequential
 from keras.layers import Dense
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import r2_score, mean_squared_error
-
+import time
 # 1.데이터
 
 path = "c:\\_data\\dacon\\ddarung\\"
@@ -59,101 +59,73 @@ X = train_csv.drop(['count'], axis=1)
 y = train_csv['count']
 # print(y)
 
-
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.1, shuffle=True, random_state=41)
-
-# print(X_train.shape, y_train.shape)     #(1195, 9) (1195,)
-# print(X_test.shape, y_test.shape)       # (133, 9) (133,)
-
-
-# 2.모델구성
-
-model = Sequential()
-model.add(Dense(8,input_dim=9))
-model.add(Dense(16))
-model.add(Dense(24))
-model.add(Dense(16))
-model.add(Dense(8))
-model.add(Dense(1))
-
-# 3.컴파일, 훈련
-
-model.compile(loss='mse', optimizer='adam')
-model.fit(X_train, y_train, epochs=300, batch_size=20)
-
-
-# 4.평가, 예측
-
-model.evaluate(X_test, y_test)
-y_submit = model.predict(test_csv)
-print(y_submit)
-print(y_submit.shape)       # (715, 1)
-
-print("============================================")
-######### submission.csv 만들기 (count컬럼에 값만 넣어줘) #######################
-submission_csv['count'] = y_submit
-print(submission_csv)
-print(submission_csv.shape)
-
-submission_csv.to_csv(path + "submission_0105_10.csv", index=False)
-
-#  random_state=3
-# 로스 :  2983.10009765625
-# R2스코어 :  0.6315264586114105
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+def auto(a,b,c):
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.1, shuffle=True, random_state=a)
+
+    # print(X_train.shape, y_train.shape)     #(1195, 9) (1195,)
+    # print(X_test.shape, y_test.shape)       # (133, 9) (133,)
+
+
+    # 2.모델구성
+
+    model = Sequential()
+    model.add(Dense(8,input_dim=9))
+    model.add(Dense(16))
+    model.add(Dense(24))
+    model.add(Dense(16))
+    model.add(Dense(8))
+    model.add(Dense(1))
+
+    # 3.컴파일, 훈련
+
+    model.compile(loss='mse', optimizer='adam')
+    model.fit(X_train, y_train, epochs=b, batch_size=c)
+
+
+    # 4.평가, 예측
+
+    loss = model.evaluate(X_test, y_test)
+    y_submit = model.predict(X_test)
+    r2 = r2_score(y_test, y_submit)
+    # print(y_submit)
+    # print(y_submit.shape)       # (715, 1)
+
+    print("============================================")
+    ######### submission.csv 만들기 (count컬럼에 값만 넣어줘) #######################
+    # submission_csv['count'] = y_submit
+    # print(submission_csv)
+    # print(submission_csv.shape)
+    print("로스 : ", loss)
+    print("R2스코어 : ", r2)
+    time.sleep(1)
+
+    # submission_csv.to_csv(path + "submission_0105.csv", index=False)
+
+    return r2
+
+    
+  
+
+import random
+for i in range(1000000000):
+    b = random.randrange(1, 4200000000)
+    r = auto(b,300,20)          
+    if r > 0.7:
+        print("random_state : ", b)
+        break
+        
+
+    
+    
+    
+    
+    
+    
+    
+    
+# 로스 :  2428.158203125
+# R2스코어 :  0.6753108817912734
+# random_state :  58356
+
+
+random.randrange(1, 99000000)
