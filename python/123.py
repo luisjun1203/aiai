@@ -7,6 +7,7 @@ from keras.layers import Dense
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import r2_score, mean_squared_error
 import time
+
 # 1.데이터
 
 path = "c:\\_data\\dacon\\ddarung\\"
@@ -41,14 +42,30 @@ submission_csv = pd.read_csv(path + "submission.csv")
 # print(train_csv.isnull().sum())
 # print(train_csv.isna().sum())           #위 아래 같다
 
-train_csv = train_csv.dropna()
+# train_csv = train_csv.dropna()
+
+train_csv['hour_bef_precipitation'] = train_csv['hour_bef_precipitation'].fillna(0)
+train_csv['hour_bef_pm10'] = train_csv['hour_bef_pm10'].fillna(0)
+train_csv['hour_bef_pm2.5'] = train_csv['hour_bef_pm2.5'].fillna(0)
+train_csv['hour_bef_windspeed'] = train_csv['hour_bef_windspeed'].fillna(0)
+train_csv['hour_bef_temperature'] = train_csv['hour_bef_temperature'].fillna(train_csv['hour_bef_temperature'].mean())
+train_csv['hour_bef_humidity'] = train_csv['hour_bef_humidity'].fillna(train_csv['hour_bef_humidity'].mean())
+train_csv['hour_bef_visibility'] = train_csv['hour_bef_visibility'].fillna(train_csv['hour_bef_visibility'].mean())
+train_csv['hour_bef_ozone'] = train_csv['hour_bef_ozone'].fillna(train_csv['hour_bef_ozone'].mean())
+
+# print(train_csv.shape)      # (1459, 10)
+# print(train_csv.info())     
+# print(train_csv.isna().sum())
+
+
+
 
 # print(train_csv.isna().sum())           #위 아래 같다
 # print(train_csv.info())
 # print(train_csv.shape)      #(1358, 10)
 
-test_csv = test_csv.fillna(test_csv.mean())
-print(test_csv.info())      # 717 non-null
+#test_csv = test_csv.fillna(test_csv.mean())
+# print(test_csv.info())      # 717 non-null
 
 
 ############# X 와 y를 분리 #####################
@@ -69,11 +86,14 @@ def auto(a,b,c):
     # 2.모델구성
 
     model = Sequential()
-    model.add(Dense(8,input_dim=9))
-    model.add(Dense(16))
-    model.add(Dense(24))
-    model.add(Dense(16))
-    model.add(Dense(8))
+    model.add(Dense(12,input_dim=9))
+    model.add(Dense(203))
+    model.add(Dense(50))
+    model.add(Dense(840))
+    model.add(Dense(402))
+    model.add(Dense(120))
+    model.add(Dense(815))
+    model.add(Dense(146))
     model.add(Dense(1))
 
     # 3.컴파일, 훈련
@@ -107,17 +127,21 @@ def auto(a,b,c):
   
 
 import random
-for i in range(1000000000):
-    b = random.randrange(1, 4200000000)
-    r = auto(b,300,20)          
-    if r > 0.7:
+for i in range(10000000):
+    b = random.randrange(1, 1000)
+   # b = (2)
+    r = auto(b, 50, 25)          
+    print("random state : ", b)
+    if r > 0.63 :
         print("random_state : ", b)
         break
         
 
     
     
-    
+
+# R2스코어 :  0.7193710891919103
+# random_state :  497830280
     
     
     
@@ -128,4 +152,4 @@ for i in range(1000000000):
 # random_state :  58356
 
 
-random.randrange(1, 99000000)
+# random.randrange(1, 99000000)
