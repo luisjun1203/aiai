@@ -14,7 +14,7 @@ import time
 from sklearn.preprocessing import MinMaxScaler, MaxAbsScaler, StandardScaler, RobustScaler
 from keras.callbacks import EarlyStopping  
 
-datasets = load_boston()
+datasets = load_boston()    
 # print(datasets)
 
 X = datasets.data
