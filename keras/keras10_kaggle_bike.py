@@ -26,6 +26,7 @@ X = train_csv.drop(['casual', 'registered', 'count'], axis=1)
 y = train_csv['count']      
 print(y.shape)     # (10886, 8)
 
+
 # df = pd.DataFrame(train_csv, columns = ['casual', 'registered', 'count'])
 # list(df['count']>0)
 
@@ -61,7 +62,7 @@ submission_csv['count'] = y_submit
 print(submission_csv)
 print("mse : ", loss)
 # print("R2스코어 : ", r2)
-submission_csv.to_csv(path + "submission_0108_10_4.csv", index=False)
+submission_csv.to_csv(path + "submission_0108_10_5.csv", index=False)
 
 print("음수갯수 : ",submission_csv[submission_csv['count']<0].count())      # 0보다 작은 조건의 모든 데이터셋을 세줘
 
