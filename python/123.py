@@ -122,15 +122,15 @@ def auto(a,b,c):
     # submission_csv.to_csv(path + "submission_0105.csv", index=False)
 
     return r2
-
+    
     
   
 
 import random
 for i in range(10000000):
-    b = random.randrange(1, 1000)
-   # b = (2)
-    r = auto(b, 50, 25)          
+    b = random.randrange(1, 9000)
+    # b = (1226)
+    r = auto(b, 100, 25)          
     print("random state : ", b)
     if r > 0.63 :
         print("random_state : ", b)

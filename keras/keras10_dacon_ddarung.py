@@ -13,8 +13,8 @@ path = "c:\\_data\\dacon\\ddarung\\"
 
 # print( path + "aaa.csv")      # c:\_data\dacon\ddarung\aaa.csv
 
-train_csv = pd.read_csv(path + "train.csv", index_col=0)        # 컬럼 지정
-# train_csv = pd.read_csv("c:\_data\dacon\ddarung\\train.csv")  # \ = \\ =  / = //
+train_csv = pd.read_csv(path + "train.csv", index_col=0)        # 컬럼 지정         , # index_col = : 지정 안해주면 인덱스도 컬럼 판단
+# train_csv = pd.read_csv("c:\_data\dacon\ddarung\\train.csv")  # \ = \\ =  / = //          # pandas 1차원  : series, 2차원 : dataframe
 # print(train_csv)                                                
 
 test_csv = pd.read_csv(path + "test.csv", index_col=0)
@@ -41,15 +41,15 @@ submission_csv = pd.read_csv(path + "submission.csv")
 # print(train_csv.isnull().sum())
 # print(train_csv.isna().sum())           #위 아래 같다
 
-train_csv = train_csv.dropna()
-# train_csv['hour_bef_precipitation'] = train_csv['hour_bef_precipitation'].fillna(0)
-# train_csv['hour_bef_pm10'] = train_csv['hour_bef_pm10'].fillna(0)
-# train_csv['hour_bef_pm2.5'] = train_csv['hour_bef_pm2.5'].fillna(0)
-# train_csv['hour_bef_windspeed'] = train_csv['hour_bef_windspeed'].fillna(0)
-# train_csv['hour_bef_temperature'] = train_csv['hour_bef_temperature'].fillna(train_csv['hour_bef_temperature'].mean())
-# train_csv['hour_bef_humidity'] = train_csv['hour_bef_humidity'].fillna(train_csv['hour_bef_humidity'].mean())
-# train_csv['hour_bef_visibility'] = train_csv['hour_bef_visibility'].fillna(train_csv['hour_bef_visibility'].mean())
-# train_csv['hour_bef_ozone'] = train_csv['hour_bef_ozone'].fillna(train_csv['hour_bef_ozone'].mean())
+# train_csv = train_csv.dropna()
+train_csv['hour_bef_precipitation'] = train_csv['hour_bef_precipitation'].fillna(0)
+train_csv['hour_bef_pm10'] = train_csv['hour_bef_pm10'].fillna(0)
+train_csv['hour_bef_pm2.5'] = train_csv['hour_bef_pm2.5'].fillna(0)
+train_csv['hour_bef_windspeed'] = train_csv['hour_bef_windspeed'].fillna(0)
+train_csv['hour_bef_temperature'] = train_csv['hour_bef_temperature'].fillna(train_csv['hour_bef_temperature'].mean())
+train_csv['hour_bef_humidity'] = train_csv['hour_bef_humidity'].fillna(train_csv['hour_bef_humidity'].mean())
+train_csv['hour_bef_visibility'] = train_csv['hour_bef_visibility'].fillna(train_csv['hour_bef_visibility'].mean())
+train_csv['hour_bef_ozone'] = train_csv['hour_bef_ozone'].fillna(train_csv['hour_bef_ozone'].mean())
 
 # train_csv['hour_bef_temperature'] = train_csv['hour_bef_temperature'].fillna(method='backfill')
 # train_csv['hour_bef_windspeed'] = train_csv['hour_bef_windspeed'].fillna(method='backfill')
@@ -89,7 +89,7 @@ y = train_csv['count']
 # print(y)
 
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.1, shuffle=True, random_state=2)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.1, shuffle=True, random_state=713)
 
 # print(X_train.shape, y_train.shape)     #(1195, 9) (1195,)
 # print(X_test.shape, y_test.shape)       # (133, 9) (133,)
@@ -99,12 +99,18 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.1, shuffle
 
 model = Sequential()
 model.add(Dense(12,input_dim=9))
+model.add(Dense(203))
+model.add(Dense(50))
+model.add(Dense(840))
+model.add(Dense(402))
+model.add(Dense(120))
+model.add(Dense(815))
+model.add(Dense(146))
 model.add(Dense(1))
-
 # 3.컴파일, 훈련
 
 model.compile(loss='mse', optimizer='adam')
-model.fit(X_train, y_train, epochs=100000, batch_size=50)
+model.fit(X_train, y_train, epochs=100, batch_size=25)
 
 
 # 4.평가, 예측
@@ -120,7 +126,7 @@ submission_csv['count'] = y_submit
 print(submission_csv)
 print(submission_csv.shape)
 
-submission_csv.to_csv(path + "submission_0107_10.csv", index=False)
+submission_csv.to_csv(path + "submission_0108_3.csv", index=False)
 
 #  random_state=3
 # 로스 :  2983.10009765625
