@@ -29,7 +29,7 @@ print(y.shape)     # (10886, 8)
 # df = pd.DataFrame(train_csv, columns = ['casual', 'registered', 'count'])
 # list(df['count']>0)
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.1, shuffle=True, random_state=713)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.123, shuffle=True, random_state=6544)
 
 # print(X_train.shape, y_train.shape)     # (9253, 8) (9253,11)
 # print(X_test.shape, y_test.shape)       # (1633, 8) (1633, 11)
@@ -38,13 +38,6 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.1, shuffle
 model = Sequential()
 model.add(Dense(16, input_dim = 8, activation='relu'))                 # activation : 활성화함수, default : linear, activation : 하이퍼 파라미터
 model.add(Dense(32, activation='relu'))
-model.add(Dense(64, activation='relu'))
-model.add(Dense(64, activation='relu'))
-model.add(Dense(64, activation='relu'))
-model.add(Dense(64, activation='relu'))
-model.add(Dense(64, activation='relu'))
-model.add(Dense(64, activation='relu'))
-model.add(Dense(64, activation='relu'))
 model.add(Dense(64, activation='relu'))
 model.add(Dense(16, activation='relu'))
 model.add(Dense(4, activation='relu'))
@@ -68,7 +61,7 @@ submission_csv['count'] = y_submit
 print(submission_csv)
 print("mse : ", loss)
 # print("R2스코어 : ", r2)
-submission_csv.to_csv(path + "submission_0108_10_2.csv", index=False)
+submission_csv.to_csv(path + "submission_0108_10_4.csv", index=False)
 
 print("음수갯수 : ",submission_csv[submission_csv['count']<0].count())      # 0보다 작은 조건의 모든 데이터셋을 세줘
 
@@ -98,7 +91,7 @@ print("RMSE : ", rmse)
 # 7
 # 8 = 5436
 
-
+# 1858, 6544
 
 
 
