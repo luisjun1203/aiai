@@ -34,24 +34,26 @@ print(y.shape)     # (10886, 8)
 # df = pd.DataFrame(train_csv, columns = ['casual', 'registered', 'count'])
 # list(df['count']>0)
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.123, shuffle=True, random_state=6544)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.4, shuffle=False, random_state=6544)
 
 # print(X_train.shape, y_train.shape)     # (9253, 8) (9253,11)
 # print(X_test.shape, y_test.shape)       # (1633, 8) (1633, 11)
 
 
 model = Sequential()
-model.add(Dense(16, input_dim = 8, activation='relu'))                 # activation : 활성화함수, default : linear, activation : 하이퍼 파라미터
-model.add(Dense(32, activation='relu'))
-model.add(Dense(64, activation='relu'))
-model.add(Dense(16, activation='relu'))
-model.add(Dense(4, activation='relu'))
-model.add(Dense(1, activation='relu'))
+model.add(Dense(8, input_dim = 8, activation='relu'))                 # activation : 활성화함수, default : linear, activation : 하이퍼 파라미터
+model.add(Dense(10, activation='relu'))
+model.add(Dense(30, activation='relu'))
+model.add(Dense(60, activation='relu'))
+model.add(Dense(120, activation='relu'))
+model.add(Dense(40, activation='relu'))
+model.add(Dense(30, activation='relu'))
+model.add(Dense(1))
 
 
 model.compile(loss='mse', optimizer='adam')
 s_time = time.time()
-model.fit(X_train, y_train, epochs=500, batch_size=200, validation_split=0.2)
+model.fit(X_train, y_train, epochs=100, batch_size=700, validation_split=0.15)
 e_time = time.time()
 
 
