@@ -26,7 +26,11 @@ X = train_csv.drop(['casual', 'registered', 'count'], axis=1)
 y = train_csv['count']      
 print(y.shape)     # (10886, 8)
 
+X_val = X[20:-30]
+y_val = y[20:-30]
 
+# print(X_val)
+# print(y_val)
 # df = pd.DataFrame(train_csv, columns = ['casual', 'registered', 'count'])
 # list(df['count']>0)
 
@@ -42,12 +46,12 @@ model.add(Dense(32, activation='relu'))
 model.add(Dense(64, activation='relu'))
 model.add(Dense(16, activation='relu'))
 model.add(Dense(4, activation='relu'))
-model.add(Dense(1))
+model.add(Dense(1, activation='relu'))
 
 
 model.compile(loss='mse', optimizer='adam')
 s_time = time.time()
-model.fit(X_train, y_train, epochs=500, batch_size=200)
+model.fit(X_train, y_train, epochs=500, batch_size=200, validation_data=(X_val, y_val))
 e_time = time.time()
 
 
@@ -62,15 +66,15 @@ submission_csv['count'] = y_submit
 print(submission_csv)
 print("mse : ", loss)
 # print("R2스코어 : ", r2)
-submission_csv.to_csv(path + "submission_0108_10_5.csv", index=False)
+submission_csv.to_csv(path + "submission_0109_10_.csv", index=False)
 
 print("음수갯수 : ",submission_csv[submission_csv['count']<0].count())      # 0보다 작은 조건의 모든 데이터셋을 세줘
 
 y_predict = model.predict(X_test)                                           #rmse 구하기
-# def RMSLE(y_test, y_predict):
-#     np.sqrt(mean_squared_log_error(y_test, y_predict))
-#     return np.sqrt(mean_squared_log_error(y_test, y_predict))
-# rmsle = RMSLE(y_test, y_predict)
+def RMSLE(y_test, y_predict):
+    np.sqrt(mean_squared_log_error(y_test, y_predict))
+    return np.sqrt(mean_squared_log_error(y_test, y_predict))
+rmsle = RMSLE(y_test, y_predict)
 
 def RMSE(y_test, y_predict):
     np.sqrt(mean_squared_error(y_test, y_predict))
@@ -78,7 +82,7 @@ def RMSE(y_test, y_predict):
 rmse = RMSE(y_test, y_predict)
 # print("256255음수갯수 : ",submission_csv[submission_csv['count']<0].count())      # 0보다 작은 조건의 모든 데이터셋을 세줘
 
-# print("RMSLE : ", rmsle)
+print("RMSLE : ", rmsle)
 print("RMSE : ", rmse)
 
 

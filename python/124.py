@@ -67,8 +67,8 @@ def auto(a,b,c):
     
 import random
 for i in range(10000000):
-   # b = random.randrange(1, 10000)
-    b = (6544)
+    b = random.randrange(1, 10000)
+    #b = (6544)
     r = auto(b, 500, 200)          
     print("random state : ", b)
     if r > 0.4 :
