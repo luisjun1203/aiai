@@ -35,7 +35,7 @@ model.add(Dense(1))
 
 model.compile(loss='mse', optimizer='adam')
 s_time = time.time()
-hist = model.fit(X_train, y_train, epochs=100, batch_size=700, validation_split=0.15)
+hist = model.fit(X_train, y_train, epochs=100, batch_size=700, validation_split=0.15)           # early stopping
 e_time = time.time()
 
 
@@ -87,5 +87,13 @@ plt.xlabel('에포')
 plt.ylabel('로스')
 plt.grid()          # 격자
 plt.show()
+
+
+
+
+# from keras.callbacks import EarlyStopping()
+# early_stopping = EarlyStopping
+
+
 
 

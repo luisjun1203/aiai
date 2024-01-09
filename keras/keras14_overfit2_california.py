@@ -24,7 +24,7 @@ model.add(Dense(1))
 
 model.compile(loss='mae', optimizer='adam')                         
 start_time = time.time()
-hist = model.fit(X_train, y_train, epochs=100, batch_size=400, validation_split=0.2)
+hist = model.fit(X_train, y_train, epochs=200, batch_size=400, validation_split=0.2)
 end_time = time.time()
 
 loss = model.evaluate(X_test, y_test)
@@ -54,13 +54,13 @@ import matplotlib.pyplot as plt
 # font_path = "C:/Windows/Fonts/gulim.ttc"
 # font = font_manager.FontProperties(fname=font_path).get_name()
 # rc('font', family=font)
-plt.rc('font', family = 'Malgun Gothic')                
 
-plt.figure(figsize=(10, 100))
+plt.rc('font', family = 'Malgun Gothic')                
+plt.figure(figsize=(10, 5))
 plt.plot(hist.history['loss'], color = 'gold', label='loss', marker='.')
 plt.plot(hist.history['val_loss'], c = 'pink', label='val_loss', marker='.')
 plt.legend(loc = 'upper right')      # loc = location
-plt.title('캘리포니아 loss')
+plt.title('캘리포니아 로스')
 plt.xlabel('에포')
 plt.ylabel('로스')
 plt.grid()          # 격자
