@@ -77,7 +77,7 @@ y = train_csv['count']
 # print(y)
 
 def auto(a,b,c):
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.17, shuffle=True, random_state=a)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, shuffle=True, random_state=a)
 
     # print(X_train.shape, y_train.shape)     #(1195, 9) (1195,)
     # print(X_test.shape, y_test.shape)       # (133, 9) (133,)
@@ -86,18 +86,22 @@ def auto(a,b,c):
     # 2.모델구성
 
     model = Sequential()
-    model.add(Dense(8,input_dim=9, activation='relu'))
-    model.add(Dense(16, activation='relu'))
-    model.add(Dense(32, activation='relu'))
-    model.add(Dense(64, activation='relu'))
-    model.add(Dense(16, activation='relu'))
-    model.add(Dense(4, activation='relu'))
+    model.add(Dense(19,input_dim=9, activation='relu'))
+    model.add(Dense(97, activation='relu'))
+    model.add(Dense(9, activation='relu'))
+    model.add(Dense(21, activation='relu'))
+    model.add(Dense(19, activation='relu'))
+    model.add(Dense(99, activation='relu'))
+    model.add(Dense(7, activation='relu'))
+    model.add(Dense(13, activation='relu'))
     model.add(Dense(1))
 
     # 3.컴파일, 훈련
 
     model.compile(loss='mse', optimizer='adam')
-    model.fit(X_train, y_train, epochs=b, batch_size=c)
+    from keras.callbacks import EarlyStopping
+    es = EarlyStopping(monitor='val_loss', mode='min', patience=100, verbose=3)
+    model.fit(X_train, y_train, epochs=b, batch_size=c, validation_split=0.2, callbacks=[es])
 
 
     # 4.평가, 예측
@@ -115,23 +119,30 @@ def auto(a,b,c):
     # print(submission_csv.shape)
     print("로스 : ", loss)
     print("R2스코어 : ", r2)
+    y_predict = model.predict(X_test) 
+    def RMSE(y_test, y_predict):
+        np.sqrt(mean_squared_error(y_test, y_predict))
+        return np.sqrt(mean_squared_error(y_test, y_predict))
+    rmse = RMSE(y_test, y_predict)
+    print("RMSE : ", rmse)
     time.sleep(1)
 
     # submission_csv.to_csv(path + "submission_0105.csv", index=False)
 
-    return r2
     
+    return rmse
     
   
 
 import random
 for i in range(10000000):
-    b = random.randrange(1, 100)    
+    b = random.randrange(1, 1000000000)    
     # b = (1226)
-    r = auto(b, 100, 25)          
+    r = auto(b, 1000, 32)          
     print("random state : ", b)
-    if r > 0.68 :
+    if r < 47 :
         print("random_state : ", b)
+        print("RMSE : ",rmse)
         break
         
 

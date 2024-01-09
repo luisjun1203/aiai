@@ -60,24 +60,26 @@ X = train_csv.drop(['count'], axis=1)
 
 y = train_csv['count']
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.15, shuffle=True, random_state=45)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, shuffle=True, random_state=749058996)      #58356
 
 # 2.모델구성
 
 model = Sequential()
-model.add(Dense(8,input_dim=9, activation='relu'))
-model.add(Dense(16, activation='relu'))
-model.add(Dense(32, activation='relu'))
-model.add(Dense(64, activation='relu'))
-model.add(Dense(16, activation='relu'))
-model.add(Dense(4, activation='relu'))
+model.add(Dense(19,input_dim=9, activation='relu'))
+model.add(Dense(97, activation='relu'))
+model.add(Dense(9, activation='relu'))
+model.add(Dense(21, activation='relu'))
+model.add(Dense(19, activation='relu'))
+model.add(Dense(99, activation='relu'))
+model.add(Dense(7, activation='relu'))
+model.add(Dense(13, activation='relu'))
 model.add(Dense(1))
 # 3.컴파일, 훈련
 
 model.compile(loss='mse', optimizer='adam')
 from keras.callbacks import EarlyStopping
 es = EarlyStopping(monitor='val_loss', mode='min', patience=300, verbose=3)
-hist = model.fit(X_train, y_train, epochs=2000, batch_size=25, validation_split=0.25, verbose=1, callbacks=[es])
+hist = model.fit(X_train, y_train, epochs=1000, batch_size=32, validation_split=0.2, verbose=1, callbacks=[es])
 
 # 4.평가, 예측
 
@@ -92,7 +94,7 @@ submission_csv['count'] = y_submit
 print(submission_csv)
 print(submission_csv.shape)
 
-submission_csv.to_csv(path + "submission_0109_2.csv", index=False)
+submission_csv.to_csv(path + "submission_0109_3.csv", index=False)
 y_predict = model.predict(X_test) 
 def RMSE(y_test, y_predict):
     np.sqrt(mean_squared_error(y_test, y_predict))
