@@ -66,7 +66,7 @@ y_submit = model.predict(test_csv)
 submission_csv['Outcome'] = y_submit.round()                                       
 # print(submission_csv)       #(116, 2)
 
-submission_csv.to_csv(path + "submission_0110_1_.csv", index=False)
+submission_csv.to_csv(path + "submission_0110_2_.csv", index=False)
 
 y_predict = model.predict(X_test)
 y_predict = y_predict.round()
