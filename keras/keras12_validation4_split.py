@@ -21,7 +21,7 @@ model = Sequential()
 model.add(Dense(4, input_dim=1))
 model.add(Dense(16))
 model.add(Dense(64))
-model.add(Dense(4))
+model.add(Dense(4))  
 model.add(Dense(1))
 
 #3 .컴,훈

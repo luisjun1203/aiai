@@ -141,7 +141,7 @@ for i in range(10000000):
     r = auto(b, 1000, 32)          
     print("random state : ", b)
     if r < 47 :
-        print("random_state : ", b)
+        print("random_state : ", b)6
         print("RMSE : ",r)
         break
         

@@ -61,7 +61,7 @@ X = train_csv.drop(['count'], axis=1)
 
 y = train_csv['count']
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.4, shuffle=True, random_state=749058996)      #58356
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, shuffle=True, random_state=555170539)      #58356
 
 # 2.모델구성
 
@@ -95,7 +95,7 @@ submission_csv['count'] = y_submit
 print(submission_csv)
 print(submission_csv.shape)
 
-submission_csv.to_csv(path + "submission_0110_1.csv", index=False)
+submission_csv.to_csv(path + "submission_0110_2.csv", index=False)
 y_predict = model.predict(X_test) 
 def RMSE(y_test, y_predict):
     np.sqrt(mean_squared_error(y_test, y_predict))
