@@ -31,7 +31,7 @@ model.compile(loss='mae', optimizer='adam')
 
 from keras.callbacks import EarlyStopping                                                               # early stopping 개념, min,max, auto
 es = EarlyStopping(monitor='loss', mode='max', 
-                   patience=100, verbose= 1)                                # 'local min' , 'global min'
+                   patience=100, verbose= 1, restore_best_weights=True)                        # restore_best_weights default : false        # 'local min' , 'global min'
 
 start_time = time.time()
 hist = model.fit(X_train, y_train, epochs=1000, batch_size=15, validation_split=0.2, callbacks=[es])

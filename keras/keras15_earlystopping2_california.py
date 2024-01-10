@@ -24,7 +24,7 @@ model.add(Dense(1))
 
 model.compile(loss='mae', optimizer='adam')   
 from keras.callbacks import EarlyStopping
-es = EarlyStopping(monitor='val_loss', mode='min', patience=100, verbose=2)                      
+es = EarlyStopping(monitor='val_loss', mode='min', patience=100, verbose=2, restore_best_weights=True)                      
 start_time = time.time()
 hist = model.fit(X_train, y_train, epochs=200, batch_size=400, validation_split=0.2, callbacks=[es])
 end_time = time.time()

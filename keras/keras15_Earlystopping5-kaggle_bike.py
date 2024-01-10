@@ -36,8 +36,8 @@ model.add(Dense(1, activation='relu'))
 model.compile(loss='mse', optimizer='adam')
 s_time = time.time()
 from keras.callbacks import EarlyStopping
-es = EarlyStopping(monitor='val_loss', mode='min', patience=400, verbose=3)
-hist = model.fit(X_train, y_train, epochs=5000, batch_size=1200, validation_split=0.197, callbacks=[es])           # early stopping
+es = EarlyStopping(monitor='val_loss', mode='min', patience=100, verbose=3, restore_best_weights=True)
+hist = model.fit(X_train, y_train, epochs=0000, batch_size=700, validation_split=0.197, callbacks=[es])           # early stopping
 e_time = time.time()
 
 
@@ -49,7 +49,7 @@ submission_csv['count'] = y_submit
 print(submission_csv)
 print("mse : ", loss)
 # print("R2스코어 : ", r2)
-submission_csv.to_csv(path + "submission_0109_val_3_.csv", index=False)
+submission_csv.to_csv(path + "submission_0110_val_1_.csv", index=False)
 
 print("음수갯수 : ",submission_csv[submission_csv['count']<0].count())      # 0보다 작은 조건의 모든 데이터셋을 세줘
 

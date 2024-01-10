@@ -24,6 +24,7 @@ train_csv['hour_bef_precipitation'] = train_csv['hour_bef_precipitation'].fillna
 train_csv['hour_bef_pm10'] = train_csv['hour_bef_pm10'].fillna(0)
 train_csv['hour_bef_pm2.5'] = train_csv['hour_bef_pm2.5'].fillna(0)
 train_csv['hour_bef_windspeed'] = train_csv['hour_bef_windspeed'].fillna(0)
+# train_csv['hour_bef_windspeed'] = train_csv['hour_bef_windspeed'].fillna(train_csv['hour_bef_windspeed'].mean())
 train_csv['hour_bef_temperature'] = train_csv['hour_bef_temperature'].fillna(train_csv['hour_bef_temperature'].mean())
 train_csv['hour_bef_humidity'] = train_csv['hour_bef_humidity'].fillna(train_csv['hour_bef_humidity'].mean())
 train_csv['hour_bef_visibility'] = train_csv['hour_bef_visibility'].fillna(train_csv['hour_bef_visibility'].mean())
@@ -60,7 +61,7 @@ X = train_csv.drop(['count'], axis=1)
 
 y = train_csv['count']
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, shuffle=True, random_state=749058996)      #58356
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.4, shuffle=True, random_state=749058996)      #58356
 
 # 2.모델구성
 
@@ -78,7 +79,7 @@ model.add(Dense(1))
 
 model.compile(loss='mse', optimizer='adam')
 from keras.callbacks import EarlyStopping
-es = EarlyStopping(monitor='val_loss', mode='min', patience=300, verbose=3)
+es = EarlyStopping(monitor='val_loss', mode='min', patience=130, verbose=3, restore_best_weights=True)
 hist = model.fit(X_train, y_train, epochs=1000, batch_size=32, validation_split=0.2, verbose=1, callbacks=[es])
 
 # 4.평가, 예측
@@ -94,7 +95,7 @@ submission_csv['count'] = y_submit
 print(submission_csv)
 print(submission_csv.shape)
 
-submission_csv.to_csv(path + "submission_0109_3.csv", index=False)
+submission_csv.to_csv(path + "submission_0110_1.csv", index=False)
 y_predict = model.predict(X_test) 
 def RMSE(y_test, y_predict):
     np.sqrt(mean_squared_error(y_test, y_predict))

@@ -30,7 +30,7 @@ def RMSE(y_test, y_predict):
 
 
 def auto(a,b,c):
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=c, shuffle=True, random_state=a)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.385, shuffle=True, random_state=a)
 
     model = Sequential()
     model.add(Dense(8, input_dim = 8, activation='relu'))                 # activation : 활성화함수, default : linear, activation : 하이퍼 파라미터
@@ -45,9 +45,12 @@ def auto(a,b,c):
 
     model.compile(loss='mse', optimizer='adam')
     s_time = time.time()
-    from keras.callbacks import EarlyStopping
-    es = EarlyStopping(monitor='val_loss', mode='min', patience=200, verbose=3)
-    hist = model.fit(X_train, y_train, epochs=b, batch_size=c, validation_split=0.1, verbose=3, callbacks=[es])           # early stopping
+    from keras.callbacks import EarlyStopping,ModelCheckpoint
+    
+    es = EarlyStopping(monitor='val_loss', mode='min', patience=100, verbose=3, restore_best_weights=True)
+   
+
+    hist = model.fit(X_train, y_train, epochs=b, batch_size=c, validation_split=0.197, verbose=3, callbacks=[es])           # early stopping
     e_time = time.time()
 
 
@@ -91,11 +94,11 @@ import random
 for i in range(10000000):
     b = random.randrange(1, 200000)
     #b = (6544)
-    r = auto(b, 5000, 1200)          
+    r = auto(b, 1000, 700)          
     print("random_state : ", b)
     if r < 1.18 :
         print("random_state : ", b)
-        print("RMSLE : ", rmsle)
+        print("RMSLE : ", r)
         break
         
     

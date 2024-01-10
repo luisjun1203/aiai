@@ -100,7 +100,7 @@ def auto(a,b,c):
 
     model.compile(loss='mse', optimizer='adam')
     from keras.callbacks import EarlyStopping
-    es = EarlyStopping(monitor='val_loss', mode='min', patience=100, verbose=3)
+    es = EarlyStopping(monitor='val_loss', mode='min', patience=100, verbose=3, restore_best_weights=True)
     model.fit(X_train, y_train, epochs=b, batch_size=c, validation_split=0.2, callbacks=[es])
 
 
@@ -142,7 +142,7 @@ for i in range(10000000):
     print("random state : ", b)
     if r < 47 :
         print("random_state : ", b)
-        print("RMSE : ",rmse)
+        print("RMSE : ",r)
         break
         
 
