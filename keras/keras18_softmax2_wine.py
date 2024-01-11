@@ -48,7 +48,7 @@ model.add(Dense(3, activation='softmax'))
 
 model.compile(loss='categorical_crossentropy', optimizer='adam', metrics='acc')
 es = EarlyStopping(monitor='val_loss', mode='min', patience=30, restore_best_weights=True, verbose=1)
-hist = model.fit(X_train, y_train, epochs=100, batch_size=5, validation_split=0.2, callbacks=[es], verbose=1)
+hist = model.fit(X_train, y_train, epochs=500, batch_size=1, validation_split=0.2, callbacks=[es], verbose=1)
 
 results = model.evaluate(X_test, y_test)
 print("로스 : ", results[0])
