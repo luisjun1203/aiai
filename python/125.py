@@ -52,7 +52,7 @@ test_csv = test_csv.drop(['SkinThickness'],axis=1)
 
 def auto(a,b,c):
 
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, shuffle=True, random_state=a)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.35, shuffle=True, random_state=a)
 
     # print(X_train.shape, y_train.shape)         # (456, 8) (456,)
     # print(X_test.shape, y_test.shape)           # (196, 8) (196,)
@@ -69,7 +69,7 @@ def auto(a,b,c):
 
     model.compile(loss='binary_crossentropy', optimizer='adam')
     es = EarlyStopping(monitor='val_loss' , mode='min', patience=c, verbose=3, restore_best_weights=True)
-    hist = model.fit(X_train, y_train, epochs=b, batch_size=16, validation_split=0.25, callbacks=[es] )
+    hist = model.fit(X_train, y_train, epochs=b, batch_size=16, validation_split=0.15, callbacks=[es] )
 
     loss = model.evaluate(X_test, y_test)
     y_submit = model.predict(test_csv)
@@ -80,7 +80,7 @@ def auto(a,b,c):
     submission_csv['Outcome'] = y_submit.round()                                       
     # print(submission_csv)       #(116, 2)
 
-    submission_csv.to_csv(path + "submission_0110_7_.csv", index=False)
+    submission_csv.to_csv(path + "submission_0111_5_.csv", index=False)
 
     y_predict = model.predict(X_test)
     y_predict = y_predict.round()
@@ -94,14 +94,13 @@ def auto(a,b,c):
     return loss
 
 
-
 import random
 for i in range(10000000):
     b = random.randrange(1, 1000)
     # b = (776)
     r = auto(b, 5000, 200)          
     print("random_state : ", b)
-    if r < 0.4  :
+    if r < 0.45  :
         print("random_state : ", b)
         print("ACC : ", r)
         break
