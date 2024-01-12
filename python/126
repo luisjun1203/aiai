@@ -54,7 +54,7 @@ def auto(a,b,c,d):
     model.add(Dense(19, input_dim =54, activation='relu'))
     model.add(Dense(97))
     model.add(Dense(9))
-    model.add(Dense(21, activation='sigmoid'))
+    model.add(Dense(21, activation=''))
     model.add(Dense(9))
     model.add(Dense(97))
     model.add(Dense(19))

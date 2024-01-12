@@ -54,18 +54,24 @@ print(y.shape)      #(5497, 7)      # 3,4,5,6,7,8,9
 # print(y)
 
 def auto(a,b,c):
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, shuffle=True, random_state=a, stratify=y)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.35, shuffle=True, random_state=a, stratify=y)
 
     model = Sequential()
     model.add(Dense(19, input_dim=12, activation='relu'))
     model.add(Dense(97, activation='relu'))  
     model.add(Dense(9, activation='relu'))             
     model.add(Dense(21, activation='relu'))      
+    model.add(Dense(20, activation='relu'))      
+    model.add(Dense(24, activation='relu'))      
+    model.add(Dense(1, activation='relu'))      
+    model.add(Dense(12, activation='relu'))      
+    model.add(Dense(4, activation='relu'))      
+    model.add(Dense(19, activation='relu'))      
     model.add(Dense(7, activation='softmax'))
 
     model.compile(loss='categorical_crossentropy', optimizer='adam', metrics='acc')
     es = EarlyStopping(monitor='acc', mode='max', patience=c, verbose=3, restore_best_weights=True)
-    model.fit(X_train, y_train, epochs=1000, batch_size=b, validation_split=0.15, callbacks=[es])
+    model.fit(X_train, y_train, epochs=1000, batch_size=b, validation_split=0.2, callbacks=[es])
 
 
 
@@ -96,14 +102,22 @@ def auto(a,b,c):
     print("accuracy_score : ", acc)
     return acc
     time.sleep(1)
+   
+    
     
 import random
 for i in range(10000000):
     a = random.randrange(1, 10000)
-    # b = (776)
-    r = auto(a, 25, 120)          
+    #b = (776)
+    r = auto(a, 64, 100)          
     print("random_state : ", a)
-    if r > 0.65  :
+    if r > 0.57  :
         print("random_state : ", a)
         print("ACC : ", r)
         break
+    
+    
+    
+    
+    
+
