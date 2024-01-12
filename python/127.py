@@ -92,8 +92,8 @@ def auto(a,b,c):
 
     submission_csv['quality'] = y_submit
 
-    print(y_submit)
-    print(y_submit.shape) 
+    # print(y_submit)
+    # print(y_submit.shape) 
 
 
     submission_csv.to_csv(path + "submission_0112_3_.csv", index=False)
@@ -107,9 +107,9 @@ def auto(a,b,c):
     
 import random
 for i in range(10000000):
-    a = random.randrange(1, 10000)
+    a = random.randrange(1, 100000000)
     #b = (776)
-    r = auto(a, 64, 100)          
+    r = auto(a, 32, 100)          
     print("random_state : ", a)
     if r > 0.57  :
         print("random_state : ", a)

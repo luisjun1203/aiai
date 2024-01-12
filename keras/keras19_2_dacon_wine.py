@@ -53,7 +53,7 @@ print(y.shape)      #(5497, 7)      # 3,4,5,6,7,8,9
 # print(y.shape)          #(5497, 7)
 # print(y)
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.45, shuffle=True, random_state=781, stratify=y)       #9266, 781
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.35, shuffle=True, random_state=906423925, stratify=y)       #9266, 781
 
 model = Sequential()
 model.add(Dense(19, input_dim=12,activation='relu'))
@@ -67,7 +67,7 @@ model.add(Dense(7, activation='softmax'))
 
 model.compile(loss='categorical_crossentropy', optimizer='adam', metrics='acc')
 es = EarlyStopping(monitor='val_loss', mode='min', patience=200, verbose=3, restore_best_weights=True)
-model.fit(X_train, y_train, epochs=3000, batch_size=8, validation_split=0.25, callbacks=[es], verbose=2)
+model.fit(X_train, y_train, epochs=3000, batch_size=32, validation_split=0.2, callbacks=[es], verbose=2)
 
 
 

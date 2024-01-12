@@ -18,17 +18,16 @@ test_csv = pd.read_csv(path + "test.csv", index_col=0)
 
 submission_csv = pd.read_csv(path + "submission.csv")
 
-# train_csv = train_csv.dropna()
+train_csv = train_csv.dropna()
 
-train_csv['hour_bef_precipitation'] = train_csv['hour_bef_precipitation'].fillna(0)
-train_csv['hour_bef_pm10'] = train_csv['hour_bef_pm10'].fillna(0)
-train_csv['hour_bef_pm2.5'] = train_csv['hour_bef_pm2.5'].fillna(0)
-train_csv['hour_bef_windspeed'] = train_csv['hour_bef_windspeed'].fillna(0)
-# train_csv['hour_bef_windspeed'] = train_csv['hour_bef_windspeed'].fillna(train_csv['hour_bef_windspeed'].mean())
-train_csv['hour_bef_temperature'] = train_csv['hour_bef_temperature'].fillna(train_csv['hour_bef_temperature'].mean())
-train_csv['hour_bef_humidity'] = train_csv['hour_bef_humidity'].fillna(train_csv['hour_bef_humidity'].mean())
-train_csv['hour_bef_visibility'] = train_csv['hour_bef_visibility'].fillna(train_csv['hour_bef_visibility'].mean())
-train_csv['hour_bef_ozone'] = train_csv['hour_bef_ozone'].fillna(train_csv['hour_bef_ozone'].mean())
+# train_csv['hour_bef_precipitation'] = train_csv['hour_bef_precipitation'].fillna(0)
+# train_csv['hour_bef_pm10'] = train_csv['hour_bef_pm10'].fillna(0)
+# train_csv['hour_bef_pm2.5'] = train_csv['hour_bef_pm2.5'].fillna(0)
+# train_csv['hour_bef_windspeed'] = train_csv['hour_bef_windspeed'].fillna(0)
+# train_csv['hour_bef_temperature'] = train_csv['hour_bef_temperature'].fillna(train_csv['hour_bef_temperature'].mean())
+# train_csv['hour_bef_humidity'] = train_csv['hour_bef_humidity'].fillna(train_csv['hour_bef_humidity'].mean())
+# train_csv['hour_bef_visibility'] = train_csv['hour_bef_visibility'].fillna(train_csv['hour_bef_visibility'].mean())
+# train_csv['hour_bef_ozone'] = train_csv['hour_bef_ozone'].fillna(train_csv['hour_bef_ozone'].mean())
 
 # train_csv['hour_bef_pm10'] = train_csv['hour_bef_pm10'].fillna(0)
 # train_csv['hour_bef_pm2.5'] = train_csv['hour_bef_pm2.5'].fillna(0)
@@ -78,7 +77,6 @@ model.add(Dense(1))
 # 3.컴파일, 훈련
 
 model.compile(loss='mse', optimizer='adam', metrics='accuracy')
-from keras.callbacks import EarlyStopping
 es = EarlyStopping(monitor='val_loss', mode='min', patience=130, verbose=3, restore_best_weights=True)
 hist = model.fit(X_train, y_train, epochs=1000, batch_size=32, validation_split=0.2, verbose=1, callbacks=[es])
 
