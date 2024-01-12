@@ -43,7 +43,7 @@ y= y[:,1:]                 # 행렬 슬라이싱
 # print(y)
 
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, shuffle=True, random_state=0, stratify=y)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.35, shuffle=True, random_state=3, stratify=y)
 
 # print(X_train.shape, X_test.shape)      # (464809, 54) (116203, 54)
 # print(y_train.shape, y_test.shape)      # (464809, 7) (116203, 7)
@@ -55,13 +55,14 @@ model.add(Dense(97))
 model.add(Dense(9))
 model.add(Dense(21, activation='sigmoid'))
 model.add(Dense(9))
-model.add(Dense(21))
+model.add(Dense(97))
+model.add(Dense(19))
 model.add(Dense(7, activation='softmax'))
 
 
 model.compile(loss='categorical_crossentropy', optimizer='adam', metrics='acc')
-es = EarlyStopping(monitor='val_loss', mode='min', patience=50, restore_best_weights=True, verbose=1)
-hist = model.fit(X_train, y_train, epochs=100, batch_size=50000, validation_split=0.2, callbacks=[es], verbose=1)
+es = EarlyStopping(monitor='val_loss', mode='min', patience=100, restore_best_weights=True, verbose=1)
+hist = model.fit(X_train, y_train, epochs=1500, batch_size=1000, validation_split=0.1, callbacks=[es], verbose=1)
 
 results = model.evaluate(X_test, y_test)
 print("로스 : ", results[0])
@@ -71,13 +72,17 @@ y_predict = model.predict(X_test)
 y_test = np.argmax(y_test, axis=1)
 y_predict = np.argmax(y_predict, axis=1)
 
-acc = accuracy_score(y_predict, y_test)
+acc = accuracy_score(y_test, y_predict)
 print("accuracy_score : ", acc)
 
 
 # 로스 :  0.6938604116439819
 # ACC :  0.701832115650177
 # accuracy_score :  0.7018321385850623
+
+# 로스 :  0.5239526033401489
+# ACC :  0.7768474221229553
+# accuracy_score :  0.7768474135779627
 
 
 
