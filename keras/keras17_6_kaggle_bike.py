@@ -15,8 +15,8 @@ submission_csv = pd.read_csv(path + "samplesubmission.csv")
 X = train_csv.drop(['casual', 'registered', 'count'], axis=1) 
 y = train_csv['count']
 
-print(X.shape)      #(10886, 8)
-print(y.shape)      #(10886)
+# print(X.shape)      #(10886, 8)
+# print(y.shape)      #(10886)
 
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.385, shuffle=True, random_state=713)

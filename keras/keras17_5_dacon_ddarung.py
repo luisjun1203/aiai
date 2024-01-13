@@ -84,29 +84,29 @@ hist = model.fit(X_train, y_train, epochs=1000, batch_size=32, validation_split=
 
 loss = model.evaluate(X_test, y_test)
 y_submit = model.predict(test_csv)
-print(y_submit)
-print(y_submit.shape)       # (715, 1)
+# print(y_submit)
+# print(y_submit.shape)       # (715, 1)
 
-print("============================================")
+# print("============================================")
 ######### submission.csv 만들기 (count컬럼에 값만 넣어줘) #######################
 submission_csv['count'] = y_submit
-print(submission_csv)
-print(submission_csv.shape)
+# print(submission_csv)
+# print(submission_csv.shape)
 
 submission_csv.to_csv(path + "submission_0110_77.csv", index=False)
-y_predict = model.predict(X_test) 
-def RMSE(y_test, y_predict):
-    np.sqrt(mean_squared_error(y_test, y_predict))
-    return np.sqrt(mean_squared_error(y_test, y_predict))
-rmse = RMSE(y_test, y_predict)
-print("RMSE : ", rmse)
-print("로스 : ", loss)
-y_predict = y_predict.round() 
+# y_predict = model.predict(X_test) 
+# def RMSE(y_test, y_predict):
+#     np.sqrt(mean_squared_error(y_test, y_predict))
+#     return np.sqrt(mean_squared_error(y_test, y_predict))
+# rmse = RMSE(y_test, y_predict)
+# # print("RMSE : ", rmse)
+# # print("로스 : ", loss)
+# y_predict = y_predict.round() 
 
-def ACC(aaa, bbb):
-    (accuracy_score(aaa, bbb))
-    return (accuracy_score(aaa, bbb))
-acc = ACC(y_test, y_predict)
-print("정확도 : ", acc)
+# def ACC(aaa, bbb):
+#     (accuracy_score(aaa, bbb))
+#     return (accuracy_score(aaa, bbb))
+# acc = ACC(y_test, y_predict)
+# print("정확도 : ", acc)
 
 

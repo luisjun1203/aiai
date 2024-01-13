@@ -96,7 +96,7 @@ def auto(a,b,c):
     # print(y_submit.shape) 
 
 
-    submission_csv.to_csv(path + "submission_0112_3_.csv", index=False)
+    submission_csv.to_csv(path + "submission_0112_1_.csv", index=False)
 
     acc = accuracy_score(y_predict, y_test)
     print("accuracy_score : ", acc)
@@ -111,7 +111,7 @@ for i in range(10000000):
     #b = (776)
     r = auto(a, 32, 100)          
     print("random_state : ", a)
-    if r > 0.57  :
+    if r > 0.56  :
         print("random_state : ", a)
         print("ACC : ", r)
         break
