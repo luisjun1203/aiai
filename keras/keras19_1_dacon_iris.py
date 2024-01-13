@@ -58,7 +58,6 @@ def auto(a,b,c):
 
 
     results = model.evaluate(X_test, y_test)
-    print("로스 : ", results[0])
     print("ACC : ", results[1])
     
     # print(y_submit)
@@ -73,7 +72,7 @@ def auto(a,b,c):
     submission_csv['species'] = y_submit       
                         
 
-    submission_csv.to_csv(path + "submission_0112_1_.csv", index=False)
+    submission_csv.to_csv(path + "submission_0112_2_.csv", index=False)
     # print(submission_csv)
     acc = accuracy_score(y_predict, y_test)
     print("accuracy_score : ", acc)

@@ -54,24 +54,18 @@ print(y.shape)      #(5497, 7)      # 3,4,5,6,7,8,9
 # print(y)
 
 def auto(a,b,c):
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.35, shuffle=True, random_state=a, stratify=y)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, shuffle=True, random_state=a, stratify=y)
 
     model = Sequential()
-    model.add(Dense(19, input_dim=12, activation='relu'))
-    model.add(Dense(97, activation='relu'))  
-    model.add(Dense(9, activation='relu'))             
-    model.add(Dense(21, activation='relu'))      
-    model.add(Dense(20, activation='relu'))      
-    model.add(Dense(24, activation='relu'))      
-    model.add(Dense(1, activation='relu'))      
-    model.add(Dense(12, activation='relu'))      
-    model.add(Dense(4, activation='relu'))      
-    model.add(Dense(19, activation='relu'))      
+    model.add(Dense(19, input_dim=12))
+    model.add(Dense(97))  
+    model.add(Dense(9))             
+    model.add(Dense(21))           
     model.add(Dense(7, activation='softmax'))
 
     model.compile(loss='categorical_crossentropy', optimizer='adam', metrics='acc')
     es = EarlyStopping(monitor='acc', mode='max', patience=c, verbose=3, restore_best_weights=True)
-    model.fit(X_train, y_train, epochs=1000, batch_size=b, validation_split=0.2, callbacks=[es])
+    model.fit(X_train, y_train, epochs=1000, batch_size=b, validation_split=0.1, callbacks=[es])
 
 
 
@@ -96,7 +90,7 @@ def auto(a,b,c):
     # print(y_submit.shape) 
 
 
-    submission_csv.to_csv(path + "submission_0112_1_.csv", index=False)
+    submission_csv.to_csv(path + "submission_0112_2_.csv", index=False)
 
     acc = accuracy_score(y_predict, y_test)
     print("accuracy_score : ", acc)
@@ -109,9 +103,9 @@ import random
 for i in range(10000000):
     a = random.randrange(1, 100000000)
     #b = (776)
-    r = auto(a, 32, 100)          
+    r = auto(a, 64, 100)          
     print("random_state : ", a)
-    if r > 0.56  :
+    if r > 0.57  :
         print("random_state : ", a)
         print("ACC : ", r)
         break
