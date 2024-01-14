@@ -18,7 +18,7 @@ datasets = load_boston()
 # print(datasets)
 
 X = datasets.data
-y = datasets.target
+y = datasets.target     
 
 
 
