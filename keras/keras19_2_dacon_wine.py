@@ -12,7 +12,7 @@ from sklearn.preprocessing import OneHotEncoder, LabelEncoder
 from keras.utils import to_categorical
 
 
-path = "C:\\_data\\dacon11\\"
+path = "C:\\_data\\dacon\\wine\\"
 
 train_csv = pd.read_csv(path + "train.csv", index_col=0)       
 # train_csv.to_csv(path + "train_123_csv", index=False)                                             
@@ -64,14 +64,14 @@ model.add(Dense(19, input_dim=12))
 model.add(Dense(97))             
 model.add(Dense(9))      
 model.add(Dense(21))      
-# model.add(Dense(4)) 
-# model.add(Dense(19))      
-# model.add(Dense(28))      
+model.add(Dense(4)) 
+model.add(Dense(19))      
+model.add(Dense(28))      
 model.add(Dense(7, activation='softmax'))
 
 model.compile(loss='categorical_crossentropy', optimizer='adam', metrics='acc')
 es = EarlyStopping(monitor='accuracy', mode='max', patience=200, verbose=3, restore_best_weights=True)
-hist = model.fit(X_train, y_train, epochs=1000, batch_size=8, validation_split=0.15, callbacks=[es], verbose=2)
+hist = model.fit(X_train, y_train, epochs=1000, batch_size=64, validation_split=0.15, callbacks=[es], verbose=2)
 
 
 
@@ -83,10 +83,10 @@ print("ACC : ", results[1])
   
 
 y_submit = model.predict(test_csv)  
-# y_predict = model.predict(X_test) 
+y_predict = model.predict(X_test) 
 
-# y_test = np.argmax(y_test, axis=1)
-# y_predict = np.argmax(y_predict, axis=1)
+y_test = np.argmax(y_test, axis=1)
+y_predict = np.argmax(y_predict, axis=1)
 y_submit = np.argmax(y_submit, axis=1)+3
 
 
@@ -114,14 +114,13 @@ submission_csv['quality'] = y_submit
 # print(y_submit.shape) 
 
 
-submission_csv.to_csv(path + "submission_0112_2_.csv", index=False)
+submission_csv.to_csv(path + "submission_0115_0_.csv", index=False)
 print("로스 : ", results[0])
 
-# acc = accuracy_score(y_predict, y_test)
-# print("accuracy_score : ", acc)
-# print("로스 : ", results[0])
-# print("ACC : ", results[1])
-
+acc = accuracy_score(y_predict, y_test)
+print("accuracy_score : ", acc)
+print("로스 : ", results[0])
+print("ACC : ", results[1])
 
 
 
