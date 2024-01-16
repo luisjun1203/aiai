@@ -21,7 +21,7 @@ submission_csv = pd.read_csv(path + "sample_submission.csv")
 # print(submission_csv)       #(6497, 2)
 # print(X.info())
 # train_csv = train_csv.drop(labels='TRAIN_28730',axis=0)
-train_csv.iloc[28730, 3] = 'MORTGAGE'
+train_csv.iloc[28730, 3] = 'OWN'
 test_csv.iloc[34486,7] = '기타'
 # print(X.info())
 
@@ -59,7 +59,7 @@ df1['대출목적'] = lae.transform(df1['대출목적'])
 lae.fit(df['대출기간'])
 # df['대출기간'] = lae.transform(df['대출기간'])
 # df1['대출기간'] = lae.transform(df1['대출기간'])
-df['대출기간'] = df['대출기간'].replace({' 36 months' : 36 , ' 60 months' : 60 }).astype(int)
+df['대출기간'] = df['대출기간'].replace({' 36 months' : 36 , ' 60 months' : 60 }).astype(int)         #  36 months -> 36, 60 months -> 60
 df1['대출기간'] = df1['대출기간'].replace({' 36 months' : 36 , ' 60 months' : 60 }).astype(int)
 # print(pd.value_counts(df['대출기간']))
 
@@ -101,10 +101,10 @@ lae.fit(df['대출등급'])
 X = df.drop(['대출등급'], axis=1)
 y = df['대출등급']
 
-mms = MinMaxScaler()
-mms.fit(X)
-X = mms.transform(X)
-test_csv = mms.transform(df1)
+# mms = MinMaxScaler()
+# mms.fit(X)
+# X = mms.transform(X)
+# df1 = mms.transform(df1)
 
 
 
@@ -157,7 +157,12 @@ y1 = ohe.transform(y)
 
 
 
-X_train, X_test, y_train, y_test = train_test_split(X, y1, test_size=0.4, shuffle=True, random_state=3, stratify=y1)
+X_train, X_test, y_train, y_test = train_test_split(X, y1, test_size=0.35, shuffle=True, random_state=3, stratify=y1)
+
+mms = MinMaxScaler()
+mms.fit(X_train)
+X_train = mms.transform(X_train)
+X_test = mms.transform(X_test)
 
 # print(X_train)
 # print(X_test)
@@ -166,17 +171,17 @@ X_train, X_test, y_train, y_test = train_test_split(X, y1, test_size=0.4, shuffl
 
 model = Sequential()
 model.add(Dense(19, input_shape= (13, ),activation='relu'))
-model.add(Dense(97))
-model.add(Dense(9))
-model.add(Dense(21))
-model.add(Dense(16))
-model.add(Dense(21))
+model.add(Dense(97,activation='relu'))
+model.add(Dense(9,activation='relu'))
+model.add(Dense(21,activation='relu'))
+model.add(Dense(16,activation='relu'))
+model.add(Dense(21,activation='relu'))
 model.add(Dense(7, activation='softmax'))
 
 
 model.compile(loss='categorical_crossentropy', optimizer='adam', metrics='acc')
-es = EarlyStopping(monitor='acc', mode='max', patience=400, verbose=20, restore_best_weights=True)
-model.fit(X_train, y_train, epochs=2000, batch_size=500, validation_split=0.15, callbacks=[es], verbose=2)
+es = EarlyStopping(monitor='acc', mode='max', patience=1000, verbose=20, restore_best_weights=True)
+model.fit(X_train, y_train, epochs=10000, batch_size=500, validation_split=0.15, callbacks=[es], verbose=2)
 
 
 
@@ -203,7 +208,7 @@ print(y_submit)
 fs = f1_score(y_test, y_predict, average='weighted')
 print("f1_score : ", fs)
 
-submission_csv.to_csv(path + "submission_0115_5_.csv", index=False)
+submission_csv.to_csv(path + "submission_0116_3_.csv", index=False)
 # # # print(y_submit.shape)
 
 
@@ -222,5 +227,6 @@ submission_csv.to_csv(path + "submission_0115_5_.csv", index=False)
 # f1_score :  0.4655773290000436
 
 
-
-
+# "submission_0116_3_.csv"
+# ACC :  0.8786281943321228
+# f1_score :  0.8781602643280128
