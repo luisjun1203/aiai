@@ -60,7 +60,7 @@ y = pd.get_dummies(y)
 # print(y.shape)          #(5497, 7)
 # print(y)
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, shuffle=True, random_state=3, stratify=y)       #9266, 781
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.325, shuffle=True, random_state=3, stratify=y)       #9266, 781
 
 ##############    MinMaxScaler    ##############################
 # mms = MinMaxScaler()
@@ -70,11 +70,11 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, shuffl
 # test_csv = mms.transform(test_csv)
 ################    StandardScaler    ##############################
 
-sts = StandardScaler()
-sts.fit(X_train)
-X_train = sts.transform(X_train)
-X_test = sts.transform(X_test)
-test_csv = sts.transform(test_csv)
+# sts = StandardScaler()
+# sts.fit(X_train)
+# X_train = sts.transform(X_train)
+# X_test = sts.transform(X_test)
+# test_csv = sts.transform(test_csv)
 
 # print(X_train)
 # print(X_test)
@@ -87,24 +87,26 @@ test_csv = sts.transform(test_csv)
 
 
 # ################    RobustScaler    ##############################
-# rbs = RobustScaler()
-# rbs.fit(X_train)
-# X_train = rbs.transform(X_train)
-# X_test = rbs.transform(X_test)
+rbs = RobustScaler()
+rbs.fit(X_train)
+X_train = rbs.transform(X_train)
+X_test = rbs.transform(X_test)
+test_csv = rbs.transform(test_csv)
 # X_test = rbs.transform(X_test)
 
 model = Sequential()
 model.add(Dense(19, input_dim=12,activation='relu'))
 model.add(Dense(97,activation='relu'))             
-model.add(Dense(9,activation='relu'))      
+model.add(Dense(9))      
 model.add(Dense(21,activation='relu'))           
-model.add(Dense(16,activation='relu'))
+model.add(Dense(16))
 model.add(Dense(21,activation='relu'))      
 model.add(Dense(7, activation='softmax'))
+
 mcp = ModelCheckpoint(monitor='val_loss', mode='min', verbose=1, save_best_only=True, filepath="c:\\_data\\_save\\MCP\\keras26_MCP10_dacon_wine.hdf5")    
 model.compile(loss='categorical_crossentropy', optimizer='adam', metrics='acc')
-es = EarlyStopping(monitor='acc', mode='max', patience=300, verbose=3, restore_best_weights=True)
-model.fit(X_train, y_train, epochs=1000, batch_size=128, validation_split=0.15, callbacks=[es,mcp], verbose=2)
+es = EarlyStopping(monitor='val_loss', mode='min', patience=300, verbose=3, restore_best_weights=True)
+model.fit(X_train, y_train, epochs=2000, batch_size=270, validation_split=0.125, callbacks=[es,mcp], verbose=2)
 
 
 

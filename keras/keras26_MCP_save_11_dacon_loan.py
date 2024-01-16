@@ -5,7 +5,7 @@ from keras.layers import Dense
 from keras.callbacks import EarlyStopping,ModelCheckpoint
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import f1_score
-from sklearn.preprocessing import OneHotEncoder, LabelEncoder, MinMaxScaler
+from sklearn.preprocessing import OneHotEncoder, LabelEncoder, MinMaxScaler, RobustScaler
 from keras.utils import to_categorical
 
 
@@ -158,13 +158,17 @@ y1 = ohe.transform(y)
 
 
 X_train, X_test, y_train, y_test = train_test_split(X, y1, test_size=0.35, shuffle=True, random_state=3, stratify=y1)
-mms = MinMaxScaler()
-mms.fit(X_train)
-X_train = mms.transform(X_train)
-X_test = mms.transform(X_test)
-df1 = mms.transform(df1)
+# mms = MinMaxScaler()
+# mms.fit(X_train)
+# X_train = mms.transform(X_train)
+# X_test = mms.transform(X_test)
+# df1 = mms.transform(df1)
 
-
+rbs = RobustScaler()
+rbs.fit(X_train)
+X_train = rbs.transform(X_train)
+X_test = rbs.transform(X_test)
+df1 = rbs.transform(df1)
 
 # mms = MinMaxScaler()
 # mms.fit(X_train)
@@ -187,8 +191,8 @@ model.add(Dense(7, activation='softmax'))
 
 mcp = ModelCheckpoint(monitor='val_loss', mode='min', verbose=1, save_best_only=True, filepath="c:\\_data\\_save\\MCP\\keras26_MCP11_dacon_loan.hdf5")    
 model.compile(loss='categorical_crossentropy', optimizer='adam', metrics='acc')
-es = EarlyStopping(monitor='acc', mode='max', patience=1000, verbose=20, restore_best_weights=True)
-model.fit(X_train, y_train, epochs=10000, batch_size=500, validation_split=0.15, callbacks=[es,mcp], verbose=2)
+es = EarlyStopping(monitor='acc', mode='max', patience=1500, verbose=20, restore_best_weights=True)
+model.fit(X_train, y_train, epochs=100000, batch_size=500, validation_split=0.15, callbacks=[es,mcp], verbose=2)
 
 
 
