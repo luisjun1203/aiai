@@ -1,10 +1,11 @@
 from sklearn.datasets import load_diabetes
-from keras.models import Sequential
+from keras.models import Sequential,load_model
 from keras.layers import Dense
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import r2_score, mean_squared_error
 import time
 import numpy as np
+from keras.callbacks import EarlyStopping, ModelCheckpoint
 from sklearn.preprocessing import MinMaxScaler, MaxAbsScaler, StandardScaler, RobustScaler
 
 datasets = load_diabetes()
@@ -19,18 +20,22 @@ X_train = mms.transform(X_train)
 X_test = mms.transform(X_test)
 
 
-model = Sequential()
-model.add(Dense(8,input_dim=10))
-model.add(Dense(16))
-model.add(Dense(24))
-model.add(Dense(16))
-model.add(Dense(8))
-model.add(Dense(1))
+# model = Sequential()
+# model.add(Dense(8,input_dim=10))
+# model.add(Dense(16))
+# model.add(Dense(24))
+# model.add(Dense(16))
+# model.add(Dense(8))
+# model.add(Dense(1))
 
-model.compile(loss='mse', optimizer='adam')
-start_time = time.time()
-hist = model.fit(X_train, y_train, epochs=500, batch_size=10, validation_split=0.2)
-end_time = time.time()
+# mcp = ModelCheckpoint(monitor='val_loss', mode='min', verbose=1, save_best_only=True, filepath="c:\\_data\\_save\\MCP\\keras26_MCP03_diabetes.hdf5")    
+# model.compile(loss='mse', optimizer='adam')
+# es = EarlyStopping(monitor='val_loss', mode='min',patience=100, verbose= 1, restore_best_weights=True) 
+# start_time = time.time()
+# hist = model.fit(X_train, y_train, epochs=500, batch_size=10, validation_split=0.2, callbacks=[es,mcp])
+# end_time = time.time()
+
+model = load_model("c:\\_data\\_save\\MCP\\keras26_MCP03_diabetes.hdf5")
 
 loss = model.evaluate(X_test, y_test)
 y_predict = model.predict(X_test)
@@ -40,37 +45,3 @@ def RMSE(aaa, bbb):
     return np.sqrt(mean_squared_error(aaa, bbb))
 rmse = RMSE(y_test, y_predict)
 print("로스 : ", loss)
-
-# print("R2스코어 : ", r2)
-# print("걸린시간 : ", round(end_time - start_time, 3), "초")
-# print("RMSE : ", rmse)
-
-# MinMaxScaler
-# 로스 :  1955.16357421875
-
-# MaxAbsScaler
-# 로스 :  2052.78759765625
-# StandardScaler
-# 로스 :  2062.070556640625
-
-# RobustScaler
-# 로스 :  2009.228515625
-
-
-
-
-
-
-
-
-
-
-# MinMaxScaler
-
-
-# MaxAbsScaler
-
-# StandardScaler
-
-
-# RobustScaler

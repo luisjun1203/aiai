@@ -1,11 +1,11 @@
 
 import numpy as np
 import pandas as pd
-from keras.models import Sequential
+from keras.models import Sequential,load_model
 from keras.layers import Dense
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import r2_score, mean_squared_error,accuracy_score
-from keras.callbacks import EarlyStopping
+from keras.callbacks import EarlyStopping, ModelCheckpoint
 from sklearn.preprocessing import MinMaxScaler, MaxAbsScaler, StandardScaler, RobustScaler
 # 1.데이터
 
@@ -91,19 +91,22 @@ test_csv = mas.transform(test_csv)
 # X_test = rbs.transform(X_test)
 # 2.모델구성
 
-model = Sequential()
-model.add(Dense(19,input_dim=9))
-model.add(Dense(97, activation='relu'))
-model.add(Dense(9))
-model.add(Dense(21, activation='relu'))
-model.add(Dense(19))
-model.add(Dense(8, activation='relu'))
-model.add(Dense(1))
-# 3.컴파일, 훈련
+# model = Sequential()
+# model.add(Dense(19,input_dim=9))
+# model.add(Dense(97, activation='relu'))
+# model.add(Dense(9))
+# model.add(Dense(21, activation='relu'))
+# model.add(Dense(19))
+# model.add(Dense(8, activation='relu'))
+# model.add(Dense(1))
+# # 3.컴파일, 훈련
+# mcp = ModelCheckpoint(monitor='val_loss', mode='min', verbose=1, save_best_only=True, filepath="c:\\_data\\_save\\MCP\\keras26_MCP04_dacon_ddarung.hdf5")    
+# model.compile(loss='mse', optimizer='adam', metrics='accuracy')
+# es = EarlyStopping(monitor='val_loss', mode='min', patience=300, verbose=20, restore_best_weights=True)
+# hist = model.fit(X_train, y_train, epochs=3000, batch_size=32, validation_split=0.15, verbose=2, callbacks=[es,mcp])
 
-model.compile(loss='mse', optimizer='adam', metrics='accuracy')
-es = EarlyStopping(monitor='val_loss', mode='min', patience=300, verbose=20, restore_best_weights=True)
-hist = model.fit(X_train, y_train, epochs=3000, batch_size=32, validation_split=0.15, verbose=2, callbacks=[es])
+model = load_model("c:\\_data\\_save\\MCP\\keras26_MCP04_dacon_ddarung.hdf5")
+
 
 # 4.평가, 예측
 
@@ -129,16 +132,3 @@ print("로스 : ", loss)
 
 
 
-
-# MinMaxScaler
-# RMSE :  46.49576148233022
-# 로스 :  [2161.85595703125, 0.002506265649572015]
-# MaxAbsScaler
-# RMSE :  44.24653303486148
-# 로스 :  [1957.755615234375, 0.002506265649572015]
-# StandardScaler
-# RMSE :  48.06343232800777
-# 로스 :  [2310.09375, 0.002506265649572015]
-# RobustScaler
-# RMSE :  47.68687502135796
-# 로스 :  [2274.037841796875, 0.002506265649572015]

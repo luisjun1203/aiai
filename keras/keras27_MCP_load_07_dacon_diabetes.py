@@ -1,11 +1,11 @@
 
 import numpy as np
 import pandas as pd
-from keras.models import Sequential
+from keras.models import Sequential, load_model
 from keras.layers import Dense
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import r2_score, mean_squared_error,accuracy_score
-from keras. callbacks import EarlyStopping
+from keras. callbacks import EarlyStopping,ModelCheckpoint
 from sklearn.preprocessing import MinMaxScaler, MaxAbsScaler, StandardScaler, RobustScaler
 path = "c://_data//dacon//diabetes//"
 
@@ -72,18 +72,22 @@ test_csv = mas.transform(test_csv)
 # print(X_train.shape, y_train.shape)         # (456, 8) (456,)
 # print(X_test.shape, y_test.shape)           # (196, 8) (196,)
 
-model = Sequential()
-model.add(Dense(19, input_dim = 8,activation='relu'))               
-model.add(Dense(97))
-model.add(Dense(9))
-model.add(Dense(21))
-model.add(Dense(3))
-model.add(Dense(41))
-model.add(Dense(1, activation='sigmoid'))
+# model = Sequential()
+# model.add(Dense(19, input_dim = 8,activation='relu'))               
+# model.add(Dense(97))
+# model.add(Dense(9))
+# model.add(Dense(21))
+# model.add(Dense(3))
+# model.add(Dense(41))
+# model.add(Dense(1, activation='sigmoid'))
+# mcp = ModelCheckpoint(monitor='val_loss', mode='min', verbose=1, save_best_only=True, filepath="c:\\_data\\_save\\MCP\\keras26_MCP07_dacon_diabetes.hdf5")    
+# model.compile(loss='binary_crossentropy', optimizer='adam', metrics='acc')
+# es = EarlyStopping(monitor='val_loss' , mode='min', patience=1000, verbose=3, restore_best_weights=True)
+# hist = model.fit(X_train, y_train, epochs=5000, batch_size=16, validation_split=0.15, callbacks=[es,mcp] )
 
-model.compile(loss='binary_crossentropy', optimizer='adam', metrics='acc')
-es = EarlyStopping(monitor='val_loss' , mode='min', patience=1000, verbose=3, restore_best_weights=True)
-hist = model.fit(X_train, y_train, epochs=5000, batch_size=16, validation_split=0.15, callbacks=[es] )
+
+model=load_model("c:\\_data\\_save\\MCP\\keras26_MCP07_dacon_diabetes.hdf5")
+
 
 loss = model.evaluate(X_test, y_test)
 y_submit = model.predict(test_csv)

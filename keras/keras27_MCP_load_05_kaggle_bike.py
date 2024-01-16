@@ -1,10 +1,10 @@
 import numpy as np
 import pandas as pd
-from keras.models import Sequential
+from keras.models import Sequential, load_model
 from keras.layers import Dense
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import r2_score, mean_absolute_error, accuracy_score, mean_squared_log_error
-from keras.callbacks import EarlyStopping
+from keras.callbacks import EarlyStopping,ModelCheckpoint
 from sklearn.preprocessing import MinMaxScaler, MaxAbsScaler, StandardScaler, RobustScaler
 
 path = "c:\\_data\\kaggle\\bike\\"
@@ -52,19 +52,22 @@ test_csv = mms.transform(test_csv)
 # X_train = rbs.transform(X_train)
 # X_test = rbs.transform(X_test)
 
-model = Sequential()
-model.add(Dense(19, input_shape= (8, ),activation='relu'))
-model.add(Dense(97))
-model.add(Dense(9,activation='relu'))
-model.add(Dense(21))
-model.add(Dense(16,activation='relu'))
-model.add(Dense(21))
-model.add(Dense(1, activation='relu'))
+# model = Sequential()
+# model.add(Dense(19, input_shape= (8, ),activation='relu'))
+# model.add(Dense(97))
+# model.add(Dense(9,activation='relu'))
+# model.add(Dense(21))
+# model.add(Dense(16,activation='relu'))
+# model.add(Dense(21))
+# model.add(Dense(1, activation='relu'))
+
+# mcp = ModelCheckpoint(monitor='val_loss', mode='min', verbose=1, save_best_only=True, filepath="c:\\_data\\_save\\MCP\\keras26_MCP05_kaggle_bike.hdf5")    
+# model.compile(loss='mse', optimizer='adam', metrics='accuracy')
+# es = EarlyStopping(monitor='val_loss', mode='min', patience=300, restore_best_weights=True)
+# hist = model.fit(X_train, y_train, epochs= 1500, batch_size=700, validation_split=0.15,callbacks=[es,mcp])
 
 
-model.compile(loss='mse', optimizer='adam', metrics='accuracy')
-es = EarlyStopping(monitor='val_loss', mode='min', patience=300, restore_best_weights=True)
-hist = model.fit(X_train, y_train, epochs= 1500, batch_size=700, validation_split=0.15,callbacks=[es])
+model = load_model("c:\\_data\\_save\\MCP\\keras26_MCP05_kaggle_bike.hdf5")
 
 
 loss = model.evaluate(X_test, y_test)

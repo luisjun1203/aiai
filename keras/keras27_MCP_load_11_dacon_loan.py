@@ -1,8 +1,8 @@
 import numpy as np
 import pandas as pd
-from keras.models import Sequential
+from keras.models import Sequential, load_model
 from keras.layers import Dense
-from keras.callbacks import EarlyStopping
+from keras.callbacks import EarlyStopping,ModelCheckpoint
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import f1_score
 from sklearn.preprocessing import OneHotEncoder, LabelEncoder, MinMaxScaler
@@ -176,19 +176,22 @@ df1 = mms.transform(df1)
 # print(y_test)
 
 
-model = Sequential()
-model.add(Dense(19, input_shape= (13, ),activation='relu'))
-model.add(Dense(97,activation='relu'))
-model.add(Dense(9,activation='relu'))
-model.add(Dense(21,activation='relu'))
-model.add(Dense(16,activation='relu'))
-model.add(Dense(21,activation='relu'))
-model.add(Dense(7, activation='softmax'))
+# model = Sequential()
+# model.add(Dense(19, input_shape= (13, ),activation='relu'))
+# model.add(Dense(97,activation='relu'))
+# model.add(Dense(9,activation='relu'))
+# model.add(Dense(21,activation='relu'))
+# model.add(Dense(16,activation='relu'))
+# model.add(Dense(21,activation='relu'))
+# model.add(Dense(7, activation='softmax'))
 
+# mcp = ModelCheckpoint(monitor='val_loss', mode='min', verbose=1, save_best_only=True, filepath="c:\\_data\\_save\\MCP\\keras26_MCP11_dacon_loan.hdf5")    
+# model.compile(loss='categorical_crossentropy', optimizer='adam', metrics='acc')
+# es = EarlyStopping(monitor='acc', mode='max', patience=1000, verbose=20, restore_best_weights=True)
+# model.fit(X_train, y_train, epochs=10000, batch_size=500, validation_split=0.15, callbacks=[es,mcp], verbose=2)
 
-model.compile(loss='categorical_crossentropy', optimizer='adam', metrics='acc')
-es = EarlyStopping(monitor='acc', mode='max', patience=1000, verbose=20, restore_best_weights=True)
-model.fit(X_train, y_train, epochs=10000, batch_size=500, validation_split=0.15, callbacks=[es], verbose=2)
+model= load_model("c:\\_data\\_save\\MCP\\keras26_MCP11_dacon_loan.hdf5")
+
 
 
 
