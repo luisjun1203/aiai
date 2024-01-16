@@ -127,8 +127,15 @@ print("accuracy_score : ", acc)
 # accuracy_score :  0.8191340267020727
 
 # MaxAbsScaler
-
+# 로스 :  0.43206891417503357
+# ACC :  0.8199257254600525
+# accuracy_score :  0.8199257456172703
 # StandardScaler
-
+# 로스 :  0.4352737367153168
+# ACC :  0.8203535676002502
+# accuracy_score :  0.8203535688820044
 
 # RobustScaler
+# 로스 :  0.4073517620563507
+# ACC :  0.8323080539703369
+# accuracy_score :  0.8323080327506085

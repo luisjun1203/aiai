@@ -56,7 +56,7 @@ y = pd.get_dummies(y)
 # print(y.shape)          #(5497, 7)
 # print(y)
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.4, shuffle=True, random_state=43710190, stratify=y)       #9266, 781
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.4, shuffle=True, random_state=3, stratify=y)       #9266, 781
 
 ##############    MinMaxScaler    ##############################
 # mms = MinMaxScaler()
@@ -66,10 +66,10 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.4, shuffle
 
 ################    StandardScaler    ##############################
 
-# sts = StandardScaler()
-# sts.fit(X_train)
-# X_train = sts.transform(X_train)
-# X_test = sts.transform(X_test)
+sts = StandardScaler()
+sts.fit(X_train)
+X_train = sts.transform(X_train)
+X_test = sts.transform(X_test)
 
 # print(X_train)
 # print(X_test)
@@ -82,20 +82,20 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.4, shuffle
 
 
 # ################    RobustScaler    ##############################
-rbs = RobustScaler()
-rbs.fit(X_train)
-X_train = rbs.transform(X_train)
-X_test = rbs.transform(X_test)
+# rbs = RobustScaler()
+# rbs.fit(X_train)
+# X_train = rbs.transform(X_train)
+# X_test = rbs.transform(X_test)
 
 
 model = Sequential()
-model.add(Dense(19, input_dim=12))
-model.add(Dense(97))             
-model.add(Dense(9))      
-model.add(Dense(21))      
-model.add(Dense(4)) 
-model.add(Dense(19))      
-model.add(Dense(28))      
+model.add(Dense(19, input_dim=12,activation='relu'))
+model.add(Dense(97,activation='relu'))             
+model.add(Dense(9,activation='relu'))      
+model.add(Dense(21,activation='relu'))      
+model.add(Dense(4,activation='relu')) 
+model.add(Dense(19,activation='relu'))      
+model.add(Dense(28,activation='relu'))      
 model.add(Dense(7, activation='softmax'))
 
 model.compile(loss='categorical_crossentropy', optimizer='adam', metrics='acc')
