@@ -44,6 +44,10 @@ X = train_csv.drop(['quality'], axis=1)
 y = train_csv['quality']
 # print(y.shape)
 
+# mms = MinMaxScaler
+# mms.fit(X)
+# X = mms.transform(X)
+# test_csv = mms.transform(test_csv)
 
 y = pd.get_dummies(y)
 
@@ -56,20 +60,21 @@ y = pd.get_dummies(y)
 # print(y.shape)          #(5497, 7)
 # print(y)
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.4, shuffle=True, random_state=3, stratify=y)       #9266, 781
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, shuffle=True, random_state=3, stratify=y)       #9266, 781
 
 ##############    MinMaxScaler    ##############################
 # mms = MinMaxScaler()
 # mms.fit(X_train)
 # X_train = mms.transform(X_train)
 # X_test = mms.transform(X_test)
-
+# test_csv = mms.transform(test_csv)
 ################    StandardScaler    ##############################
 
 sts = StandardScaler()
 sts.fit(X_train)
 X_train = sts.transform(X_train)
 X_test = sts.transform(X_test)
+test_csv = sts.transform(test_csv)
 
 # print(X_train)
 # print(X_test)
@@ -86,21 +91,20 @@ X_test = sts.transform(X_test)
 # rbs.fit(X_train)
 # X_train = rbs.transform(X_train)
 # X_test = rbs.transform(X_test)
-
+# X_test = rbs.transform(X_test)
 
 model = Sequential()
 model.add(Dense(19, input_dim=12,activation='relu'))
 model.add(Dense(97,activation='relu'))             
 model.add(Dense(9,activation='relu'))      
+model.add(Dense(21,activation='relu'))           
+model.add(Dense(16,activation='relu'))
 model.add(Dense(21,activation='relu'))      
-model.add(Dense(4,activation='relu')) 
-model.add(Dense(19,activation='relu'))      
-model.add(Dense(28,activation='relu'))      
 model.add(Dense(7, activation='softmax'))
 
 model.compile(loss='categorical_crossentropy', optimizer='adam', metrics='acc')
-es = EarlyStopping(monitor='accuracy', mode='max', patience=200, verbose=3, restore_best_weights=True)
-hist = model.fit(X_train, y_train, epochs=1000, batch_size=64, validation_split=0.15, callbacks=[es], verbose=2)
+es = EarlyStopping(monitor='acc', mode='max', patience=300, verbose=3, restore_best_weights=True)
+model.fit(X_train, y_train, epochs=1000, batch_size=128, validation_split=0.15, callbacks=[es], verbose=2)
 
 
 
@@ -109,22 +113,30 @@ hist = model.fit(X_train, y_train, epochs=1000, batch_size=64, validation_split=
 results = model.evaluate(X_test, y_test)
 print("ACC : ", results[1])
 
-  
 
+# print(X_test)
+# print(X_train)
+
+# print(test_csv)
 y_submit = model.predict(test_csv)  
 y_predict = model.predict(X_test) 
 
 y_test = np.argmax(y_test, axis=1)
 y_predict = np.argmax(y_predict, axis=1)
-y_submit = np.argmax(y_submit)
+y_submit = np.argmax(y_submit, axis=1)+3
 
-submission_csv['quality'] = y_submit
+# print(y_test)
+# print(y_predict)
+# print(y_submit)
 
+submission_csv['quality'] =y_submit
+# # print(y_test)
+# # print(y_predict)
 # print(y_submit)
 # print(y_submit.shape) 
 
 
-submission_csv.to_csv(path + "submission_0116_1_.csv", index=False)
+submission_csv.to_csv(path + "submission_0116_11_.csv", index=False)
 print("로스 : ", results[0])
 
 acc = accuracy_score(y_predict, y_test)

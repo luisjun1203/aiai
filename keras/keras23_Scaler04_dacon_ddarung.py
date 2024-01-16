@@ -81,6 +81,7 @@ mas = MaxAbsScaler()
 mas.fit(X_train)
 X_train = mas.transform(X_train)
 X_test = mas.transform(X_test)
+test_csv = mas.transform(test_csv)
 
 
 # ################    RobustScaler    ##############################

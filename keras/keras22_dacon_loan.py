@@ -101,10 +101,10 @@ lae.fit(df['대출등급'])
 X = df.drop(['대출등급'], axis=1)
 y = df['대출등급']
 
-# mms = MinMaxScaler()
-# mms.fit(X)
-# X = mms.transform(X)
-# df1 = mms.transform(df1)
+mms = MinMaxScaler()
+mms.fit(X)
+X = mms.transform(X)
+df1 = mms.transform(df1)
 
 
 
@@ -159,10 +159,10 @@ y1 = ohe.transform(y)
 
 X_train, X_test, y_train, y_test = train_test_split(X, y1, test_size=0.35, shuffle=True, random_state=3, stratify=y1)
 
-mms = MinMaxScaler()
-mms.fit(X_train)
-X_train = mms.transform(X_train)
-X_test = mms.transform(X_test)
+# mms = MinMaxScaler()
+# mms.fit(X_train)
+# X_train = mms.transform(X_train)
+# X_test = mms.transform(X_test)
 
 # print(X_train)
 # print(X_test)
@@ -181,7 +181,7 @@ model.add(Dense(7, activation='softmax'))
 
 model.compile(loss='categorical_crossentropy', optimizer='adam', metrics='acc')
 es = EarlyStopping(monitor='acc', mode='max', patience=1000, verbose=20, restore_best_weights=True)
-model.fit(X_train, y_train, epochs=10000, batch_size=500, validation_split=0.15, callbacks=[es], verbose=2)
+model.fit(X_train, y_train, epochs=50000, batch_size=500, validation_split=0.15, callbacks=[es], verbose=2)
 
 
 
