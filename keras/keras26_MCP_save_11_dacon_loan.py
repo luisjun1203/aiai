@@ -158,17 +158,17 @@ y1 = ohe.transform(y)
 
 
 X_train, X_test, y_train, y_test = train_test_split(X, y1, test_size=0.35, shuffle=True, random_state=3, stratify=y1)
-# mms = MinMaxScaler()
-# mms.fit(X_train)
-# X_train = mms.transform(X_train)
-# X_test = mms.transform(X_test)
-# df1 = mms.transform(df1)
+mms = MinMaxScaler()
+mms.fit(X_train)
+X_train = mms.transform(X_train)
+X_test = mms.transform(X_test)
+df1 = mms.transform(df1)
 
-rbs = RobustScaler()
-rbs.fit(X_train)
-X_train = rbs.transform(X_train)
-X_test = rbs.transform(X_test)
-df1 = rbs.transform(df1)
+# rbs = RobustScaler()
+# rbs.fit(X_train)
+# X_train = rbs.transform(X_train)
+# X_test = rbs.transform(X_test)
+# df1 = rbs.transform(df1)
 
 # mms = MinMaxScaler()
 # mms.fit(X_train)
@@ -189,10 +189,10 @@ model.add(Dense(16,activation='relu'))
 model.add(Dense(21,activation='relu'))
 model.add(Dense(7, activation='softmax'))
 
-mcp = ModelCheckpoint(monitor='val_loss', mode='min', verbose=1, save_best_only=True, filepath="c:\\_data\\_save\\MCP\\keras26_MCP11_dacon_loan.hdf5")    
+mcp = ModelCheckpoint(monitor='val_loss', mode='min', verbose=1, save_best_only=True, filepath="c:\\_data\\_save\\MCP\\keras26_MCP11_dacon_loan4.hdf5")    
 model.compile(loss='categorical_crossentropy', optimizer='adam', metrics='acc')
-es = EarlyStopping(monitor='acc', mode='max', patience=1500, verbose=20, restore_best_weights=True)
-model.fit(X_train, y_train, epochs=100000, batch_size=500, validation_split=0.15, callbacks=[es,mcp], verbose=2)
+es = EarlyStopping(monitor='acc', mode='max', patience=1000, verbose=20, restore_best_weights=True)
+model.fit(X_train, y_train, epochs=30000, batch_size=500, validation_split=0.1, callbacks=[es,mcp], verbose=2)
 
 
 
@@ -216,7 +216,7 @@ y_submit = lae.inverse_transform(y_submit)
 submission_csv['대출등급'] = y_submit
 print(y_submit)
 
-fs = f1_score(y_test, y_predict, average='weighted')
+fs = f1_score(y_test, y_predict, average='macro')
 print("f1_score : ", fs)
 
-submission_csv.to_csv(path + "submission_0116_3_.csv", index=False)
+submission_csv.to_csv(path + "submission_0117_6_.csv", index=False)
