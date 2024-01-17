@@ -1,3 +1,8 @@
+# restore_best_weights
+# save_best_only
+# 에 대한 고찰
+
+
 # keras09_1_boston.py
 import warnings
 warnings.filterwarnings('ignore')
@@ -42,15 +47,15 @@ print(date)                     # 0117_1058
 print(type(date))               # <class 'str'>
 
 path = "..\\_data\\_save\\MCP\\"
-filename = '{epoch:04d}-{val_loss:.4f}.hdf5'            # 04d : 4자리 정수표현, 4f : 소수4번째자리까지 표현, 예) 1000_0.3333.hdf5
+filename = '{epoch:04d}-{val_loss:.4f}-{loss:.4f}.hdf5'            # 04d : 4자리 정수표현, 4f : 소수4번째자리까지 표현, 예) 1000_0.3333.hdf5
 filepath = "".join([path, 'k25_',date,'_', filename])
 # '..\\_data\\_save\\MCP\\k25_0117_1058_1000_0.3333.hdf5'
 
 
 mcp = ModelCheckpoint(monitor='val_loss', mode='auto', verbose=1, save_best_only=True, filepath= filepath)        
 model.compile(loss='mae', optimizer='adam')                                                             
-es = EarlyStopping(monitor='val_loss', mode='min',patience=400, verbose= 20, restore_best_weights=True) 
-hist = model.fit(X_train, y_train, epochs=1500, batch_size=15, validation_split=0.1, callbacks=[es,mcp])
+es = EarlyStopping(monitor='val_loss', mode='min',patience=100, verbose= 20, restore_best_weights=True) 
+hist = model.fit(X_train, y_train, epochs=1000, batch_size=15, validation_split=0.1, callbacks=[es,mcp])
 # model.save("..\\_data\\_save\\keras25_MCP_3_save_model.hdf5")
 
 
@@ -65,40 +70,17 @@ y_predict = model.predict(X_test)
 r2 = r2_score(y_test, y_predict)
 print("R2스코어 :", r2)
 
-# print("=================== 2.load_model 출력 ==============================")
-
-# model2 = load_model("..\\_data\\_save\\keras25_MCP_3_save_model.hdf5")
-
-# loss2 = model2.evaluate(X_test, y_test, verbose=0)
-# print("로스 : ", loss2)
-
-# y_predict2 = model2.predict(X_test)
-# # result = model.predict(X, verbose=0)
-
-# r2 = r2_score(y_test, y_predict2)
-# print("R2스코어 :", r2)
-
-# print("=================== 3.MCP 출력 ==============================")
-
-# model3 = load_model("..\\_data\\_save\\MCP\\keras25_MCP3.hdf5")
-
-# loss3 = model3.evaluate(X_test, y_test, verbose=0)
-# print("로스 : ", loss3)
-
-# y_predict3 = model3.predict(X_test)
-
-# r2 = r2_score(y_test, y_predict3)
-# print("R2스코어 :", r2)
+print("==============================================================")
+print(hist.history['val_loss'])
+print("==============================================================")
 
 
+# restore_best_weights
+# save_best_only
 
 
-
-
-# print("==============================================================")
-# print(hist.history['val_loss'])
-# print("==============================================================")
-
-
-
+# True, True        Best
+# True, False      모든에포별로 다 저장함
+# False, False      전부 다 저장
+# False, True       loss 좋은순으로 저장되긴 하지만 좋은 가중치는 아님  
 

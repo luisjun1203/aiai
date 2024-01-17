@@ -185,14 +185,28 @@ model.add(Dense(19, input_shape= (13, ),activation='relu'))
 model.add(Dense(97,activation='relu'))
 model.add(Dense(9,activation='relu'))
 model.add(Dense(21,activation='relu'))
-model.add(Dense(16,activation='relu'))
-model.add(Dense(21,activation='relu'))
+model.add(Dense(12,activation='relu'))
+model.add(Dense(15,activation='relu'))
 model.add(Dense(7, activation='softmax'))
 
-mcp = ModelCheckpoint(monitor='val_loss', mode='min', verbose=1, save_best_only=True, filepath="c:\\_data\\_save\\MCP\\keras26_MCP11_dacon_loan4.hdf5")    
+import datetime
+date = datetime.datetime.now()
+print(date)                     # 2024-01-17 10:52:59.857389
+date = date.strftime("%m%d_%H%M")                   # _는 str      
+print(date)                     # 0117_1058
+print(type(date))               # <class 'str'>
+
+path = "..\\_data\\_save\\MCP\\"
+filename = '{epoch:05d}-{acc:.4f}-{loss:.4f}.hdf5'            # 04d : 4자리 정수표현, 4f : 소수4번째자리까지 표현, 예) 1000_0.3333.hdf5
+filepath = "".join([path, 'k26_dacon_loan_',date,'_', filename])
+
+
+
+
+mcp = ModelCheckpoint(monitor='loss', mode='min', verbose=1, save_best_only=True, filepath=filepath)    
 model.compile(loss='categorical_crossentropy', optimizer='adam', metrics='acc')
-es = EarlyStopping(monitor='acc', mode='max', patience=1000, verbose=20, restore_best_weights=True)
-model.fit(X_train, y_train, epochs=30000, batch_size=500, validation_split=0.1, callbacks=[es,mcp], verbose=2)
+es = EarlyStopping(monitor='acc', mode='max', patience=700, verbose=20, restore_best_weights=True)
+model.fit(X_train, y_train, epochs=10000, batch_size=1000, validation_split=0.15, callbacks=[es,mcp], verbose=2)
 
 
 
@@ -219,4 +233,4 @@ print(y_submit)
 fs = f1_score(y_test, y_predict, average='macro')
 print("f1_score : ", fs)
 
-submission_csv.to_csv(path + "submission_0117_6_.csv", index=False)
+submission_csv.to_csv(path + "submission_0117_11_.csv", index=False)
