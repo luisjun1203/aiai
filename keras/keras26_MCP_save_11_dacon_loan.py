@@ -212,7 +212,7 @@ filepath = "".join([path, 'k26_11_dacon_loan_',date,'_', filename])
 mcp = ModelCheckpoint(monitor='val_loss', mode='min', verbose=1, save_best_only=True, filepath=filepath)    
 model.compile(loss='categorical_crossentropy', optimizer='adam', metrics='acc')
 es = EarlyStopping(monitor='acc', mode='max', patience=1000, verbose=20, restore_best_weights=True)
-model.fit(X_train, y_train, epochs=10000, batch_size=500, validation_split=0.15, callbacks=[es,mcp], verbose=2)
+model.fit(X_train, y_train, epochs=15000, batch_size=500, validation_split=0.15, callbacks=[es,mcp], verbose=2)
 
 
 

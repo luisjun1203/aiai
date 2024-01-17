@@ -1,11 +1,11 @@
 import numpy as np
 import pandas as pd
-from keras.models import Sequential, load_model
-from keras.layers import Dense
+from keras.models import Sequential
+from keras.layers import Dense,Dropout
 from keras.callbacks import EarlyStopping,ModelCheckpoint
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import f1_score
-from sklearn.preprocessing import OneHotEncoder, LabelEncoder, MinMaxScaler, RobustScaler
+from sklearn.preprocessing import OneHotEncoder, LabelEncoder, MinMaxScaler, RobustScaler, Normalizer
 from keras.utils import to_categorical
 
 
@@ -158,14 +158,23 @@ y1 = ohe.transform(y)
 
 
 X_train, X_test, y_train, y_test = train_test_split(X, y1, test_size=0.35, shuffle=True, random_state=3, stratify=y1)
+# mms = MinMaxScaler()
+# mms.fit(X_train)
+# X_train = mms.transform(X_train)
+# X_test = mms.transform(X_test)
+# df1 = mms.transform(df1)
 
-mms = RobustScaler()
-mms.fit(X_train)
-X_train = mms.transform(X_train)
-X_test = mms.transform(X_test)
-df1 = mms.transform(df1)
+rbs = RobustScaler()
+rbs.fit(X_train)
+X_train = rbs.transform(X_train)
+X_test = rbs.transform(X_test)
+df1 = rbs.transform(df1)
 
-
+# norm = Normalizer()
+# norm.fit(X_train)
+# X_train = norm.transform(X_train)
+# X_test = norm.transform(X_test)
+# df1 = norm.transform(df1)
 
 # mms = MinMaxScaler()
 # mms.fit(X_train)
@@ -177,22 +186,34 @@ df1 = mms.transform(df1)
 # print(y_test)
 
 
-# model = Sequential()
-# model.add(Dense(19, input_shape= (13, ),activation='relu'))
-# model.add(Dense(97,activation='relu'))
-# model.add(Dense(9,activation='relu'))
-# model.add(Dense(21,activation='relu'))
-# model.add(Dense(16,activation='relu'))
-# model.add(Dense(21,activation='relu'))
-# model.add(Dense(7, activation='softmax'))
+model = Sequential()
+model.add(Dense(19, input_shape= (13, ),activation='relu'))
+model.add(Dense(97,activation='relu'))
+model.add(Dense(9,activation='relu'))
+model.add(Dense(21,activation='relu'))
+model.add(Dense(16,activation='relu'))
+model.add(Dense(21,activation='relu'))
+model.add(Dropout(0.3))
+model.add(Dense(7, activation='softmax'))
 
-# mcp = ModelCheckpoint(monitor='val_loss', mode='min', verbose=1, save_best_only=True, filepath="c:\\_data\\_save\\MCP\\keras26_MCP11_dacon_loan.hdf5")    
-# model.compile(loss='categorical_crossentropy', optimizer='adam', metrics='acc')
-# es = EarlyStopping(monitor='acc', mode='max', patience=1000, verbose=20, restore_best_weights=True)
-# model.fit(X_train, y_train, epochs=10000, batch_size=500, validation_split=0.15, callbacks=[es,mcp], verbose=2)
+import datetime
+date = datetime.datetime.now()
+print(date)                     # 2024-01-17 10:52:59.857389
+date = date.strftime("%m%d_%H%M")                   # _는 str      
+print(date)                     # 0117_1058
+print(type(date))               # <class 'str'>
 
-model= load_model("..\\_data\\_save\\MCP\\k26_11_dacon_loan_0117_1515_00982-0.8824-0.3291.hdf5")
+path = "..\\_data\\_save\\MCP\\"
+filename = '{epoch:05d}-{acc:.4f}-{loss:.4f}.hdf5'            # 04d : 4자리 정수표현, 4f : 소수4번째자리까지 표현, 예) 1000_0.3333.hdf5
+filepath = "".join([path, 'k28_11_dacon_loan_',date,'_', filename])
 
+
+
+
+mcp = ModelCheckpoint(monitor='val_loss', mode='min', verbose=1, save_best_only=True, filepath=filepath)    
+model.compile(loss='categorical_crossentropy', optimizer='adam', metrics='acc')
+es = EarlyStopping(monitor='acc', mode='max', patience=1000, verbose=20, restore_best_weights=True)
+model.fit(X_train, y_train, epochs=15000, batch_size=500, validation_split=0.15, callbacks=[es,mcp], verbose=2)
 
 
 
