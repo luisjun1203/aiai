@@ -69,7 +69,19 @@ model.add(Dense(1, activation = 'sigmoid'))
 
 
 #3.컴파일,훈련
-mcp = ModelCheckpoint(monitor='val_loss', mode='min', verbose=1, save_best_only=True, filepath="c:\\_data\\_save\\MCP\\keras26_MCP06_cancer.hdf5")    
+
+import datetime
+date = datetime.datetime.now()
+# print(date)                     # 2024-01-17 10:52:59.857389
+date = date.strftime("%m%d_%H%M")                   # _는 str      
+# print(date)                     # 0117_1058
+# print(type(date))               # <class 'str'>
+
+path = "..\\_data\\_save\\MCP\\"
+filename = '{epoch:05d}-{val_loss:.4f}-{loss:.4f}.hdf5'            # 04d : 4자리 정수표현, 4f : 소수4번째자리까지 표현, 예) 1000_0.3333.hdf5
+filepath = "".join([path, 'k26_cancer_', date,'_', filename])
+
+mcp = ModelCheckpoint(monitor='val_loss', mode='min', verbose=1, save_best_only=True, filepath=filepath)    
 model.compile(loss='binary_crossentropy', optimizer='adam', metrics='accuracy') # 'mse', 'mae'도 사용가능# accuracy = acc #이진 분류 모델이 나오면 "binary_crossentropy"'#분류모델에서는 mse사용안함                     
 es = EarlyStopping(monitor='val_loss', mode='min', patience=300, verbose=3, restore_best_weights=True)                   #다중 분류 모델에서는 'categorical_crossentropy
 hist = model.fit(X_train, y_train, epochs=5000, batch_size=32, validation_split=0.1, callbacks=[es,mcp])

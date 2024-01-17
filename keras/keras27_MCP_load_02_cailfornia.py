@@ -35,7 +35,7 @@ X_test = mas.transform(X_test)
 # hist = model.fit(X_train, y_train, epochs=200, batch_size=400, validation_split=0.2, callbacks=[es,mcp])
 # end_time = time.time()
 
-model = load_model("c:\\_data\\_save\\MCP\\keras26_MCP02_california.hdf5")
+model = load_model("..\\_data\\_save\\MCP\\k26_2_california_0117_1308_00196-0.5282-0.5595.hdf5")
 
 
 loss = model.evaluate(X_test, y_test)

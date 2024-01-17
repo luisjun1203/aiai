@@ -52,9 +52,9 @@ filepath = "".join([path, 'k25_',date,'_', filename])
 # '..\\_data\\_save\\MCP\\k25_0117_1058_1000_0.3333.hdf5'
 
 
-mcp = ModelCheckpoint(monitor='val_loss', mode='auto', verbose=1, save_best_only=True, filepath= filepath)        
+mcp = ModelCheckpoint(monitor='loss', mode='min', verbose=1, save_best_only=True, filepath= filepath)        
 model.compile(loss='mae', optimizer='adam')                                                             
-es = EarlyStopping(monitor='val_loss', mode='min',patience=100, verbose= 20, restore_best_weights=True) 
+es = EarlyStopping(monitor='loss', mode='min',patience=100, verbose= 20, restore_best_weights=True) 
 hist = model.fit(X_train, y_train, epochs=1000, batch_size=15, validation_split=0.1, callbacks=[es,mcp])
 # model.save("..\\_data\\_save\\keras25_MCP_3_save_model.hdf5")
 

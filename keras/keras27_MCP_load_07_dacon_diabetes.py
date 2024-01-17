@@ -86,7 +86,7 @@ test_csv = mas.transform(test_csv)
 # hist = model.fit(X_train, y_train, epochs=5000, batch_size=16, validation_split=0.15, callbacks=[es,mcp] )
 
 
-model=load_model("c:\\_data\\_save\\MCP\\keras26_MCP07_dacon_diabetes.hdf5")
+model=load_model("..\\_data\\_save\\MCP\\k26_7_dacon_diabetes_0117_1308_00023-0.7518-0.4864.hdf5")
 
 
 loss = model.evaluate(X_test, y_test)

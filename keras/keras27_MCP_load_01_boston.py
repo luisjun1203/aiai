@@ -76,7 +76,7 @@ X_test = mms.transform(X_test)
 # model.fit(X_train, y_train, epochs=1500, batch_size=15, validation_split=0.1, callbacks=[es,mcp] )
 # # end_time = time.time()
 
-model = load_model("c:\\_data\\_save\\MCP\\keras26_MCP01_boston.hdf5")
+model = load_model("..\\_data\\_save\\MCP\\k26_1_boston_0117_1308_00100-11.1892-8.4118.hdf5")
 
 loss = model.evaluate(X_test, y_test)
 print("로스 : ", loss)

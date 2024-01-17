@@ -94,7 +94,7 @@ X_test = rbs.transform(X_test)
 # es = EarlyStopping(monitor='val_loss', mode='min', patience=100, restore_best_weights=True, verbose=1)
 # hist = model.fit(X_train, y_train, epochs=1500, batch_size=1000, validation_split=0.1, callbacks=[es,mcp], verbose=1)
 
-model= load_model("c:\\_data\\_save\\MCP\\keras26_MCP09_fetch_covtype.hdf5")
+model= load_model("..\\_data\\_save\\MCP\\k26_9_fetch_covtype0117_1408_00737-0.8332-0.4074.hdf5")
 
 
 

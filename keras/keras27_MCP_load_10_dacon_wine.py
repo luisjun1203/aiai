@@ -107,7 +107,7 @@ test_csv = sts.transform(test_csv)
 # model.fit(X_train, y_train, epochs=1000, batch_size=128, validation_split=0.15, callbacks=[es,mcp], verbose=2)
 
 
-model= load_model("c:\\_data\\_save\\MCP\\keras26_MCP10_dacon_wine.hdf5")
+model= load_model("..\\_data\\_save\\MCP\\k26_10_dacon_wine_0117_1409_00036-0.5659-1.0183.hdf5")
 
 
 

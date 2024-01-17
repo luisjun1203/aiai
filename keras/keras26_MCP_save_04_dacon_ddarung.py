@@ -99,8 +99,19 @@ model.add(Dense(21, activation='relu'))
 model.add(Dense(19))
 model.add(Dense(8, activation='relu'))
 model.add(Dense(1))
+
 # 3.컴파일, 훈련
-mcp = ModelCheckpoint(monitor='val_loss', mode='min', verbose=1, save_best_only=True, filepath="c:\\_data\\_save\\MCP\\keras26_MCP04_dacon_ddarung.hdf5")    
+import datetime
+date = datetime.datetime.now()
+print(date)                     # 2024-01-17 10:52:59.857389
+date = date.strftime("%m%d_%H%M")                   # _는 str      
+print(date)                     # 0117_1058
+print(type(date))               # <class 'str'>
+
+path = "..\\_data\\_save\\MCP\\"
+filename = '{epoch:05d}-{val_loss:.4f}-{loss:.4f}.hdf5'            # 04d : 4자리 정수표현, 4f : 소수4번째자리까지 표현, 예) 1000_0.3333.hdf5
+filepath = "".join([path, 'k26_dacon_ddarung_',date,'_', filename])
+mcp = ModelCheckpoint(monitor='val_loss', mode='min', verbose=1, save_best_only=True, filepath=filepath)    
 model.compile(loss='mse', optimizer='adam', metrics='accuracy')
 es = EarlyStopping(monitor='val_loss', mode='min', patience=300, verbose=20, restore_best_weights=True)
 hist = model.fit(X_train, y_train, epochs=3000, batch_size=32, validation_split=0.15, verbose=2, callbacks=[es,mcp])

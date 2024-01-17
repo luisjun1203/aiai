@@ -5,7 +5,7 @@ from keras.layers import Dense
 from keras.callbacks import EarlyStopping,ModelCheckpoint
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import f1_score
-from sklearn.preprocessing import OneHotEncoder, LabelEncoder, MinMaxScaler, RobustScaler
+from sklearn.preprocessing import OneHotEncoder, LabelEncoder, MinMaxScaler, RobustScaler, Normalizer
 from keras.utils import to_categorical
 
 
@@ -158,17 +158,23 @@ y1 = ohe.transform(y)
 
 
 X_train, X_test, y_train, y_test = train_test_split(X, y1, test_size=0.35, shuffle=True, random_state=3, stratify=y1)
-mms = MinMaxScaler()
-mms.fit(X_train)
-X_train = mms.transform(X_train)
-X_test = mms.transform(X_test)
-df1 = mms.transform(df1)
+# mms = MinMaxScaler()
+# mms.fit(X_train)
+# X_train = mms.transform(X_train)
+# X_test = mms.transform(X_test)
+# df1 = mms.transform(df1)
 
-# rbs = RobustScaler()
-# rbs.fit(X_train)
-# X_train = rbs.transform(X_train)
-# X_test = rbs.transform(X_test)
-# df1 = rbs.transform(df1)
+rbs = RobustScaler()
+rbs.fit(X_train)
+X_train = rbs.transform(X_train)
+X_test = rbs.transform(X_test)
+df1 = rbs.transform(df1)
+
+# norm = Normalizer()
+# norm.fit(X_train)
+# X_train = norm.transform(X_train)
+# X_test = norm.transform(X_test)
+# df1 = norm.transform(df1)
 
 # mms = MinMaxScaler()
 # mms.fit(X_train)
@@ -185,8 +191,8 @@ model.add(Dense(19, input_shape= (13, ),activation='relu'))
 model.add(Dense(97,activation='relu'))
 model.add(Dense(9,activation='relu'))
 model.add(Dense(21,activation='relu'))
-model.add(Dense(12,activation='relu'))
-model.add(Dense(15,activation='relu'))
+model.add(Dense(16,activation='relu'))
+model.add(Dense(21,activation='relu'))
 model.add(Dense(7, activation='softmax'))
 
 import datetime
@@ -198,15 +204,15 @@ print(type(date))               # <class 'str'>
 
 path = "..\\_data\\_save\\MCP\\"
 filename = '{epoch:05d}-{acc:.4f}-{loss:.4f}.hdf5'            # 04d : 4자리 정수표현, 4f : 소수4번째자리까지 표현, 예) 1000_0.3333.hdf5
-filepath = "".join([path, 'k26_dacon_loan_',date,'_', filename])
+filepath = "".join([path, 'k26_11_dacon_loan_',date,'_', filename])
 
 
 
 
-mcp = ModelCheckpoint(monitor='loss', mode='min', verbose=1, save_best_only=True, filepath=filepath)    
+mcp = ModelCheckpoint(monitor='val_loss', mode='min', verbose=1, save_best_only=True, filepath=filepath)    
 model.compile(loss='categorical_crossentropy', optimizer='adam', metrics='acc')
-es = EarlyStopping(monitor='acc', mode='max', patience=700, verbose=20, restore_best_weights=True)
-model.fit(X_train, y_train, epochs=10000, batch_size=1000, validation_split=0.15, callbacks=[es,mcp], verbose=2)
+es = EarlyStopping(monitor='acc', mode='max', patience=1000, verbose=20, restore_best_weights=True)
+model.fit(X_train, y_train, epochs=10000, batch_size=500, validation_split=0.15, callbacks=[es,mcp], verbose=2)
 
 
 

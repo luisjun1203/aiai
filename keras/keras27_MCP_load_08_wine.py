@@ -80,7 +80,7 @@ X_test = rbs.transform(X_test)
 # es = EarlyStopping(monitor='val_loss', mode='min', patience=30, restore_best_weights=True, verbose=1)
 # hist = model.fit(X_train, y_train, epochs=500, batch_size=1, validation_split=0.2, callbacks=[es,mcp], verbose=1)
 
-model= load_model("c:\\_data\\_save\\MCP\\keras26_MCP08_wine.hdf5")
+model= load_model("..\\_data\\_save\\MCP\\k26_8_wine_0117_1308_00030-1.0000-0.0020.hdf5")
 
 results = model.evaluate(X_test, y_test)
 print("로스 : ", results[0])

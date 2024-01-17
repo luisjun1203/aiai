@@ -74,7 +74,7 @@ X_test = mms.transform(X_test)
 # es = EarlyStopping(monitor='val_loss', mode='min', patience=300, verbose=3, restore_best_weights=True)                   #다중 분류 모델에서는 'categorical_crossentropy
 # hist = model.fit(X_train, y_train, epochs=5000, batch_size=32, validation_split=0.1, callbacks=[es,mcp])
 
-model = load_model("c:\\_data\\_save\\MCP\\keras26_MCP06_cancer.hdf5")
+model = load_model("..\\_data\\_save\\MCP\\k26_6_cancer_0117_1404_00116-0.0000-0.0419.hdf5")
 
 #4.평가,예측
 

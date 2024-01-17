@@ -105,7 +105,7 @@ test_csv = mas.transform(test_csv)
 # es = EarlyStopping(monitor='val_loss', mode='min', patience=300, verbose=20, restore_best_weights=True)
 # hist = model.fit(X_train, y_train, epochs=3000, batch_size=32, validation_split=0.15, verbose=2, callbacks=[es,mcp])
 
-model = load_model("c:\\_data\\_save\\MCP\\keras26_MCP04_dacon_ddarung.hdf5")
+model = load_model("..\\_data\\_save\\MCP\\k26_4_dacon_ddarung_0117_1310_00666-1223.1259-1042.2554.hdf5")
 
 
 # 4.평가, 예측

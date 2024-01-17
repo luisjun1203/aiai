@@ -5,7 +5,7 @@ from keras.layers import Dense
 from keras.callbacks import EarlyStopping,ModelCheckpoint
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import f1_score
-from sklearn.preprocessing import OneHotEncoder, LabelEncoder, MinMaxScaler
+from sklearn.preprocessing import OneHotEncoder, LabelEncoder, MinMaxScaler, RobustScaler
 from keras.utils import to_categorical
 
 
@@ -158,7 +158,7 @@ y1 = ohe.transform(y)
 
 
 X_train, X_test, y_train, y_test = train_test_split(X, y1, test_size=0.35, shuffle=True, random_state=3, stratify=y1)
-mms = MinMaxScaler()
+mms = RobustScaler()
 mms.fit(X_train)
 X_train = mms.transform(X_train)
 X_test = mms.transform(X_test)
@@ -190,7 +190,7 @@ df1 = mms.transform(df1)
 # es = EarlyStopping(monitor='acc', mode='max', patience=1000, verbose=20, restore_best_weights=True)
 # model.fit(X_train, y_train, epochs=10000, batch_size=500, validation_split=0.15, callbacks=[es,mcp], verbose=2)
 
-model= load_model("c:\\_data\\_save\\MCP\\keras26_MCP11_dacon_loan.hdf5")
+model= load_model("..\\_data\\_save\\MCP\\k26_11_dacon_loan_0117_1446_08332-0.9030-0.2746.hdf5")
 
 
 
@@ -215,7 +215,7 @@ y_submit = lae.inverse_transform(y_submit)
 submission_csv['대출등급'] = y_submit
 print(y_submit)
 
-fs = f1_score(y_test, y_predict, average='weighted')
+fs = f1_score(y_test, y_predict, average='macro')
 print("f1_score : ", fs)
 
-submission_csv.to_csv(path + "submission_0116_3_.csv", index=False)
+submission_csv.to_csv(path + "submission_0117_11_.csv", index=False)

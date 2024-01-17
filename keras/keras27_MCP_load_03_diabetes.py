@@ -35,7 +35,7 @@ X_test = mms.transform(X_test)
 # hist = model.fit(X_train, y_train, epochs=500, batch_size=10, validation_split=0.2, callbacks=[es,mcp])
 # end_time = time.time()
 
-model = load_model("c:\\_data\\_save\\MCP\\keras26_MCP03_diabetes.hdf5")
+model = load_model("..\\_data\\_save\\MCP\\k26_3_diabetes_0117_1308_00015-3343.7598-3587.3450.hdf5")
 
 loss = model.evaluate(X_test, y_test)
 y_predict = model.predict(X_test)

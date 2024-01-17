@@ -67,7 +67,7 @@ test_csv = mms.transform(test_csv)
 # hist = model.fit(X_train, y_train, epochs= 1500, batch_size=700, validation_split=0.15,callbacks=[es,mcp])
 
 
-model = load_model("c:\\_data\\_save\\MCP\\keras26_MCP05_kaggle_bike.hdf5")
+model = load_model("..\\_data\\_save\\MCP\\k26_5_kaggle_bike_0117_1404_01469-22035.9316-21063.4277.hdf5")
 
 
 loss = model.evaluate(X_test, y_test)

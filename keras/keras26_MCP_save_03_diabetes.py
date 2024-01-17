@@ -27,8 +27,17 @@ model.add(Dense(24))
 model.add(Dense(16))
 model.add(Dense(8))
 model.add(Dense(1))
+import datetime
+date = datetime.datetime.now()
+print(date)                     # 2024-01-17 10:52:59.857389
+date = date.strftime("%m%d_%H%M")                   # _는 str      
+print(date)                     # 0117_1058
+print(type(date))               # <class 'str'>
 
-mcp = ModelCheckpoint(monitor='val_loss', mode='min', verbose=1, save_best_only=True, filepath="c:\\_data\\_save\\MCP\\keras26_MCP03_diabetes.hdf5")    
+path = "..\\_data\\_save\\MCP\\"
+filename = '{epoch:05d}-{val_loss:.4f}-{loss:.4f}.hdf5'            # 04d : 4자리 정수표현, 4f : 소수4번째자리까지 표현, 예) 1000_0.3333.hdf5
+filepath = "".join([path, 'k26_diabetes_',date,'_', filename])
+mcp = ModelCheckpoint(monitor='val_loss', mode='min', verbose=1, save_best_only=True, filepath=filepath)    
 model.compile(loss='mse', optimizer='adam')
 es = EarlyStopping(monitor='val_loss', mode='min',patience=100, verbose= 1, restore_best_weights=True) 
 start_time = time.time()
