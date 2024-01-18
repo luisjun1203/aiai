@@ -21,7 +21,7 @@ submission_csv = pd.read_csv(path + "sample_submission.csv")
 # print(submission_csv)       #(6497, 2)
 # print(X.info())
 # train_csv = train_csv.drop(labels='TRAIN_28730',axis=0)
-train_csv.iloc[28730, 3] = 'RENT'
+train_csv.iloc[28730, 3] = 'OWN'
 test_csv.iloc[34486,7] = '기타'
 # print(X.info())
 
@@ -158,17 +158,17 @@ y1 = ohe.transform(y)
 
 
 X_train, X_test, y_train, y_test = train_test_split(X, y1, test_size=0.4, shuffle=True, random_state=3, stratify=y1)
-mms = MinMaxScaler()
-mms.fit(X_train)
-X_train = mms.transform(X_train)
-X_test = mms.transform(X_test)
-df1 = mms.transform(df1)
+# mms = MinMaxScaler()
+# mms.fit(X_train)
+# X_train = mms.transform(X_train)
+# X_test = mms.transform(X_test)
+# df1 = mms.transform(df1)
 
-# rbs = RobustScaler()
-# rbs.fit(X_train)
-# X_train = rbs.transform(X_train)
-# X_test = rbs.transform(X_test)
-# df1 = rbs.transform(df1)
+rbs = RobustScaler()
+rbs.fit(X_train)
+X_train = rbs.transform(X_train)
+X_test = rbs.transform(X_test)
+df1 = rbs.transform(df1)
 
 # norm = Normalizer()
 # norm.fit(X_train)
@@ -195,9 +195,9 @@ model.add(Dense(9,activation='relu'))
 # model.add(Dropout(0.3))
 model.add(Dense(21,activation='relu'))
 # model.add(Dropout(0.3))
-model.add(Dense(16,activation='relu'))
+model.add(Dense(9,activation='relu'))
 # model.add(Dropout(0.6))
-model.add(Dense(21,activation='relu'))
+model.add(Dense(25,activation='relu'))
 # model.add(Dropout(0.3))
 model.add(Dense(7, activation='softmax'))
 
@@ -210,7 +210,7 @@ print(type(date))               # <class 'str'>
 
 path = "..\\_data\\_save\\MCP\\"
 filename = '{epoch:05d}-{acc:.4f}-{loss:.4f}.hdf5'            # 04d : 4자리 정수표현, 4f : 소수4번째자리까지 표현, 예) 1000_0.3333.hdf5
-filepath = "".join([path, 'k28_12_dacon_loan_',date,'_', filename])
+filepath = "".join([path, 'k28_14_dacon_loan_',date,'_', filename])
 
 
 
@@ -218,7 +218,7 @@ filepath = "".join([path, 'k28_12_dacon_loan_',date,'_', filename])
 mcp = ModelCheckpoint(monitor='val_loss', mode='min', verbose=1, save_best_only=True, filepath=filepath)    
 model.compile(loss='categorical_crossentropy', optimizer='adam', metrics='acc')
 es = EarlyStopping(monitor='acc', mode='max', patience=2000, verbose=20, restore_best_weights=True)
-model.fit(X_train, y_train, epochs=50000, batch_size=512, validation_split=0.1, callbacks=[es,mcp], verbose=2)
+model.fit(X_train, y_train, epochs=50000, batch_size=512, validation_split=0.15, callbacks=[es,mcp], verbose=2)
 
 
 
@@ -242,7 +242,7 @@ y_submit = lae.inverse_transform(y_submit)
 submission_csv['대출등급'] = y_submit
 print(y_submit)
 
-fs = f1_score(y_test, y_predict, average='macro')
+fs = f1_score(y_test, y_predict, average='weighted')
 print("f1_score : ", fs)
 
-submission_csv.to_csv(path + "submission_0118_2_.csv", index=False)
+submission_csv.to_csv(path + "submission_0118_4_.csv", index=False)
