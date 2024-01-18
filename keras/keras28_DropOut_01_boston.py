@@ -34,7 +34,7 @@ model.add(Dense(97,activation='relu'))
 model.add(Dense(9,activation='relu'))
 model.add(Dense(21,activation='relu'))
 model.add(Dense(28,activation='relu'))
-model.add(Dropout(0.2))
+model.add(Dropout(0.5))
 model.add(Dense(1))
 
 import datetime
@@ -49,10 +49,10 @@ filename = '{epoch:04d}-{val_loss:.4f}-{loss:.4f}.hdf5'            # 04d : 4자�
 filepath = "".join([path, 'k28_01_boston_',date,'_', filename])
 
 
-mcp = ModelCheckpoint(monitor='loss', mode='min', verbose=1, save_best_only=True, filepath= filepath)        
+# mcp = ModelCheckpoint(monitor='loss', mode='min', verbose=1, save_best_only=True, filepath= filepath)        
 model.compile(loss='mae', optimizer='adam')                                                             
 es = EarlyStopping(monitor='loss', mode='min',patience=100, verbose= 20, restore_best_weights=True) 
-hist = model.fit(X_train, y_train, epochs=1000, batch_size=15, validation_split=0.1, callbacks=[es,mcp])
+hist = model.fit(X_train, y_train, epochs=1000, batch_size=15, validation_split=0.1, callbacks=[es])
 
 
 print("=======================1.기본출력 ==============================")
