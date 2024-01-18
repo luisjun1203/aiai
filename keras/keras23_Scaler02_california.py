@@ -29,7 +29,7 @@ model.add(Dense(1))
 
 model.compile(loss='mae', optimizer='adam')                         
 # start_time = time.time()
-hist = model.fit(X_train, y_train, epochs=200, batch_size=400, validation_split=0.2)
+hist = model.fit(X_train, y_train, epochs=1000, batch_size=400, validation_split=0.2)
 # end_time = time.time()
 
 loss = model.evaluate(X_test, y_test)

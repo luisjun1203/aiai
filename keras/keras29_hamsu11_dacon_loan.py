@@ -257,4 +257,4 @@ print(y_submit)
 fs = f1_score(y_test, y_predict, average='weighted')
 print("f1_score : ", fs)
 
-submission_csv.to_csv(path + "submission_0118_4_.csv", index=False)
+submission_csv.to_csv(path + "submission_0118_1_.csv", index=False)
