@@ -3,7 +3,7 @@ import numpy as np
 from keras.datasets import mnist
 import pandas as pd
 from keras.models import Sequential
-from keras.layers import Dense, Conv2D, Flatten
+from keras.layers import Dense, Conv2D, Flatten, Dropout, GlobalAveragePooling2D
 import tensorflow as tf
 from sklearn.preprocessing import OneHotEncoder
 import time
@@ -27,8 +27,14 @@ from sklearn.metrics import accuracy_score
 # print(X_train)
 
 
-y_train = y_train.reshape(-1, 1)
-y_test = y_test.reshape(-1, 1)
+# print(y_test.shape)
+# print(y_train.shape)
+
+# y_train = y_train.reshape(-1, 1)
+# y_test = y_test.reshape(-1, 1)
+
+# print(y_test.shape)
+# print(y_train.shape)
 
 ohe = OneHotEncoder(sparse=False)
 y_train = ohe.fit_transform(y_train)
@@ -36,25 +42,42 @@ y_test = ohe.fit_transform(y_test)
 
 # print(y_test)
 # print(y_train)
+X_train = X_train/255
+X_test = X_test/255
 
+# model = Sequential()                    
+# model.add(Conv2D(19, kernel_size=(2, 2),input_shape = (32, 32, 3),activation='relu'))   
+# model.add(Conv2D(45, (3, 3 ),activation='relu'))                         
+# model.add(Conv2D(14, (4, 4 ),activation='relu'))              
+# model.add(Conv2D(9, (2, 2 ),activation='relu'))
+# model.add(Conv2D(25, (3, 3 ),activation='relu'))                         
+# model.add(Conv2D(12, (4, 4 ),activation='relu'))              
+# model.add(Conv2D(9, (2, 2 ),activation='relu'))              
+# model.add(Flatten())                                                  
+# model.add(Dense(22,activation='relu'))
+# model.add(Dropout(0.5))
+# model.add(Dense(30,activation='relu'))
+# model.add(Dropout(0.5))
+# model.add(Dense(18,activation='relu'))
+# model.add(Dropout(0.5))
+# model.add(Dense(10, activation= 'softmax'))
 
 model = Sequential()                    
-model.add(Conv2D(19, kernel_size=(2, 2),input_shape = (32, 32, 3)))   
-model.add(Conv2D(97, (3, 3 )))                         
-model.add(Conv2D(9, (4, 4 )))              
-model.add(Flatten())                                                  
-model.add(Dense(21,activation='relu'))
-model.add(Dense(17,activation='relu'))
-model.add(Dense(30,activation='relu'))
-model.add(Dense(19,activation='relu'))
-model.add(Dense(10, activation= 'softmax'))
-
+model.add(Conv2D(19, kernel_size=(3, 3), input_shape=(32, 32, 3), activation='relu'))   
+model.add(Conv2D(97, (4, 4), activation='relu'))                         
+model.add(Conv2D(210, (3, 3), activation='relu'))              
+model.add(GlobalAveragePooling2D())  # Global Average Pooling 사용
+model.add(Dense(312, activation='relu'))
+model.add(Dropout(0.3))  # 낮은 Dropout 비율 사용
+model.add(Dense(48, activation='relu'))
+model.add(Dropout(0.3))
+model.add(Dense(10, activation='softmax'))
 
 
 strat_time = time.time()
 model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['acc'])
-es = EarlyStopping(monitor='acc', mode='max', patience=100, verbose=20, restore_best_weights=True)
-model.fit(X_train, y_train, epochs=1000, batch_size=500,verbose=2, validation_split=0.15, callbacks=[es])
+es = EarlyStopping(monitor='val_loss', mode='min', patience=250, verbose=2, restore_best_weights=True)
+model.fit(X_train, y_train, epochs=1997, batch_size=921,verbose=2, validation_split=0.15, callbacks=[es])
 end_time = time.time()
 # print(X_train, X_test)
 
