@@ -9,7 +9,7 @@ from keras.callbacks import EarlyStopping,ModelCheckpoint
 from sklearn.preprocessing import OneHotEncoder, LabelEncoder
 from keras.utils import to_categorical
 from sklearn.preprocessing import MinMaxScaler, MaxAbsScaler, StandardScaler, RobustScaler
-
+import time
 
 path = "C:\\_data\\dacon\\wine\\"
 
@@ -104,7 +104,7 @@ test_csv = rbs.transform(test_csv)
 # model.add(Dropout(0.2)) 
 # model.add(Dense(7, activation='softmax'))
 
-i1 = Input(shape = (8,))
+i1 = Input(shape = (12,))
 d1 = Dense(19,activation='relu')(i1)      
 d2 = Dense(97,activation='relu')(d1)
 d3 = Dense(9)(d2)
@@ -137,9 +137,11 @@ filepath = "".join([path, 'k28_10_dacon_wine_',date,'_', filename])
 
 mcp = ModelCheckpoint(monitor='val_loss', mode='min', verbose=1, save_best_only=True, filepath=filepath)    
 model.compile(loss='categorical_crossentropy', optimizer='adam', metrics='acc')
-es = EarlyStopping(monitor='val_loss', mode='min', patience=300, verbose=3, restore_best_weights=True)
-model.fit(X_train, y_train, epochs=2000, batch_size=270, validation_split=0.125, callbacks=[es,mcp], verbose=2)
+start = time.time()
 
+es = EarlyStopping(monitor='val_loss', mode='min', patience=300, verbose=3, restore_best_weights=True)
+model.fit(X_train, y_train, epochs=2000, batch_size=270, validation_split=0.125, verbose=2)
+end = time.time()
 
 
 
@@ -177,7 +179,7 @@ acc = accuracy_score(y_predict, y_test)
 print("accuracy_score : ", acc)
 print("로스 : ", results[0])
 print("ACC : ", results[1])
-
+print("걸린시간 : ", round(end - start, 3), "초")
 # 로스 :  1.0687559843063354
 # accuracy_score :  0.552069122328331
 # 로스 :  1.0687559843063354
@@ -212,6 +214,6 @@ print("ACC : ", results[1])
 
 
 
-
-
+# 걸린시간 :  70.181 초
+# 걸린시간 :  64.424 초
 

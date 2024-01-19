@@ -68,3 +68,8 @@ def RMSE(aaa, bbb):
     return np.sqrt(mean_squared_error(aaa, bbb))
 rmse = RMSE(y_test, y_predict)
 print("로스 : ", loss)
+
+print("걸린시간 : ",round(end_time - start_time, 3), "초")
+
+# 걸린시간 :  7.659 초
+# 걸린시간 :  5.85 초

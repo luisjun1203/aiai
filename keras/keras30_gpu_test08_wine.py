@@ -9,7 +9,7 @@ from keras.utils import to_categorical
 from sklearn.preprocessing import OneHotEncoder
 from keras. callbacks import EarlyStopping,ModelCheckpoint
 from sklearn.preprocessing import MinMaxScaler, MaxAbsScaler, StandardScaler, RobustScaler
-
+import time
 
 datasets = load_wine()
 
@@ -82,7 +82,7 @@ d2 = Dense(97)(d1)
 d3 = Dense(9,activation='relu')(d2)
 d4 = Dense(21)(d3)
 drop1 = Dropout(0.2)(d4)
-o1 = Dense(1,activation='softmax')(drop1)
+o1 = Dense(3,activation='softmax')(drop1)
 model = Model(inputs = i1, outputs = o1)
 
 
@@ -100,9 +100,10 @@ filepath = "".join([path, 'k28_08_wine_',date,'_', filename])
 
 mcp = ModelCheckpoint(monitor='val_loss', mode='min', verbose=1, save_best_only=True, filepath=filepath)    
 model.compile(loss='categorical_crossentropy', optimizer='adam', metrics='acc')
+start = time.time()
 es = EarlyStopping(monitor='val_loss', mode='min', patience=30, restore_best_weights=True, verbose=1)
-hist = model.fit(X_train, y_train, epochs=500, batch_size=1, validation_split=0.2, callbacks=[es,mcp], verbose=1)
-
+hist = model.fit(X_train, y_train, epochs=500, batch_size=1, validation_split=0.2)
+end = time.time()
 results = model.evaluate(X_test, y_test)
 print("로스 : ", results[0])
 print("ACC : ", results[1])
@@ -113,7 +114,7 @@ y_predict = np.argmax(y_predict, axis=1)
 
 acc = accuracy_score(y_predict, y_test)
 print("accuracy_score : ", acc)
-
+print("걸린시간 : ",round(end - start, 3), "초")
 
 # 로스 :  0.2964943051338196
 # ACC :  0.8888888955116272
@@ -133,3 +134,8 @@ print("accuracy_score : ", acc)
 
 # RobustScaler
 로스 :  1.1098047252744436e-05
+
+
+# 걸린시간 :  83.529 초
+# 걸린시간 :  47.815 초
+

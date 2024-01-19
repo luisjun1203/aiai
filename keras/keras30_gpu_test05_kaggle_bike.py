@@ -6,7 +6,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import r2_score, mean_absolute_error, accuracy_score, mean_squared_log_error
 from keras.callbacks import EarlyStopping,ModelCheckpoint
 from sklearn.preprocessing import MinMaxScaler, MaxAbsScaler, StandardScaler, RobustScaler
-
+import time
 path = "c:\\_data\\kaggle\\bike\\"
 
 train_csv = pd.read_csv(path + "train.csv" , index_col=0)
@@ -91,9 +91,10 @@ filepath = "".join([path, 'k28_05_kaggle_bike_',date,'_', filename])
 
 mcp = ModelCheckpoint(monitor='val_loss', mode='min', verbose=1, save_best_only=True, filepath=filepath)    
 model.compile(loss='mse', optimizer='adam', metrics='accuracy')
+start = time.time()
 es = EarlyStopping(monitor='val_loss', mode='min', patience=300, restore_best_weights=True)
-hist = model.fit(X_train, y_train, epochs= 1500, batch_size=700, validation_split=0.15,callbacks=[es,mcp])
-
+hist = model.fit(X_train, y_train, epochs= 1500, batch_size=700, validation_split=0.15)
+end = time.time()
 
 loss = model.evaluate(X_test, y_test)
 y_submit = model.predict(test_csv)
@@ -111,7 +112,7 @@ def RMSLE(y_test, y_predict):
 rmsle = RMSLE(y_test, y_predict) 
 
 print("RMSLE : ", rmsle)
-
+print("걸린시간 : ",round(end - start, 3), "초")
 
 # MinMaxScaler
 RMSLE :  4.800237655708398
@@ -126,3 +127,11 @@ RMSLE :  1.2885431257772446
 
 
 # RMSLE :  1.3502956710363758
+
+
+
+# 걸린시간 :  50.83 초
+# 걸린시간 :  44.527 초
+
+
+

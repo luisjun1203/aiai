@@ -1,6 +1,7 @@
 
 import numpy as np
 import pandas as pd
+import time
 from keras.models import Sequential, Model
 from keras.layers import Dense, Dropout,Input
 from sklearn.model_selection import train_test_split
@@ -126,9 +127,10 @@ filename = '{epoch:05d}-{val_loss:.4f}-{loss:.4f}.hdf5'            # 04d : 4자�
 filepath = "".join([path, 'k28_04_dacon_ddarung_',date,'_', filename])
 mcp = ModelCheckpoint(monitor='val_loss', mode='min', verbose=1, save_best_only=True, filepath=filepath)    
 model.compile(loss='mse', optimizer='adam', metrics='accuracy')
+start = time.time()  
 es = EarlyStopping(monitor='val_loss', mode='min', patience=300, verbose=20, restore_best_weights=True)
 hist = model.fit(X_train, y_train, epochs=3000, batch_size=32, validation_split=0.15, verbose=2, callbacks=[es,mcp])
-
+end = time.time()
 # 4.평가, 예측
 
 loss = model.evaluate(X_test, y_test)
@@ -150,6 +152,8 @@ def RMSE(y_test, y_predict):
 rmse = RMSE(y_test, y_predict)
 print("RMSE : ", rmse)
 print("로스 : ", loss)
+print("걸린시간 : ",round(end - start, 3), "초")
 
 
-
+# 걸린시간 :  44.181 초
+# 걸린시간 :  29.672 초

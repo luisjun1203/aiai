@@ -157,7 +157,7 @@ y1 = ohe.transform(y)
 
 
 
-X_train, X_test, y_train, y_test = train_test_split(X, y1, test_size=0.35, shuffle=True, random_state=3, stratify=y1)
+X_train, X_test, y_train, y_test = train_test_split(X, y1, test_size=0.1, shuffle=True, random_state=3, stratify=y1)
 # mms = MinMaxScaler()
 # mms.fit(X_train)
 # X_train = mms.transform(X_train)
@@ -204,14 +204,14 @@ print(type(date))               # <class 'str'>
 
 path = "..\\_data\\_save\\MCP\\"
 filename = '{epoch:05d}-{acc:.4f}-{loss:.4f}.hdf5'            # 04d : 4자리 정수표현, 4f : 소수4번째자리까지 표현, 예) 1000_0.3333.hdf5
-filepath = "".join([path, 'k26_11_dacon_loan_',date,'_', filename])
+filepath = "".join([path, 'k26_12_dacon_loan_',date,'_', filename])
 
 
 
 
 mcp = ModelCheckpoint(monitor='val_loss', mode='min', verbose=1, save_best_only=True, filepath=filepath)    
 model.compile(loss='categorical_crossentropy', optimizer='adam', metrics='acc')
-es = EarlyStopping(monitor='acc', mode='max', patience=1000, verbose=20, restore_best_weights=True)
+es = EarlyStopping(monitor='acc', mode='max', patience=700, verbose=20, restore_best_weights=True)
 model.fit(X_train, y_train, epochs=15000, batch_size=500, validation_split=0.15, callbacks=[es,mcp], verbose=2)
 
 
@@ -239,4 +239,4 @@ print(y_submit)
 fs = f1_score(y_test, y_predict, average='macro')
 print("f1_score : ", fs)
 
-submission_csv.to_csv(path + "submission_0117_11_.csv", index=False)
+submission_csv.to_csv(path + "submission_0117_12_.csv", index=False)

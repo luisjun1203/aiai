@@ -7,6 +7,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import r2_score, mean_squared_error,mean_squared_log_error,accuracy_score
 from keras.callbacks import EarlyStopping, ModelCheckpoint
 from sklearn.preprocessing import MinMaxScaler, MaxAbsScaler, StandardScaler, RobustScaler
+import time
 
 #1. 데이터
 datasets= load_breast_cancer()
@@ -95,9 +96,10 @@ filepath = "".join([path, 'k28_06_cancer_', date,'_', filename])
 
 mcp = ModelCheckpoint(monitor='val_loss', mode='min', verbose=1, save_best_only=True, filepath=filepath)    
 model.compile(loss='binary_crossentropy', optimizer='adam', metrics='accuracy') # 'mse', 'mae'도 사용가능# accuracy = acc #이진 분류 모델이 나오면 "binary_crossentropy"'#분류모델에서는 mse사용안함                     
+start = time.time()
 es = EarlyStopping(monitor='val_loss', mode='min', patience=300, verbose=3, restore_best_weights=True)                   #다중 분류 모델에서는 'categorical_crossentropy
-hist = model.fit(X_train, y_train, epochs=5000, batch_size=32, validation_split=0.1, callbacks=[es,mcp])
-
+hist = model.fit(X_train, y_train, epochs=5000, batch_size=32, validation_split=0.1)
+end = time.time()
 
 #4.평가,예측
 
@@ -119,7 +121,7 @@ print("정확도 : ", acc)
 # print("???",result)
 print("로스 : ", loss)
 print("R2 : ", r2)
-
+print("걸린시간 : ",round(end - start, 3), "초")
 
 
 
@@ -145,5 +147,5 @@ print("R2 : ", r2)
 
 
 
-
-
+# 걸린시간 :  173.31 초
+# 걸린시간 :  124.51 초

@@ -9,6 +9,7 @@ from keras.utils import to_categorical
 from sklearn.preprocessing import OneHotEncoder
 from keras. callbacks import EarlyStopping,ModelCheckpoint
 from sklearn.preprocessing import MinMaxScaler, MaxAbsScaler, StandardScaler, RobustScaler
+import time
 
 datasets = fetch_covtype()
 
@@ -115,9 +116,10 @@ filepath = "".join([path, 'k28_09_fetch_covtype',date,'_', filename])
 
 mcp = ModelCheckpoint(monitor='val_loss', mode='min', verbose=1, save_best_only=True, filepath=filepath)    
 model.compile(loss='categorical_crossentropy', optimizer='adam', metrics='acc')
+start = time.time()
 es = EarlyStopping(monitor='val_loss', mode='min', patience=100, restore_best_weights=True, verbose=1)
-hist = model.fit(X_train, y_train, epochs=1500, batch_size=1000, validation_split=0.1, callbacks=[es,mcp], verbose=1)
-
+hist = model.fit(X_train, y_train, epochs=1500, batch_size=1000, validation_split=0.1, verbose=1)
+end = time.time()
 results = model.evaluate(X_test, y_test)
 print("로스 : ", results[0])
 print("ACC : ", results[1])
@@ -128,7 +130,7 @@ y_predict = np.argmax(y_predict, axis=1)
 
 acc = accuracy_score(y_test, y_predict)
 print("accuracy_score : ", acc)
-
+print("걸린시간 : ",round(end - start, 3), "초")
 
 # 로스 :  0.6938604116439819
 # ACC :  0.701832115650177
@@ -163,3 +165,7 @@ print("accuracy_score : ", acc)
 # 로스 :  0.4073517620563507
 # ACC :  0.8323080539703369
 # accuracy_score :  0.8323080327506085
+
+
+# 걸린시간 :  789.276 초
+# 걸린시간 :  959.575 초

@@ -52,10 +52,12 @@ filename = '{epoch:05d}-{val_loss:.4f}-{loss:.4f}.hdf5'            # 04d : 4자�
 filepath = "".join([path, 'k28_02_california_',date,'_', filename])
                         
 mcp = ModelCheckpoint(monitor='val_loss', mode='min', verbose=1, save_best_only=True, filepath=filepath)    
-model.compile(loss='mse', optimizer='adam')                                                             # early stopping 개념, min,max, auto
+model.compile(loss='mse', optimizer='adam')    
+# early stopping 개념, min,max, auto
+start_time = time.time()
 es = EarlyStopping(monitor='val_loss', mode='min',patience=100, verbose= 1, restore_best_weights=True) 
 hist = model.fit(X_train, y_train, epochs=200, batch_size=400, validation_split=0.2, callbacks=[es,mcp])
-# end_time = time.time()
+end_time = time.time()
 
 loss = model.evaluate(X_test, y_test)
 print("로스 : ", loss)
@@ -71,5 +73,9 @@ def RMSE(aaa, bbb):
 rmse = RMSE(y_test, y_predict)
 
 print("R2스코어 : ", r2)
-# print("걸린시간 : ", round(end_time - start_time, 3), "초")
+print("걸린시간 : ", round(end_time - start_time, 3), "초")
 print("RMSE : ", rmse)
+
+
+# 걸린시간 :  13.977 초
+# 걸린시간 :  10.666 초

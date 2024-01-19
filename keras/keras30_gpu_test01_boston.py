@@ -13,7 +13,7 @@ import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler, MaxAbsScaler, StandardScaler, RobustScaler
 from keras.callbacks import EarlyStopping, ModelCheckpoint 
-
+import time
 
 datasets = load_boston()
 
@@ -62,10 +62,11 @@ filepath = "".join([path, 'k28_01_boston_',date,'_', filename])
 
 
 # mcp = ModelCheckpoint(monitor='loss', mode='min', verbose=1, save_best_only=True, filepath= filepath)        
-model.compile(loss='mae', optimizer='adam')                                                             
+model.compile(loss='mae', optimizer='adam')                     
+start = time.time()                                        
 es = EarlyStopping(monitor='loss', mode='min',patience=100, verbose= 20, restore_best_weights=True) 
 hist = model.fit(X_train, y_train, epochs=1000, batch_size=15, validation_split=0.1, callbacks=[es])
-
+end = time.time()
 
 print("=======================1.기본출력 ==============================")
 loss = model.evaluate(X_test, y_test, verbose=0)
@@ -76,3 +77,8 @@ y_predict = model.predict(X_test)
 
 r2 = r2_score(y_test, y_predict)
 print("R2스코어 :", r2)
+print("걸린시간 : ",round(end - start, 3), "초")
+
+
+# 걸린시간 :  52.388 초
+# 걸린시간 :  33.221 초

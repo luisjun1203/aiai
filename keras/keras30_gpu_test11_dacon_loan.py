@@ -7,7 +7,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import f1_score
 from sklearn.preprocessing import OneHotEncoder, LabelEncoder, MinMaxScaler, RobustScaler, Normalizer
 from keras.utils import to_categorical
-
+import time
 
 # 1. 데이터
 path = "c:\\_data\\dacon\\loan\\"
@@ -66,6 +66,15 @@ df1['대출기간'] = df1['대출기간'].replace({' 36 months' : 36 , ' 60 mont
 lae.fit(df['근로기간'])
 df['근로기간'] = lae.transform(df['근로기간'])
 df1['근로기간'] = lae.transform(df1['근로기간'])
+
+# df['근로기간']= train_csv([df['근로기간'] == 'Unknown'])
+
+
+
+# print(df['근로기간'])
+
+
+
 
 lae.fit(df['대출등급'])
 
@@ -157,7 +166,7 @@ y1 = ohe.transform(y)
 
 
 
-X_train, X_test, y_train, y_test = train_test_split(X, y1, test_size=0.4, shuffle=True, random_state=3, stratify=y1)
+X_train, X_test, y_train, y_test = train_test_split(X, y1, test_size=0.15, shuffle=True, random_state=3, stratify=y1)
 # mms = MinMaxScaler()
 # mms.fit(X_train)
 # X_train = mms.transform(X_train)
@@ -222,16 +231,19 @@ print(type(date))               # <class 'str'>
 
 path = "..\\_data\\_save\\MCP\\"
 filename = '{epoch:05d}-{acc:.4f}-{loss:.4f}.hdf5'            # 04d : 4자리 정수표현, 4f : 소수4번째자리까지 표현, 예) 1000_0.3333.hdf5
-filepath = "".join([path, 'k28_14_dacon_loan_',date,'_', filename])
+filepath = "".join([path, 'k28_12_dacon_loan_',date,'_', filename])
 
 
 
 
 mcp = ModelCheckpoint(monitor='val_loss', mode='min', verbose=1, save_best_only=True, filepath=filepath)    
 model.compile(loss='categorical_crossentropy', optimizer='adam', metrics='acc')
-es = EarlyStopping(monitor='acc', mode='max', patience=2000, verbose=20, restore_best_weights=True)
-model.fit(X_train, y_train, epochs=50000, batch_size=512, validation_split=0.15, callbacks=[es,mcp], verbose=2)
+start = time.time()
+es = EarlyStopping(monitor='acc', mode='max', patience=500, verbose=20, restore_best_weights=True)
+model.fit(X_train, y_train, epochs=20000, batch_size=480, validation_split=0.1, verbose=2)
 
+
+end = time.time()
 
 
 results = model.evaluate(X_test, y_test)
@@ -256,5 +268,10 @@ print(y_submit)
 
 fs = f1_score(y_test, y_predict, average='weighted')
 print("f1_score : ", fs)
+print("걸린시간 : ",round(end - start, 3), "초")
+submission_csv.to_csv(path + "submission_0118_2_.csv", index=False)
 
-submission_csv.to_csv(path + "submission_0118_1_.csv", index=False)
+
+# 걸린시간 : 1322.223 초
+# 걸린시간 : 1003.385 초
+

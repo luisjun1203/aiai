@@ -7,6 +7,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import r2_score, mean_squared_error,accuracy_score
 from keras. callbacks import EarlyStopping,ModelCheckpoint
 from sklearn.preprocessing import MinMaxScaler, MaxAbsScaler, StandardScaler, RobustScaler
+import time
 path = "c://_data//dacon//diabetes//"
 
 train_csv = pd.read_csv(path + "train.csv", index_col=0)
@@ -109,9 +110,10 @@ filepath = "".join([path, 'k28_07_dacon_diabetes_',date,'_', filename])
 
 mcp = ModelCheckpoint(monitor='val_loss', mode='min', verbose=1, save_best_only=True, filepath=filepath)    
 model.compile(loss='binary_crossentropy', optimizer='adam', metrics='acc')
+start = time.time()
 es = EarlyStopping(monitor='val_loss' , mode='min', patience=1000, verbose=3, restore_best_weights=True)
-hist = model.fit(X_train, y_train, epochs=5000, batch_size=16, validation_split=0.15, callbacks=[es,mcp] )
-
+hist = model.fit(X_train, y_train, epochs=5000, batch_size=16, validation_split=0.15 )
+end = time.time()
 loss = model.evaluate(X_test, y_test)
 y_submit = model.predict(test_csv)
 
@@ -131,7 +133,7 @@ def ACC(aaa, bbb):
 acc = ACC(y_test, y_predict)
 print("ACC : ", acc)
 print("로스 : ", loss)
-
+print("걸린시간 : ",round(end - start, 3), "초")
 
 
 # MinMaxScaler
@@ -148,4 +150,7 @@ print("로스 : ", loss)
 # # RobustScaler
 # ACC :  0.8061224489795918
 # 로스 :  [0.45696309208869934, 0.8061224222183228]
+
+# 걸린시간 :  310.106 초
+# 걸린시간 :  181.984 초
 
