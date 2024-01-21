@@ -5,7 +5,7 @@ from keras.layers import Dense,Dropout, Input
 from keras.callbacks import EarlyStopping,ModelCheckpoint
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import f1_score
-from sklearn.preprocessing import OneHotEncoder, LabelEncoder, MinMaxScaler, RobustScaler, Normalizer
+from sklearn.preprocessing import OneHotEncoder, LabelEncoder, MinMaxScaler, RobustScaler, Normalizer, StandardScaler
 from keras.utils import to_categorical
 import time
 
@@ -23,6 +23,16 @@ submission_csv = pd.read_csv(path + "sample_submission.csv")
 # train_csv = train_csv.drop(labels='TRAIN_28730',axis=0)
 train_csv.iloc[28730, 3] = 'OWN'
 test_csv.iloc[34486,7] = '기타'
+
+train_csv.loc[train_csv['근로기간']=='3','근로기간']='3 years'
+test_csv.loc[test_csv['근로기간']=='3','근로기간']='3 years'
+test_csv.loc[test_csv['근로기간']=='1 year','근로기간']='1 years'
+train_csv.loc[train_csv['근로기간']=='1 year','근로기간']='1 years'
+test_csv.loc[test_csv['근로기간']=='<1 year','근로기간']='< 1 year'
+train_csv.loc[train_csv['근로기간']=='<1 year','근로기간']='< 1 year'
+test_csv.loc[test_csv['근로기간']=='10+years','근로기간']='10+ years'
+train_csv.loc[train_csv['근로기간']=='10+years','근로기간']='10+ years'
+train_csv.value_counts('근로기간')
 # print(X.info())
 
 # X.dropna(inplace=True)
@@ -63,17 +73,17 @@ df['대출기간'] = df['대출기간'].replace({' 36 months' : 36 , ' 60 months
 df1['대출기간'] = df1['대출기간'].replace({' 36 months' : 36 , ' 60 months' : 60 }).astype(int)
 # print(pd.value_counts(df['대출기간']))
 
+
+
+# df['근로기간']= train_csv([df['근로기간'] == 'Unknown'])
 lae.fit(df['근로기간'])
 df['근로기간'] = lae.transform(df['근로기간'])
 df1['근로기간'] = lae.transform(df1['근로기간'])
 
-# df['근로기간']= train_csv([df['근로기간'] == 'Unknown'])
 
 
 
 # print(df['근로기간'])
-
-
 
 
 lae.fit(df['대출등급'])
@@ -179,6 +189,12 @@ X_train = rbs.transform(X_train)
 X_test = rbs.transform(X_test)
 df1 = rbs.transform(df1)
 
+# sts = StandardScaler()
+# sts.fit(X_train)
+# X_train = sts.transform(X_train)
+# X_test = sts.transform(X_test)
+# df1 = sts.transform(df1)
+
 # norm = Normalizer()
 # norm.fit(X_train)
 # X_train = norm.transform(X_train)
@@ -212,12 +228,12 @@ df1 = rbs.transform(df1)
 
 
 i1 = Input(shape = (13,))
-d1 = Dense(19,activation='relu')(i1)      
-d2 = Dense(97,activation='relu')(d1)
-d3 = Dense(9,activation='relu')(d2)
-d4 = Dense(21,activation='relu')(d3)
-d5 = Dense(16,activation='relu')(d4)
-d6 = Dense(21,activation='relu')(d5)
+d1 = Dense(19,activation='swish')(i1)      
+d2 = Dense(97,activation='swish')(d1)
+d3 = Dense(9,activation='swish')(d2)
+d4 = Dense(21,activation='swish')(d3)
+d5 = Dense(16,activation='swish')(d4)
+d6 = Dense(21,activation='swish')(d5)
 # drop1 = Dropout(0.2)(d6)
 o1 = Dense(7,activation='softmax')(d6)
 model = Model(inputs = i1, outputs = o1)
@@ -231,7 +247,7 @@ print(type(date))               # <class 'str'>
 
 path = "..\\_data\\_save\\MCP\\"
 filename = '{epoch:05d}-{acc:.4f}-{loss:.4f}.hdf5'            # 04d : 4자리 정수표현, 4f : 소수4번째자리까지 표현, 예) 1000_0.3333.hdf5
-filepath = "".join([path, 'k28_12_dacon_loan_',date,'_', filename])
+filepath = "".join([path, 'k28_25_dacon_loan_',date,'_', filename])
 
 
 
@@ -239,8 +255,8 @@ filepath = "".join([path, 'k28_12_dacon_loan_',date,'_', filename])
 mcp = ModelCheckpoint(monitor='val_loss', mode='min', verbose=1, save_best_only=True, filepath=filepath)    
 model.compile(loss='categorical_crossentropy', optimizer='adam', metrics='acc')
 start = time.time()
-es = EarlyStopping(monitor='acc', mode='max', patience=500, verbose=20, restore_best_weights=True)
-model.fit(X_train, y_train, epochs=20000, batch_size=480, validation_split=0.1, verbose=2)
+es = EarlyStopping(monitor='acc', mode='max', patience=97, verbose=20, restore_best_weights=True)
+model.fit(X_train, y_train, epochs=10000, batch_size=480, validation_split=0.1, verbose=2)
 
 
 end = time.time()
@@ -269,7 +285,7 @@ print(y_submit)
 fs = f1_score(y_test, y_predict, average='weighted')
 print("f1_score : ", fs)
 print("걸린시간 : ",round(end - start, 3), "초")
-submission_csv.to_csv(path + "submission_0118_2_.csv", index=False)
+submission_csv.to_csv(path + "submission_0121_2_.csv", index=False)
 
 
 # 걸린시간 : 1322.223 초

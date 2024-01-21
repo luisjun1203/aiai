@@ -5,10 +5,11 @@ import pandas as pd
 from keras.models import Sequential
 from keras.layers import Dense, Conv2D, Flatten, Dropout, GlobalAveragePooling2D
 import tensorflow as tf
-from sklearn.preprocessing import OneHotEncoder
+from sklearn.preprocessing import OneHotEncoder,StandardScaler, RobustScaler
 import time
 from keras.callbacks import EarlyStopping
 from sklearn.metrics import accuracy_score
+
 # acc = 0.77이상
 
 (X_train, y_train), (X_test, y_test) = cifar10.load_data()
@@ -42,8 +43,29 @@ y_test = ohe.fit_transform(y_test)
 
 # print(y_test)
 # print(y_train)
-X_train = X_train/255
-X_test = X_test/255
+
+##### minmaxScaler ######
+# X_train = X_train/255           # 0~255까지 있는 데이터라 255로 나눠줌
+# X_test = X_test/255
+
+
+##### standardScaler #######
+# mean = np.mean(X_train, axis=(0, 1, 2))     # 평균
+# std = np.std(X_train, axis=(0, 1, 2))       # 표준편차
+# X_train = (X_train - mean) / std            
+# X_test = (X_test - mean) / std
+
+##### standardScaler #######
+# scaler = StandardScaler()
+# X_train = scaler.fit_transform(X_train.reshape(-1, 32*32*3)).reshape(-1, 32, 32, 3)
+# X_test = scaler.transform(X_test.reshape(-1, 32*32*3)).reshape(-1, 32, 32, 3)
+
+rbs = RobustScaler()
+X_train = rbs.fit_transform(X_train.reshape(-1, 32*32*3)).reshape(-1, 32, 32, 3)
+X_test = rbs.fit_transform(X_train.reshape(-1, 32*32*3)).reshape(-1, 32, 32, 3)
+
+print(X_train)
+print(X_test)
 
 # model = Sequential()                    
 # model.add(Conv2D(19, kernel_size=(2, 2),input_shape = (32, 32, 3),activation='relu'))   
@@ -70,7 +92,6 @@ model.add(GlobalAveragePooling2D())  # Global Average Pooling 사용
 model.add(Dense(312, activation='relu'))
 model.add(Dropout(0.3))  # 낮은 Dropout 비율 사용
 model.add(Dense(48, activation='relu'))
-model.add(Dropout(0.3))
 model.add(Dense(10, activation='softmax'))
 
 
@@ -96,7 +117,10 @@ print("걸리시간 : ", round(end_time - strat_time, 3), "초")
 print("accuracy_score : ", acc)
 
 
-
+# loss 0.7100104093551636
+# acc 0.7717999815940857
+# 걸리시간 :  1785.19 초
+# accuracy_score :  0.7718
 
 
 
