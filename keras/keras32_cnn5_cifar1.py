@@ -85,13 +85,13 @@ print(X_test)
 # model.add(Dense(10, activation= 'softmax'))
 
 model = Sequential()                    
-model.add(Conv2D(19, kernel_size=(3, 3), input_shape=(32, 32, 3), activation='relu'))   
-model.add(Conv2D(97, (4, 4), activation='relu'))                         
-model.add(Conv2D(210, (3, 3), activation='relu'))              
+model.add(Conv2D(19, kernel_size=(3, 3), input_shape=(32, 32, 3), activation='swish'))   
+model.add(Conv2D(97, (4, 4), activation='swish'))                         
+model.add(Conv2D(210, (3, 3), activation='swish'))              
 model.add(GlobalAveragePooling2D())  # Global Average Pooling 사용
-model.add(Dense(312, activation='relu'))
+model.add(Dense(312, activation='swish'))
 model.add(Dropout(0.3))  # 낮은 Dropout 비율 사용
-model.add(Dense(48, activation='relu'))
+model.add(Dense(48, activation='swish'))
 model.add(Dense(10, activation='softmax'))
 
 

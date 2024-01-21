@@ -255,7 +255,7 @@ filepath = "".join([path, 'k28_25_dacon_loan_',date,'_', filename])
 mcp = ModelCheckpoint(monitor='val_loss', mode='min', verbose=1, save_best_only=True, filepath=filepath)    
 model.compile(loss='categorical_crossentropy', optimizer='adam', metrics='acc')
 start = time.time()
-es = EarlyStopping(monitor='acc', mode='max', patience=97, verbose=20, restore_best_weights=True)
+es = EarlyStopping(monitor='val_loss', mode='min', patience=97, verbose=20, restore_best_weights=True)
 model.fit(X_train, y_train, epochs=10000, batch_size=480, validation_split=0.1, verbose=2)
 
 
