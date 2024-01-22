@@ -77,7 +77,7 @@ model.add(Dense(100, activation='softmax'))
 
 strat_time = time.time()
 model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['acc'])
-es = EarlyStopping(monitor='val_loss', mode='min', patience=20, verbose=2, restore_best_weights=True)
+es = EarlyStopping(monitor='val_loss', mode='min', patience=30, verbose=2, restore_best_weights=True)
 model.fit(X_train, y_train, epochs=200, batch_size=21,verbose=2, validation_split=0.15, callbacks=[es])
 end_time = time.time()
 # print(X_train, X_test)
@@ -108,7 +108,14 @@ print("accuracy_score : ", acc)
 # 걸리시간 :  481.229 초
 # accuracy_score :  0.4616
 
+# loss 2.03399658203125
+# acc 0.4690000116825104
+# 걸리시간 :  670.962 초
+# accuracy_score :  0.469
 
 
-
+# loss 2.0134806632995605
+# acc 0.47040000557899475
+# 걸리시간 :  813.738 초
+# accuracy_score :  0.4704
 

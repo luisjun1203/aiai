@@ -50,8 +50,8 @@ y_test = ohe.fit_transform(y_test)
 
 
 ##### standardScaler #######
-mean = np.mean(X_train, axis=(0, 1, 2))     # 평균
-std = np.std(X_train, axis=(0, 1, 2))       # 표준편차
+mean = np.mean(X_train, axis=(0, 1))     # 평균
+std = np.std(X_train, axis=(0, 1))       # 표준편차
 X_train = (X_train - mean) / std            
 X_test = (X_test - mean) / std
 

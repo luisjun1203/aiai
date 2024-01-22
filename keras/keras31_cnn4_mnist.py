@@ -31,50 +31,50 @@ print(X_test.shape)             # (10000, 28, 28, 1)
 # print(y_test)
 # print(y_train)
 
-# y_test = y_test.reshape(-1,1)
-# y_train = y_train.reshape(-1,1)
+y_test = y_test.reshape(-1,1)
+y_train = y_train.reshape(-1,1)
 
-# ohe = OneHotEncoder(sparse=False)
-# y_train = ohe.fit_transform(y_train)
-# y_test = ohe.fit_transform(y_test)
-
-
-# print(y_test)
-# print(y_train)
-
-# # print(y_train, y_test)
-# # 2. 모델 구성
-#                                         # (kenal높이 x kernel너비 x 입력채널수+1) x filters     +1은 bias
-# model = Sequential()                    # input channel x output channel x kernel_size + output channel : 1x19x(2x2)+19
-# model.add(Conv2D(19, kernel_size=(2, 2),input_shape = (28, 28, 1)))   #(N,27,27,19)             # 19 : filter( out layer 이름)
-# model.add(Conv2D(97, (3, 3)))               #(N,25,25,97)           
-# model.add(Conv2D(9, (4, 4)))               #(N,22,22,9)
-# model.add(Flatten())                       # (N, 22x22x9)                             # flatten : reshpae 할 필요없이 2d를 1d로 바꿔준다
-# model.add(Dense(21, activation='relu'))
-# model.add(Dense(10, activation= 'softmax'))
-
-# model.summary()
+ohe = OneHotEncoder(sparse=False)
+y_train = ohe.fit_transform(y_train)
+y_test = ohe.fit_transform(y_test)
 
 
-# # 3. 컴파일 , 훈련
-# strat_time = time.time()
-# model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['acc'])
-# es = EarlyStopping(monitor='acc', mode='max', patience=100, verbose=20, restore_best_weights=True)
-# model.fit(X_train, y_train, epochs=1000, batch_size=5000,verbose=2, validation_split=0.15, callbacks=[es])
-# end_time = time.time()
-# # print(X_train, X_test)
+print(y_test)
+print(y_train)
 
-# # 4. 평가, 예측
+# print(y_train, y_test)
+# 2. 모델 구성
+                                        # (kenal높이 x kernel너비 x 입력채널수+1) x filters     +1은 bias
+model = Sequential()                    # input channel x output channel x kernel_size + output channel : 1x19x(2x2)+19
+model.add(Conv2D(19, kernel_size=(2, 2),input_shape = (28, 28, 1)))   #(N,27,27,19)             # 19 : filter( out layer 이름)
+model.add(Conv2D(97, (3, 3)))               #(N,25,25,97)           
+model.add(Conv2D(9, (4, 4)))               #(N,22,22,9)
+model.add(Flatten())                       # (N, 22x22x9)                             # flatten : reshpae 할 필요없이 2d를 1d로 바꿔준다
+model.add(Dense(21, activation='relu'))
+model.add(Dense(10, activation= 'softmax'))
+
+model.summary()
 
 
-# results = model.evaluate(X_test, y_test)
-# print('loss' , results[0])
-# print('acc', results[1])
-# print("걸리시간 : ", round(end_time - strat_time, 3), "초")
+# 3. 컴파일 , 훈련
+strat_time = time.time()
+model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['acc'])
+es = EarlyStopping(monitor='acc', mode='max', patience=100, verbose=20, restore_best_weights=True)
+model.fit(X_train, y_train, epochs=1000, batch_size=5000,verbose=2, validation_split=0.15, callbacks=[es])
+end_time = time.time()
+# print(X_train, X_test)
+
+# 4. 평가, 예측
 
 
-# # loss 0.7981159925460815
-# # acc 0.9863999772071838
+results = model.evaluate(X_test, y_test)
+print('loss' , results[0])
+print('acc', results[1])
+print("걸리시간 : ", round(end_time - strat_time, 3), "초")
+
+
+# loss 0.7981159925460815
+# acc 0.9863999772071838
 
 
 

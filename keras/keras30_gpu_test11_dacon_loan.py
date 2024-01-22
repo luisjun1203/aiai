@@ -117,15 +117,20 @@ lae.fit(df['대출등급'])
 # df = df[df.근로기간 !='unknown']
 
 
-X = df.drop(['대출등급'], axis=1)
+X = df.drop(['대출등급', '최근_2년간_연체_횟수', '총연체금액', '연체계좌수'], axis=1)
 y = df['대출등급']
 
 # mms = MinMaxScaler()
 # mms.fit(X)
 # X = mms.transform(X)
 # df1 = mms.transform(df1)
+print(X.shape)
+print(y.shape)
 
+print(df.shape)
+print(df1.shape)
 
+'''
 
 
 # print(y.shape)              #(96294, )
@@ -183,17 +188,17 @@ X_train, X_test, y_train, y_test = train_test_split(X, y1, test_size=0.15, shuff
 # X_test = mms.transform(X_test)
 # df1 = mms.transform(df1)
 
-# rbs = RobustScaler()
-# rbs.fit(X_train)
-# X_train = rbs.transform(X_train)
-# X_test = rbs.transform(X_test)
-# df1 = rbs.transform(df1)
+rbs = RobustScaler()
+rbs.fit(X_train)
+X_train = rbs.transform(X_train)
+X_test = rbs.transform(X_test)
+df1 = rbs.transform(df1)
 
-sts = StandardScaler()
-sts.fit(X_train)
-X_train = sts.transform(X_train)
-X_test = sts.transform(X_test)
-df1 = sts.transform(df1)
+# sts = StandardScaler()
+# sts.fit(X_train)
+# X_train = sts.transform(X_train)
+# X_test = sts.transform(X_test)
+# df1 = sts.transform(df1)
 
 # norm = Normalizer()
 # norm.fit(X_train)
@@ -291,3 +296,4 @@ submission_csv.to_csv(path + "submission_0122_3_.csv", index=False)
 # 걸린시간 : 1322.223 초
 # 걸린시간 : 1003.385 초
 
+'''

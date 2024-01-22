@@ -38,7 +38,10 @@ y_test = ohe.fit_transform(y_test)
 
 X_train = X_train/255           
 X_test = X_test/255
-
+# mean = np.mean(X_train, axis=(0, 1, 2))
+# std = np.std(X_train, axis=(0, 1, 2))
+# X_train = (X_train - mean) / std
+# X_test = (X_test - mean) / std
 # print(X_train)            # (60000, 28, 28, 1)
 # print(X_test)             # (10000, 28, 28, 1)
 
@@ -46,7 +49,7 @@ X_test = X_test/255
 model = Sequential()                    
 model.add(Conv2D(19, kernel_size=(3, 3), input_shape=(28, 28, 1), activation='swish'))   
 model.add(Conv2D(97, (4, 4), activation='swish'))                         
-model.add(Conv2D(210, (3, 3), activation='swish'))              
+model.add(Conv2D(500, (3, 3), activation='swish'))              
 model.add(GlobalAveragePooling2D())  
 model.add(Dense(124, activation='swish'))
 model.add(Dropout(0.3)) 
@@ -60,7 +63,7 @@ model.add(Dense(10, activation='softmax'))
 strat_time = time.time()
 model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['acc'])
 es = EarlyStopping(monitor='val_loss', mode='min', patience=97, verbose=2, restore_best_weights=True)
-model.fit(X_train, y_train, epochs=1997, batch_size=21,verbose=2, validation_split=0.15, callbacks=[es])
+model.fit(X_train, y_train, epochs=1997, batch_size=21,verbose=2, validation_split=0.97, callbacks=[es])
 end_time = time.time()
 # print(X_train, X_test)
 
