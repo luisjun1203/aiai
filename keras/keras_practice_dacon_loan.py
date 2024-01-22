@@ -70,11 +70,13 @@ test_csv.loc[test_csv['근로기간']=='<1 year','근로기간']='< 1 year'
 train_csv.loc[train_csv['근로기간']=='<1 year','근로기간']='< 1 year'
 test_csv.loc[test_csv['근로기간']=='10+years','근로기간']='10+ years'
 train_csv.loc[train_csv['근로기간']=='10+years','근로기간']='10+ years'
+train_csv.loc[train_csv['근로기간']=='Unknown', '근로기간']='10+ years'
+test_csv.loc[test_csv['근로기간']=='Unknown', '근로기간']='10+ years'
 train_csv.value_counts('근로기간')
-# print(np.unique(train_csv['근로기간']))
+print(np.unique(train_csv['근로기간']))
 # ['1 years' '10+ years' '2 years' '3 years' '4 years' '5 years'
 #  '6 years' '7 years' '8 years' '9 years' '< 1 year' 'Unknown']
-
+'''
 # print(np.unique(test_csv['주택소유상태']))      #['MORTGAGE' 'OWN' 'RENT']
 # print(np.unique(train_csv['주택소유상태']))      #['ANY' 'MORTGAGE' 'OWN' 'RENT']
 train_csv.loc[train_csv['주택소유상태']=='ANY', '주택소유상태'] = 'OWN'
@@ -144,7 +146,7 @@ y1 = ohe.transform(y)
 
 
 
-X_train, X_test, y_train, y_test = train_test_split(X, y1, test_size=0.4, shuffle=True, random_state=3, stratify=y1)
+X_train, X_test, y_train, y_test = train_test_split(X, y1, test_size=0.25, shuffle=True, random_state=3, stratify=y1)
 
 
 rbs = RobustScaler()
@@ -175,7 +177,7 @@ print(date)
 
 path = "..\\_data\\_save\\MCP\\"
 filename = '{epoch:05d}-{acc:.4f}-{loss:.4f}.hdf5'            
-filepath = "".join([path, 'k30_1_dacon_loan_',date,'_', filename])
+filepath = "".join([path, 'k30_3_dacon_loan_',date,'_', filename])
 
 
 
@@ -183,8 +185,8 @@ filepath = "".join([path, 'k30_1_dacon_loan_',date,'_', filename])
 mcp = ModelCheckpoint(monitor='val_loss', mode='min', verbose=1, save_best_only=True, filepath=filepath)    
 model.compile(loss='categorical_crossentropy', optimizer='adam', metrics='acc')
 start = time.time()
-es = EarlyStopping(monitor='val_loss', mode='min', patience=150, verbose=20, restore_best_weights=True)
-model.fit(X_train, y_train, epochs=10000, batch_size=480, validation_split=0.1, verbose=2)
+es = EarlyStopping(monitor='val_loss', mode='min', patience=1000, verbose=20, restore_best_weights=True)
+model.fit(X_train, y_train, epochs=50000, batch_size=480, validation_split=0.15, verbose=2)
 
 
 end = time.time()
@@ -203,13 +205,13 @@ y_submit = ohe.inverse_transform(y_submit)
 
 y_submit = pd.DataFrame(y_submit)
 submission_csv['대출등급'] = y_submit
-print(y_submit)
+# print(y_submit)
 
 fs = f1_score(y_test, y_predict, average='weighted')
 print("f1_score : ", fs)
 print("걸린시간 : ",round(end - start, 3), "초")
-submission_csv.to_csv(path + "submission_0122_3_.csv", index=False)
-
+submission_csv.to_csv(path + "submission_0122_33_.csv", index=False)
+'''
 
 
 
