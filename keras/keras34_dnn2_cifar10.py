@@ -3,7 +3,7 @@ import numpy as np
 from keras.datasets import mnist
 import pandas as pd
 from keras.models import Sequential
-from keras.layers import Dense, Conv2D, Flatten, Dropout, GlobalAveragePooling2D
+from keras.layers import Dense, Conv2D, Flatten, Dropout, GlobalAveragePooling2D, MaxPooling2D
 import tensorflow as tf
 from sklearn.preprocessing import OneHotEncoder,StandardScaler, RobustScaler
 import time
@@ -23,6 +23,9 @@ from sklearn.metrics import accuracy_score
 # X_train = X_train.astype('float32')
 # X_test = X_train.astype('float32')
 
+X_train = X_train.reshape(50000, 32*32*3)
+X_test = X_test.reshape(10000, 32*32*3)
+
 
 # print(X_test)
 # print(X_train)
@@ -31,8 +34,8 @@ from sklearn.metrics import accuracy_score
 # print(y_test.shape)
 # print(y_train.shape)
 
-# y_train = y_train.reshape(-1, 1)
-# y_test = y_test.reshape(-1, 1)
+y_train = y_train.reshape(-1, 1)
+y_test = y_test.reshape(-1, 1)
 
 # print(y_test.shape)
 # print(y_train.shape)
@@ -45,15 +48,15 @@ y_test = ohe.fit_transform(y_test)
 # print(y_train)
 
 ##### minmaxScaler ######
-# X_train = X_train/255           # 0~255까지 있는 데이터라 255로 나눠줌
-# X_test = X_test/255
+X_train = X_train/255           # 0~255까지 있는 데이터라 255로 나눠줌
+X_test = X_test/255
 
 
 ##### standardScaler #######
-mean = np.mean(X_train, axis=(0, 1))     # 평균
-std = np.std(X_train, axis=(0, 1))       # 표준편차
-X_train = (X_train - mean) / std            
-X_test = (X_test - mean) / std
+# mean = np.mean(X_train, axis=(0, 1))     # 평균
+# std = np.std(X_train, axis=(0, 1))       # 표준편차
+# X_train = (X_train - mean) / std            
+# X_test = (X_test - mean) / std
 
 ##### standardScaler #######
 # scaler = StandardScaler()
@@ -84,16 +87,31 @@ X_test = (X_test - mean) / std
 # model.add(Dropout(0.5))
 # model.add(Dense(10, activation= 'softmax'))
 
-model = Sequential()                    
-model.add(Conv2D(19, kernel_size=(4, 4), input_shape=(32, 32, 3),activation='swish'))   
-model.add(Conv2D(97, (4, 4),activation='swish', strides=2, padding='same'))                         
-model.add(Conv2D(210, (3, 3),activation='swish'))              
-model.add(GlobalAveragePooling2D())  # Global Average Pooling 사용
-model.add(Dense(81, activation='swish'))
-model.add(Dropout(0.3))  # 낮은 Dropout 비율 사용
-model.add(Dense(48, activation='swish'))
-model.add(Dense(10, activation='softmax'))
+# model = Sequential()                    
+# model.add(Conv2D(19, kernel_size=(4, 4), input_shape=(32, 32, 3),activation='swish'))   
+# model.add(Conv2D(97, (4, 4),activation='swish'))                         
+# model.add(Conv2D(210, (3, 3),activation='swish', strides=2, padding='same'))               
+# model.add(MaxPooling2D())  # Global Average Pooling 사용
+# model.add(Flatten())
+# model.add(Dense(81, activation='swish'))
+# model.add(Dropout(0.3))  # 낮은 Dropout 비율 사용
+# model.add(Dense(48, activation='swish'))
+# model.add(Dense(10, activation='softmax'))
 # model.summary()
+
+
+model = Sequential()                    
+model.add(Dense(19, input_shape=(32*32*3, ) , activation='swish'))
+model.add(Dropout(0.2))
+model.add(Dense(97, activation='swish'))
+model.add(Dropout(0.3))
+model.add(Dense(9, activation='swish'))
+model.add(Dense(21, activation='swish'))
+model.add(Dropout(0.2))
+model.add(Dense(5, activation='swish'))
+model.add(Dropout(0.3))
+model.add(Dense(31, activation='swish'))
+model.add(Dense(10, activation='softmax'))
 
 
 strat_time = time.time()
@@ -131,7 +149,11 @@ print("accuracy_score : ", acc)
 # accuracy_score :  0.808
 
 
-
+# dnn
+# loss 1.7885029315948486
+# acc 0.3328999876976013
+# 걸리시간 :  170.154 초
+# accuracy_score :  0.3329
 
 
 

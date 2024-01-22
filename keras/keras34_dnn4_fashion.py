@@ -3,7 +3,7 @@ from keras.models import Sequential, Model
 import numpy as np
 from keras.datasets import mnist
 import pandas as pd
-from keras.layers import Dense, Conv2D, Flatten, Dropout, GlobalAveragePooling2D
+from keras.layers import Dense, Conv2D, Flatten, Dropout, GlobalAveragePooling2D, MaxPooling2D
 import tensorflow as tf
 from sklearn.preprocessing import OneHotEncoder,StandardScaler, RobustScaler
 import time
@@ -26,8 +26,8 @@ import matplotlib.pyplot as plt
 
 # print(pd.value_counts(y_test))
 
-X_train = X_train.reshape(-1, 28, 28, 1)
-X_test = X_test.reshape(X_test.shape[0], X_test.shape[1], X_test.shape[2], 1)
+X_train = X_train.reshape(-1, 28*28*1)
+X_test = X_test.reshape(X_test.shape[0], X_test.shape[1]*X_test.shape[2]*1)
 
 y_test = y_test.reshape(-1,1)
 y_train = y_train.reshape(-1,1)
@@ -46,14 +46,28 @@ X_test = X_test/255
 # print(X_test)             # (10000, 28, 28, 1)
 
 
+# model = Sequential()                    
+# model.add(Conv2D(19, kernel_size=(3, 3), input_shape=(28, 28, 1), activation='swish', strides=2, padding='same'))   
+# model.add(Conv2D(97, (4, 4), activation='swish'))
+# model.add(MaxPooling2D())                         
+# model.add(Conv2D(210, (3, 3), activation='swish'))               
+# model.add(Flatten())
+# model.add(Dense(124, activation='swish'))
+# model.add(Dropout(0.3)) 
+# model.add(Dense(48, activation='swish'))
+# model.add(Dense(10, activation='softmax'))
+
 model = Sequential()                    
-model.add(Conv2D(19, kernel_size=(3, 3), input_shape=(28, 28, 1), activation='swish'))   
-model.add(Conv2D(97, (4, 4), activation='swish'))                         
-model.add(Conv2D(210, (3, 3), activation='swish'))              
-model.add(GlobalAveragePooling2D())  
-model.add(Dense(124, activation='swish'))
-model.add(Dropout(0.3)) 
-model.add(Dense(48, activation='swish'))
+model.add(Dense(19, input_shape=(28*28*1, ) , activation='swish'))
+model.add(Dropout(0.2))
+model.add(Dense(97, activation='swish'))
+model.add(Dropout(0.3))
+model.add(Dense(9, activation='swish'))
+model.add(Dense(21, activation='swish'))
+model.add(Dropout(0.2))
+model.add(Dense(5, activation='swish'))
+model.add(Dropout(0.3))
+model.add(Dense(31, activation='swish'))
 model.add(Dense(10, activation='softmax'))
 
 # model.summary()
