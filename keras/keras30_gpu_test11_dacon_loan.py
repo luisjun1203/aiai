@@ -34,7 +34,7 @@ test_csv.loc[test_csv['근로기간']=='10+years','근로기간']='10+ years'
 train_csv.loc[train_csv['근로기간']=='10+years','근로기간']='10+ years'
 train_csv.value_counts('근로기간')
 # print(X.info())
-
+print(pd.value_counts(train_csv['근로기간'], ))
 # X.dropna(inplace=True)
 # print(X.isnull())
 
@@ -130,7 +130,7 @@ print(y.shape)
 print(df.shape)
 print(df1.shape)
 
-'''
+
 
 
 # print(y.shape)              #(96294, )
@@ -296,4 +296,3 @@ submission_csv.to_csv(path + "submission_0122_3_.csv", index=False)
 # 걸린시간 : 1322.223 초
 # 걸린시간 : 1003.385 초
 
-'''

@@ -29,6 +29,10 @@ import matplotlib.pyplot as plt
 X_train = X_train.reshape(-1, 28, 28, 1)
 X_test = X_test.reshape(X_test.shape[0], X_test.shape[1], X_test.shape[2], 1)
 
+print(X_train.shape)            
+print(X_test.shape)  
+
+
 y_test = y_test.reshape(-1,1)
 y_train = y_train.reshape(-1,1)
 
@@ -36,14 +40,17 @@ ohe = OneHotEncoder(sparse=False)
 y_train = ohe.fit_transform(y_train)
 y_test = ohe.fit_transform(y_test)
 
-X_train = X_train/255           
-X_test = X_test/255
-# mean = np.mean(X_train, axis=(0, 1, 2))
-# std = np.std(X_train, axis=(0, 1, 2))
-# X_train = (X_train - mean) / std
-# X_test = (X_test - mean) / std
-# print(X_train)            # (60000, 28, 28, 1)
-# print(X_test)             # (10000, 28, 28, 1)
+# X_train = X_train/255           
+# X_test = X_test/255
+mean = np.mean(X_train, axis=(0,1,2))
+std = np.std(X_train, axis=(0,1,2))
+X_train = (X_train - mean) / std
+X_test = (X_test - mean) / std
+print(X_train)            # (60000, 28, 28, 1)
+print(X_test)             # (10000, 28, 28, 1)
+
+'''
+
 
 
 model = Sequential()                    
@@ -83,10 +90,13 @@ print("걸리시간 : ", round(end_time - strat_time, 3), "초")
 print("accuracy_score : ", acc)
 
 
+# stride_padding 적용
+# loss 0.2855611741542816
+# acc 0.894599974155426
+# 걸리시간 :  120.86 초
+# accuracy_score :  0.8946
 
-
-
-
+'''
 
 
 

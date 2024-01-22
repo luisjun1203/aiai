@@ -96,11 +96,22 @@ print("걸리시간 : ", round(end_time - strat_time, 3), "초")
 print("accuracy_score : ", acc)
 
 
-
+# stride_padding 적용
+# loss 0.2855611741542816
+# acc 0.894599974155426
+# 걸리시간 :  120.86 초
+# accuracy_score :  0.8946
 
 # dnn
+# loss 0.5367741584777832
+# acc 0.8115000128746033
+# 걸리시간 :  206.903 초
+# accuracy_score :  0.8115
 
 
-
+# loss 0.2855611741542816
+# acc 0.894599974155426
+# 걸리시간 :  120.86 초
+# accuracy_score :  0.8946
 
 
