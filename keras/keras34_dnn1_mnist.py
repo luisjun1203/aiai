@@ -69,7 +69,7 @@ print('loss' , results[0])
 print('acc', results[1])
 
 
-
+# stride_padding 적용
 # loss 0.8981159925460815
 # acc 0.9563999772071838
 

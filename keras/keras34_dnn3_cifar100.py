@@ -134,8 +134,16 @@ print("accuracy_score : ", acc)
 # accuracy_score :  0.469
 
 
+
+# stride_padding 적용
 # loss 2.0134806632995605
 # acc 0.47040000557899475
 # 걸리시간 :  813.738 초
 # accuracy_score :  0.4704
+
+# dnn
+# loss 4.139031410217285
+# acc 0.05009999871253967
+# 걸리시간 :  895.998 초
+# accuracy_score :  0.0501
 
