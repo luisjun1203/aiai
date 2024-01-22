@@ -144,7 +144,7 @@ y1 = ohe.transform(y)
 
 
 
-X_train, X_test, y_train, y_test = train_test_split(X, y1, test_size=0.15, shuffle=True, random_state=3, stratify=y1)
+X_train, X_test, y_train, y_test = train_test_split(X, y1, test_size=0.4, shuffle=True, random_state=3, stratify=y1)
 
 
 rbs = RobustScaler()
@@ -183,8 +183,8 @@ filepath = "".join([path, 'k30_1_dacon_loan_',date,'_', filename])
 mcp = ModelCheckpoint(monitor='val_loss', mode='min', verbose=1, save_best_only=True, filepath=filepath)    
 model.compile(loss='categorical_crossentropy', optimizer='adam', metrics='acc')
 start = time.time()
-es = EarlyStopping(monitor='val_loss', mode='min', patience=97, verbose=20, restore_best_weights=True)
-model.fit(X_train, y_train, epochs=1000, batch_size=480, validation_split=0.1, verbose=2)
+es = EarlyStopping(monitor='val_loss', mode='min', patience=150, verbose=20, restore_best_weights=True)
+model.fit(X_train, y_train, epochs=10000, batch_size=480, validation_split=0.1, verbose=2)
 
 
 end = time.time()
