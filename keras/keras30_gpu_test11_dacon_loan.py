@@ -183,17 +183,17 @@ X_train, X_test, y_train, y_test = train_test_split(X, y1, test_size=0.15, shuff
 # X_test = mms.transform(X_test)
 # df1 = mms.transform(df1)
 
-rbs = RobustScaler()
-rbs.fit(X_train)
-X_train = rbs.transform(X_train)
-X_test = rbs.transform(X_test)
-df1 = rbs.transform(df1)
+# rbs = RobustScaler()
+# rbs.fit(X_train)
+# X_train = rbs.transform(X_train)
+# X_test = rbs.transform(X_test)
+# df1 = rbs.transform(df1)
 
-# sts = StandardScaler()
-# sts.fit(X_train)
-# X_train = sts.transform(X_train)
-# X_test = sts.transform(X_test)
-# df1 = sts.transform(df1)
+sts = StandardScaler()
+sts.fit(X_train)
+X_train = sts.transform(X_train)
+X_test = sts.transform(X_test)
+df1 = sts.transform(df1)
 
 # norm = Normalizer()
 # norm.fit(X_train)
@@ -247,7 +247,7 @@ print(type(date))               # <class 'str'>
 
 path = "..\\_data\\_save\\MCP\\"
 filename = '{epoch:05d}-{acc:.4f}-{loss:.4f}.hdf5'            # 04d : 4자리 정수표현, 4f : 소수4번째자리까지 표현, 예) 1000_0.3333.hdf5
-filepath = "".join([path, 'k28_25_dacon_loan_',date,'_', filename])
+filepath = "".join([path, 'k28_27_dacon_loan_',date,'_', filename])
 
 
 
@@ -285,7 +285,7 @@ print(y_submit)
 fs = f1_score(y_test, y_predict, average='weighted')
 print("f1_score : ", fs)
 print("걸린시간 : ",round(end - start, 3), "초")
-submission_csv.to_csv(path + "submission_0121_2_.csv", index=False)
+submission_csv.to_csv(path + "submission_0122_3_.csv", index=False)
 
 
 # 걸린시간 : 1322.223 초

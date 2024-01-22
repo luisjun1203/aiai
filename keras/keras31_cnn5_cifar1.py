@@ -50,22 +50,22 @@ y_test = ohe.fit_transform(y_test)
 
 
 ##### standardScaler #######
-# mean = np.mean(X_train, axis=(0, 1, 2))     # 평균
-# std = np.std(X_train, axis=(0, 1, 2))       # 표준편차
-# X_train = (X_train - mean) / std            
-# X_test = (X_test - mean) / std
+mean = np.mean(X_train, axis=(0, 1, 2))     # 평균
+std = np.std(X_train, axis=(0, 1, 2))       # 표준편차
+X_train = (X_train - mean) / std            
+X_test = (X_test - mean) / std
 
 ##### standardScaler #######
 # scaler = StandardScaler()
 # X_train = scaler.fit_transform(X_train.reshape(-1, 32*32*3)).reshape(-1, 32, 32, 3)
 # X_test = scaler.transform(X_test.reshape(-1, 32*32*3)).reshape(-1, 32, 32, 3)
 
-rbs = RobustScaler()
-X_train = rbs.fit_transform(X_train.reshape(-1, 32*32*3)).reshape(-1, 32, 32, 3)
-X_test = rbs.fit_transform(X_train.reshape(-1, 32*32*3)).reshape(-1, 32, 32, 3)
+# rbs = RobustScaler()
+# X_train = rbs.fit_transform(X_train.reshape(-1, 32*32*3)).reshape(-1, 32, 32, 3)
+# X_test = rbs.fit_transform(X_train.reshape(-1, 32*32*3)).reshape(-1, 32, 32, 3)
 
-print(X_train)
-print(X_test)
+# print(X_train)
+# print(X_test)
 
 # model = Sequential()                    
 # model.add(Conv2D(19, kernel_size=(2, 2),input_shape = (32, 32, 3),activation='relu'))   
@@ -97,7 +97,7 @@ model.add(Dense(10, activation='softmax'))
 
 strat_time = time.time()
 model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['acc'])
-es = EarlyStopping(monitor='val_loss', mode='min', patience=250, verbose=2, restore_best_weights=True)
+es = EarlyStopping(monitor='val_loss', mode='min', patience=100, verbose=2, restore_best_weights=True)
 model.fit(X_train, y_train, epochs=1997, batch_size=921,verbose=2, validation_split=0.15, callbacks=[es])
 end_time = time.time()
 # print(X_train, X_test)
