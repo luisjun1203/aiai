@@ -73,10 +73,10 @@ train_csv.loc[train_csv['근로기간']=='10+years','근로기간']='10+ years'
 train_csv.loc[train_csv['근로기간']=='Unknown', '근로기간']='10+ years'
 test_csv.loc[test_csv['근로기간']=='Unknown', '근로기간']='10+ years'
 train_csv.value_counts('근로기간')
-print(np.unique(train_csv['근로기간']))
+# print(np.unique(train_csv['근로기간']))
 # ['1 years' '10+ years' '2 years' '3 years' '4 years' '5 years'
 #  '6 years' '7 years' '8 years' '9 years' '< 1 year' 'Unknown']
-'''
+
 # print(np.unique(test_csv['주택소유상태']))      #['MORTGAGE' 'OWN' 'RENT']
 # print(np.unique(train_csv['주택소유상태']))      #['ANY' 'MORTGAGE' 'OWN' 'RENT']
 train_csv.loc[train_csv['주택소유상태']=='ANY', '주택소유상태'] = 'OWN'
@@ -142,9 +142,9 @@ ohe.fit(y)
 y1 = ohe.transform(y)
 
 # print(y1)
-# print(y1.shape)     # (96294, 7)
-
-
+# print(y1.shape)       # (96294, 7)
+print(X.shape)          # (96294, 1)
+print(y.shape)          # (96294, 1)
 
 X_train, X_test, y_train, y_test = train_test_split(X, y1, test_size=0.25, shuffle=True, random_state=3, stratify=y1)
 
@@ -211,7 +211,7 @@ fs = f1_score(y_test, y_predict, average='weighted')
 print("f1_score : ", fs)
 print("걸린시간 : ",round(end - start, 3), "초")
 submission_csv.to_csv(path + "submission_0122_33_.csv", index=False)
-'''
+
 
 
 
