@@ -146,7 +146,10 @@ print("accuracy_score : ", acc)
 # accuracy_score :  0.808
 
 
-
+# loss 0.9943934679031372
+# acc 0.6549999713897705
+# 걸리시간 :  477.491 초
+# accuracy_score :  0.655
 
 
 
