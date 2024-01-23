@@ -66,9 +66,9 @@ X_test = X_test/255
 # X_test = mms.fit_transform(X_test)
 
 
-rbs = RobustScaler()
-X_train = rbs.fit_transform(X_train.reshape(-1, 28*28*1)).reshape(-1, 28, 28, 1)
-X_test = rbs.fit_transform(X_test.reshape(-1, 28*28*1)).reshape(-1, 28, 28, 1)
+# rbs = RobustScaler()
+# X_train = rbs.fit_transform(X_train.reshape(-1, 28*28*1)).reshape(-1, 28, 28, 1)
+# X_test = rbs.fit_transform(X_test.reshape(-1, 28*28*1)).reshape(-1, 28, 28, 1)
 
 
 # model = Sequential()                    
@@ -129,9 +129,15 @@ print("accuracy_score : ", acc)
 # accuracy_score :  0.9112
 
 
+# loss 0.37048831582069397
+# acc 0.8755000233650208
+# 걸리시간 :  384.372 초
+# accuracy_score :  0.8755
 
 
-
-
+# loss 0.26756882667541504
+# acc 0.9081000089645386
+# 걸리시간 :  343.592 초
+# accuracy_score :  0.9081
 
 
