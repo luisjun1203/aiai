@@ -49,7 +49,7 @@ xy_train = train_datagen.flow_from_directory(
 
 
 
-start_time = time.time()
+# start_time = time.time()
 X = []
 y = []
 
@@ -59,7 +59,16 @@ for i in range(len(xy_train)):
     y.append(batch[1])          # 현재 배치의 라벨 데이터
 X = np.concatenate(X, axis=0)   # 리스트에 저장된 여러개의 NUMPY 배열들을 행을 따라 연결하여 하나의 큰 배열을 만들어줌
 y = np.concatenate(y, axis=0)   # 리스트에 저장된 여러개의 NUMPY 배열들을 행을 따라 연결하여 하나의 큰 배열을 만들어줌
-end_time = time.time()
+# end_time = time.time()
+
+# np_path = "c:\\_data\\_save_npy\\"
+
+np.save(np_path + 'keras37_1_X_train.npy', arr=X)            # (160, 150, 150, 1) 이 데이터가   'keras39_1_X_train.npy 여기로 저장된다   
+np.save(np_path + 'keras37_1_y_train.npy', arr=y)           
+# np.save(np_path + 'keras39_1_X_test.npy', arr=xy_test[0][0])           
+# np.save(np_path + 'keras39_1_y_test.npy', arr=xy_test[0][1]) 
+
+
 
 
 # print(X.shape)    #  (19996, 500, 500, 3)
