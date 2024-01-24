@@ -34,7 +34,7 @@ xy_train = train_datagen.flow_from_directory(
     target_size=(150,150),              # 사이즈 조절
     batch_size=200,                      # 160이상을 쓰면 x 통데이터로 가져올 수 있다 , 몇 장씩 수치화 시킬건지 정해준다           
     class_mode='binary',
-    color_mode= 'grayscale',
+    # color_mode= 'grayscale',
     shuffle=True)
 
 
@@ -45,7 +45,7 @@ xy_test = test_datagen.flow_from_directory(
     path_test, 
     target_size=(150,150),              # 사이즈 조절
     batch_size=200,   
-    color_mode='grayscale',                  
+    # color_mode='grayscale',                  
     class_mode='binary')
 
 # Found 160 images belonging to 2 classes.
