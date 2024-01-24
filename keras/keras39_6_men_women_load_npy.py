@@ -18,23 +18,23 @@ np_path = "c:\\_data\\_save_npy\\"
 
 X = np.load(np_path + 'keras39_5_X_train.npy')
 y = np.load(np_path + 'keras39_5_y_train.npy')
-test = np.load(np_path + 'keras39_5_X_test.npy')
+test = np.load(np_path + 'keras39_5_X_test_.npy')
 
 print(X.shape)      # (3309, 200, 200, 3)
 print(y.shape)      # (3309,)
 print(test.shape)   # (1900, 200, 200, 3)
 
-X_train, X_test, y_train, y_test = train_test_split(X , y, test_size=0.15, shuffle=True, random_state=3, stratify=y)
+X_train, X_test, y_train, y_test = train_test_split(X , y, test_size=0.25, shuffle=True, random_state=713, stratify=y)
 # 2. 모델구성
 model = Sequential()
-model.add(Conv2D(5, (3,3), activation='relu', input_shape=(200, 200, 3)))
+model.add(Conv2D(19, (3,3), activation='relu', input_shape=(200, 200, 3)))
 model.add(MaxPooling2D())
-model.add(Conv2D(7, (4,4), activation='relu'))
+model.add(Conv2D(97, (4,4), activation='relu'))
 model.add(MaxPooling2D())
-model.add(Conv2D(4, (3,3), activation='relu'))
+model.add(Conv2D(9, (3,3), activation='relu'))
 model.add(MaxPooling2D())
 model.add(Flatten())
-model.add(Dense(8,activation='relu'))
+model.add(Dense(21,activation='relu'))
 model.add(Dense(1, activation='sigmoid'))
 
 model.summary()
