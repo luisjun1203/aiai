@@ -36,15 +36,15 @@ xy_train = train_datagen.flow_from_directory(
     class_mode='binary',
     shuffle=True)
 
-X_train = []
-y_train = []
+X = []
+y = []
 
 for i in range(len(xy_train)):
     batch = xy_train.next()
-    X_train.append(batch[0])          # 현재 배치의 이미지 데이터
-    y_train.append(batch[1])          # 현재 배치의 라벨 데이터
-X_train = np.concatenate(X_train, axis=0)   # 리스트에 저장된 여러개의 NUMPY 배열들을 행을 따라 연결하여 하나의 큰 배열을 만들어줌
-y_train = np.concatenate(y_train, axis=0)   # 리스트에 저장된 여러개의 NUMPY 배열들을 행을 따라 연결하여 하나의 큰 배열을 만들어줌
+    X.append(batch[0])          # 현재 배치의 이미지 데이터
+    y.append(batch[1])          # 현재 배치의 라벨 데이터
+X = np.concatenate(X, axis=0)   # 리스트에 저장된 여러개의 NUMPY 배열들을 행을 따라 연결하여 하나의 큰 배열을 만들어줌
+y = np.concatenate(y, axis=0)   # 리스트에 저장된 여러개의 NUMPY 배열들을 행을 따라 연결하여 하나의 큰 배열을 만들어줌
     
 
 
@@ -54,19 +54,26 @@ xy_test = test_datagen.flow_from_directory(
     batch_size=100,                       
     class_mode='binary')
 
-X_test=[]
-y_test=[]
+test=[]
+
 
 for i in range(len(xy_test)):
     batch = xy_test.next()
-    X_test.append(batch[0])          # 현재 배치의 이미지 데이터
-    y_test.append(batch[1])          # 현재 배치의 라벨 데이터
-X_test = np.concatenate(X_test, axis=0)   # 리스트에 저장된 여러개의 NUMPY 배열들을 행을 따라 연결하여 하나의 큰 배열을 만들어줌
-y_test = np.concatenate(y_test, axis=0)
+    test.append(batch[0])          # 현재 배치의 이미지 데이터
+                                 # 현재 배치의 라벨 데이터
+test = np.concatenate(test, axis=0)   # 리스트에 저장된 여러개의 NUMPY 배열들을 행을 따라 연결하여 하나의 큰 배열을 만들어줌
 
 
-# print(X_train.shape, y_train.shape)
-# print(X_test.shape, y_test.shape)
+
+
+
+
+
+
+
+
+# print(X.shape,y.shape)
+# print(test.shape)
 
 
 
@@ -88,8 +95,8 @@ y_test = np.concatenate(y_test, axis=0)
 
 np_path = "c:\\_data\\_save_npy\\"
 
-np.save(np_path + 'keras37_3_X_train.npy', arr=X_train)              
-np.save(np_path + 'keras37_3_y_train.npy', arr=y_train)           
-np.save(np_path + 'keras37_3_X_test.npy', arr=X_test)           
-np.save(np_path + 'keras37_3_y_test.npy', arr=y_test) 
+np.save(np_path + 'keras37_3_X_train.npy', arr=X)              
+np.save(np_path + 'keras37_3_y_train.npy', arr=y)           
+np.save(np_path + 'keras37_3_test1.npy', arr=test)           
+
 
