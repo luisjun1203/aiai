@@ -22,18 +22,18 @@ train1_datagen = ImageDataGenerator(
     # shear_range=0.7,            # 좌표 하나를 고정시키고 다른 몇 개의 좌표를 이동시키는 변환
     # fill_mode='nearest',        # 비어있는 데이터에 근처 가장 비슷한 값으로 변환(채워줌)  
                   )
-# train2_datagen = ImageDataGenerator(
-#     rescale=1./255,             # 크기 스케일링
-#     horizontal_flip=True,       # 수평 뒤집기
-#     vertical_flip=True,      # 수직 뒤집기
-#     width_shift_range=0.1,      # 0.1만큼 평행이동
-#     height_shift_range=0.1,     # 0.1만큼 수직이동
-#     rotation_range=5,           # 정해진 각도만큼 이미지를 회전
-#     zoom_range=1.2,             # 1.2배 확대(축소도 가능)
-#     shear_range=0.7,            # 좌표 하나를 고정시키고 다른 몇 개의 좌표를 이동시키는 변환
-#     fill_mode='nearest',        # 비어있는 데이터에 근처 가장 비슷한 값으로 변환(채워줌)  
+train2_datagen = ImageDataGenerator(
+    rescale=1./255,             # 크기 스케일링
+    horizontal_flip=True,       # 수평 뒤집기
+    vertical_flip=True,      # 수직 뒤집기
+    width_shift_range=0.1,      # 0.1만큼 평행이동
+    height_shift_range=0.1,     # 0.1만큼 수직이동
+    rotation_range=5,           # 정해진 각도만큼 이미지를 회전
+    zoom_range=1.2,             # 1.2배 확대(축소도 가능)
+    shear_range=0.7,            # 좌표 하나를 고정시키고 다른 몇 개의 좌표를 이동시키는 변환
+    fill_mode='nearest',        # 비어있는 데이터에 근처 가장 비슷한 값으로 변환(채워줌)  
                   
-# )
+)
 
 
 
@@ -64,14 +64,14 @@ xy_train_data = train1_datagen.flow_from_directory(
     # color_mode= 'rgb',           
     shuffle=True)
 
-# xy_train_men = train2_datagen.flow_from_directory(
-#     path_men, 
-#     target_size=(200,200),             
-#     batch_size=1409,                                  
-#     class_mode='binary',
-#     # color_mode= 'rgb',           
+xy_train_men = train2_datagen.flow_from_directory(
+    path_men, 
+    target_size=(200,200),             
+    batch_size=1409,                                  
+    class_mode='binary',
+    # color_mode= 'rgb',           
     
-#     shuffle=True)
+    shuffle=True)
 
 xy_test_women = test_datagen.flow_from_directory(
     path_women, 
@@ -98,7 +98,9 @@ np_path = "c:\\_data\\_save_npy\\"
 np.save(np_path + 'keras39_5_X_train.npy', arr=xy_train_data[0][0])            # (160, 150, 150, 1) 이 데이터가   'keras39_1_X_train.npy 여기로 저장된다   
 np.save(np_path + 'keras39_5_y_train.npy', arr=xy_train_data[0][1])           
 np.save(np_path + 'keras39_5_X_test.npy', arr=xy_test_women[0][0])           
- 
+# np.save(np_path + 'keras39_5_X_train_men.npy', arr=xy_train_men[0][0])           
+# np.save(np_path + 'keras39_5_X_train_men.npy', arr=xy_train_men[0][0])           
+
 
 
 
