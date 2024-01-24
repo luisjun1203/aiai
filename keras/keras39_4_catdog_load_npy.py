@@ -47,14 +47,14 @@ X_train, X_test, y_train, y_test = train_test_split(X , y, test_size=0.15, shuff
 # 2. 모델 구성
 
 model = Sequential()
-model.add(Conv2D(5, (3,3), activation='relu', input_shape=(100, 100, 3)))
+model.add(Conv2D(19, (3,3), activation='swish', input_shape=(100, 100, 3)))
 model.add(MaxPooling2D())
-model.add(Conv2D(7, (4,4), activation='relu'))
+model.add(Conv2D(97, (4,4), activation='swish'))
 model.add(MaxPooling2D())
-model.add(Conv2D(4, (3,3), activation='relu'))
+model.add(Conv2D(9, (3,3), activation='swish'))
 model.add(MaxPooling2D())
 model.add(Flatten())
-model.add(Dense(8,activation='relu'))
+model.add(Dense(21,activation='swish'))
 model.add(Dense(1, activation='sigmoid'))
 
 # model.summary()
