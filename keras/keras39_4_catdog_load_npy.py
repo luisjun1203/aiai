@@ -63,8 +63,8 @@ model.add(Dense(1, activation='sigmoid'))
 
 # strat_time = time.time()
 model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['acc'])
-es = EarlyStopping(monitor='val_loss', mode='min', patience=30, verbose=2, restore_best_weights=True)
-model.fit(X_train, y_train, epochs=100, batch_size=10, verbose=2, callbacks=[es], validation_split=0.15)
+es = EarlyStopping(monitor='val_loss', mode='min', patience=70, verbose=2, restore_best_weights=True)
+model.fit(X_train, y_train, epochs=500, batch_size=20, verbose=2, callbacks=[es], validation_split=0.15)
 # end_time = time.time()
 # end_time = time.time()
 
