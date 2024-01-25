@@ -15,14 +15,16 @@ import matplotlib.pyplot as plt
 train_datagen = ImageDataGenerator(
     rescale=1./255,             # 크기 스케일링
     horizontal_flip=True,       # 수평 뒤집기
-    vertical_flip=True,      # 수직 뒤집기
+    vertical_flip=True,         # 수직 뒤집기
     width_shift_range=0.1,      # 0.1만큼 평행이동
     height_shift_range=0.1,     # 0.1만큼 수직이동
     rotation_range=5,           # 정해진 각도만큼 이미지를 회전
     zoom_range=1.2,             # 1.2배 확대(축소도 가능)
     shear_range=0.7,            # 좌표 하나를 고정시키고 다른 몇 개의 좌표를 이동시키는 변환
     fill_mode='nearest',        # 비어있는 데이터에 근처 가장 비슷한 값으로 변환(채워줌)  
-                  
+                                # reflect : 빈 공간 만큼의 영역을 근처 공간의 반전된 이미지로 채워줌    
+                                # wrap : 빈 공간을 이동으로 잘려나간 이미지로 채워줌
+                                # constant : cval과 같이 사용하는데, cval = 0 이면 빈 공간을 검정으로 채우는 것이고, cval = 255 면 흰색으로 채워줌                                
 )
 
 test_datagen = ImageDataGenerator(rescale=1./255)      # 평가지표이기 때문에 건드리지마

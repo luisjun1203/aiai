@@ -33,7 +33,7 @@ xy_train = train_datagen.flow_from_directory(
     path_train, 
     target_size=(300,300),              # 사이즈 조절
     batch_size=1027,                      # 160이상을 쓰면 x 통데이터로 가져올 수 있다 , 몇 장씩 수치화 시킬건지 정해준다           
-    class_mode='categorical',
+    class_mode='binary',
     # color_mode= 'grayscale',
     shuffle=True)
 
@@ -41,13 +41,10 @@ xy_train = train_datagen.flow_from_directory(
 
 
 print(xy_train[0][0].shape)       # (1027, 300, 300, 3)
-print(xy_train[0][1].shape)       # (1027, 2)
+print(xy_train[0][1].shape)       # (1027,)
 
 
 np_path = "c:\\_data\\_save_npy\\"
 
-np.save(np_path + 'keras39_7_X_train', arr=xy_train[0][0])
-np.save(np_path + 'keras39_7_y_train', arr=xy_train[0][1])
-
-
-
+np.save(np_path + 'keras39_11_X_train', arr=xy_train[0][0])
+np.save(np_path + 'keras39_11_y_train', arr=xy_train[0][1])
