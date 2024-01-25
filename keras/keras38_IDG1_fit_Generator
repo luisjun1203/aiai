@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-from keras.preprocessing.image import ImageDataGenerator       ###### 이미지를 숫자로 바꿔준다##########
+from keras.preprocessing.image import ImageDataGenerator       ###### 이미지를 숫자로 바꿔준다(수치화)##########
 from keras.models import Sequential, Model
 from keras.layers import Dense, Input, Conv2D, MaxPooling2D, GlobalAveragePooling2D, Dropout, Flatten
 from keras.callbacks import EarlyStopping, ModelCheckpoint
@@ -123,7 +123,7 @@ model.summary()
 model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['acc'])
 # es = EarlyStopping(monitor='val_loss', mode='min', patience=30, verbose=2, restore_best_weights=True)
 
-model.fit_generator(xy_train,                                 # fit_generator 곧 소멸될듯  소멸되면 그냥 fit안에 포함될듯
+model.fit_generator(xy_train,                                 # fit_generator 곧 소멸될듯 // 소멸되면 그냥 fit안에 포함될듯
 # model.fit(xy_train,           
                     steps_per_epoch=16,           # 전체 데이터 / batch = 160 / 10 = 16
                     epochs=100,
