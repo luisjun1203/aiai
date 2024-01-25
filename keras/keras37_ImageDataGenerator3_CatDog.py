@@ -61,7 +61,7 @@ X = np.concatenate(X, axis=0)   # 리스트에 저장된 여러개의 NUMPY 배�
 y = np.concatenate(y, axis=0)   # 리스트에 저장된 여러개의 NUMPY 배열들을 행을 따라 연결하여 하나의 큰 배열을 만들어줌
 # end_time = time.time()
 
-# np_path = "c:\\_data\\_save_npy\\"
+np_path = "c:\\_data\\_save_npy\\"
 
 np.save(np_path + 'keras37_1_X_train.npy', arr=X)            # (160, 150, 150, 1) 이 데이터가   'keras39_1_X_train.npy 여기로 저장된다   
 np.save(np_path + 'keras37_1_y_train.npy', arr=y)           
@@ -128,7 +128,7 @@ model.summary()
 
 
 
-# strat_time = time.time()
+start_time = time.time()
 model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['acc'])
 es = EarlyStopping(monitor='val_loss', mode='min', patience=70, verbose=2, restore_best_weights=True)
 model.fit(X_train, y_train, epochs=300, batch_size=50, verbose=2, validation_split=0.15, callbacks=[es])
@@ -143,7 +143,7 @@ loss = model.evaluate(X_test, y_test)
 # y_predict = y_predict.round()
 
 # print(y_predict)
-print("걸린시간 : ", round(end_time-start_time, 2),"초")
+print("걸린시간 : ", round(end_time - start_time, 2),"초")
 
 print("로스 : ", loss[0])
 print("acc : ", loss[1])
