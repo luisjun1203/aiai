@@ -41,7 +41,7 @@ xy_train = train_datagen.flow_from_directory(
 
 
 
-xy_test = test_datagen.flow_from_directory(
+xy_test = test_datagen.flow_from_directory( # 데이터를 실시간으로 증강하고, 필요에 따라 배치를 생성하여 모델 학습에 활용할 수 있도록 도와주는 역할
     path_test, 
     target_size=(200,200),              # 사이즈 조절
     batch_size=10,                       

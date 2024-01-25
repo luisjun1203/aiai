@@ -26,21 +26,21 @@ print(y.shape)      # (1027, 2)
 
 X_train, X_test, y_train, y_test = train_test_split(X , y, test_size=0.2, shuffle=True, random_state=3, stratify=y)
 
-X_train = X_train/255
-X_test = X_test/255
+
 
 
 model = Sequential()
-model.add(Conv2D(4, (3,3), activation='swish', input_shape=(300, 300, 3)))
+model.add(Conv2D(9, (4,4), activation='relu', input_shape=(300, 300, 3)))
 model.add(MaxPooling2D())
-model.add(Conv2D(8, (4,4), activation='swish'))
+model.add(Conv2D(5, (2,2), activation='relu'))
 model.add(MaxPooling2D())
-model.add(Conv2D(16, (3,3), activation='swish'))
+model.add(Conv2D(7, (3,3), activation='relu'))
+model.add(MaxPooling2D())
 model.add(MaxPooling2D())
 model.add(Flatten())
-model.add(Dense(8,activation='swish'))
+model.add(Dense(4,activation='swish'))
 model.add(Dense(2, activation='softmax'))
-
+model.summary()
 
 strat_time = time.time()
 model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['acc'])
@@ -54,17 +54,13 @@ print("acc : ", loss[1])
 print("걸린시간 : ", round(end_time - strat_time, 3), "초")
 
 
-# epochs = 50, batch_size = 10
-# loss :  0.36306390166282654
-# acc :  0.9514563083648682
-# 걸린시간 :  112.06 초
 
-# epochs = 50, batch_size = 20
-# loss :  0.24354831874370575
-# acc :  0.9288026094436646
-# 걸린시간 :  66.272 초
 
-# epochs=100, batch_size=5
-# loss :  0.13843345642089844
-# acc :  0.9708737730979919
-# 걸린시간 :  72.577 초
+# loss :  0.02530728280544281
+# acc :  0.9951456189155579
+# 걸린시간 :  24.049 초
+
+# loss :  0.006484305486083031
+# acc :  1.0
+# 걸린시간 :  37.388 초
+

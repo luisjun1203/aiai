@@ -23,8 +23,8 @@ y = np.load(np_path + 'keras39_9_y_train.npy')
 
 X_train, X_test, y_train, y_test = train_test_split(X , y, test_size=0.3, shuffle=True, random_state=3, stratify=y)
 
-X_train = X_train/255
-X_test = X_test/255
+# X_train = X_train/255
+# X_test = X_test/255
 
 
 model = Sequential()
