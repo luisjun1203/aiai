@@ -39,7 +39,12 @@ datagen = ImageDataGenerator(
     # rescale=1./255,
     horizontal_flip=True,
     vertical_flip=True,
-    
+    width_shift_range=0.2,
+    height_shift_range=0.2,
+    zoom_range=[0.5,0.9],
+    shear_range=20,
+    rotation_range=20,
+    fill_mode='nearest'
 )
 
 it = datagen.flow(img,               
