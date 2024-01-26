@@ -22,7 +22,7 @@ X_test = X_test/255.
 train_datagen = ImageDataGenerator(
     
     horizontal_flip=True,
-    vertical_flip=True,
+    vertical_flip=False,
     width_shift_range=0.2,
     height_shift_range=0.2,
     rotation_range=30,
@@ -122,4 +122,12 @@ print("accuracy_score : ", acc)
 # accuracy_score :  0.9134
 
 
+# loss 0.14540500938892365
+# acc 0.9550999999046326
+# 걸리시간 :  21.115 초
+# accuracy_score :  0.9551
 
+# loss 0.14540500938892365
+# acc 0.9550999999046326
+# 걸리시간 :  21.115 초
+# accuracy_score :  0.9551
