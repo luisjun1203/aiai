@@ -1,0 +1,181 @@
+import numpy as np
+import pandas as pd
+from keras.models import Sequential, Model
+from keras.layers import Dense, Dropout,Input
+from keras. callbacks import EarlyStopping, ModelCheckpoint
+from keras. utils import to_categorical
+from sklearn.model_selection import train_test_split 
+from sklearn.metrics import f1_score
+from sklearn.preprocessing import OneHotEncoder, LabelEncoder, StandardScaler, MinMaxScaler, RobustScaler, MaxAbsScaler
+import time
+from imblearn.over_sampling import SMOTE
+import matplotlib.pyplot as plt
+
+path = "c:\\_data\\dacon\\loan\\"
+
+train_csv = pd.read_csv(path + "train.csv", index_col=0)
+test_csv = pd.read_csv(path + "test.csv", index_col=0)
+submission_csv = pd.read_csv(path + "sample_submission.csv")
+
+
+# print(np.unique(train_csv['대출등급'],return_counts=True))  
+# (array(['A', 'B', 'C', 'D', 'E', 'F', 'G'], dtype=object), array([16772, 28817, 27623, 13354,  7354,  1954,   420], dtype=int64))
+# train_csv.drop[train_csv['대출등급']=='G', '대출등급']
+# print(np.unique(train_csv['대출등급'],return_counts=True)) 
+
+ 
+# train_csv = train_csv[train_csv['대출등급'] !='G']                ################### G라벨 삭제
+
+
+# print(np.unique(train_csv['대출등급'],return_counts=True))  
+
+test_csv.loc[test_csv['대출기간']==' 36 months', '대출기간'] =36
+train_csv.loc[train_csv['대출기간']==' 36 months', '대출기간'] =36
+
+test_csv.loc[test_csv['대출기간']==' 60 months', '대출기간'] =60
+train_csv.loc[train_csv['대출기간']==' 60 months', '대출기간'] =60
+ 
+test_csv.loc[test_csv['근로기간']=='3', '근로기간'] ='3 years'
+train_csv.loc[train_csv['근로기간']=='3', '근로기간'] ='3 years'
+test_csv.loc[test_csv['근로기간']=='1 year','근로기간']='1 years'
+train_csv.loc[train_csv['근로기간']=='1 year','근로기간']='1 years'
+test_csv.loc[test_csv['근로기간']=='<1 year','근로기간']='< 1 year'
+train_csv.loc[train_csv['근로기간']=='<1 year','근로기간']='< 1 year'
+test_csv.loc[test_csv['근로기간']=='10+years','근로기간']='10+ years'
+train_csv.loc[train_csv['근로기간']=='10+years','근로기간']='10+ years'
+train_csv.loc[train_csv['근로기간']=='Unknown', '근로기간']='10+ years'
+test_csv.loc[test_csv['근로기간']=='Unknown', '근로기간']='10+ years'
+train_csv.value_counts('근로기간')
+ 
+train_csv.loc[train_csv['주택소유상태']=='ANY', '주택소유상태'] = 'OWN'
+# train_csv.loc[train_csv['대출등급']=='G', '대출등급'] = 
+ 
+test_csv.loc[test_csv['대출목적']=='결혼', '대출목적'] = '기타'
+
+
+lae = LabelEncoder()
+
+lae.fit(train_csv['주택소유상태'])
+train_csv['주택소유상태'] = lae.transform(train_csv['주택소유상태'])
+test_csv['주택소유상태'] = lae.transform(test_csv['주택소유상태'])
+
+
+lae.fit(train_csv['대출목적'])
+train_csv['대출목적'] = lae.transform(train_csv['대출목적'])
+test_csv['대출목적'] = lae.transform(test_csv['대출목적'])
+
+
+lae.fit(train_csv['근로기간'])
+train_csv['근로기간'] = lae.transform(train_csv['근로기간'])
+test_csv['근로기간'] = lae.transform(test_csv['근로기간'])
+
+
+
+X = train_csv.drop(['대출등급'], axis=1)
+y = train_csv['대출등급']
+# test_csv = test_csv.drop([''], axis=1)
+
+y = y.values.reshape(-1, 1)
+ohe = OneHotEncoder(sparse=False)
+ohe.fit(y)
+y1 = ohe.transform(y)
+
+
+X_train, X_test, y_train, y_test = train_test_split(X, y1, test_size=0.15, shuffle=True, random_state=3, stratify=y1)
+start = time.time()
+smote = SMOTE(random_state=713)
+X_train, y_train = smote.fit_resample(X_train, y_train)
+
+
+mms1 = ['대출기간',
+        '대출금액',
+        '연간소득',
+        '부채_대비_소득_비율',
+        '총계좌수',
+        '총상환원금',
+        '총상환이자'
+        ]
+
+mms = MinMaxScaler()
+mms.fit(X_train[mms1])
+X_train[mms1] = mms.transform(X_train[mms1])
+X_test[mms1] = mms.transform(X_test[mms1])
+test_csv[mms1] = mms.transform(test_csv[mms1])
+
+print(np.unique(X_train[mms1],return_counts=True))
+rbs1 = [
+    '연체계좌수', 
+        '총연체금액', 
+        '최근_2년간_연체_횟수'
+        ]
+
+rbs = RobustScaler()
+rbs.fit(X_train[rbs1])
+X_train[rbs1] = rbs.transform(X_train[rbs1])
+X_test[rbs1] = rbs.transform(X_test[rbs1])
+test_csv[rbs1] = rbs.transform(test_csv[rbs1])
+
+# print(np.unique(X_train[rbs1], return_counts = True))
+
+
+
+
+i1 = Input(shape = (13,))
+d1 = Dense(19,activation='swish')(i1)      
+d2 = Dense(97,activation='swish')(d1)
+d3 = Dense(9,activation='swish')(d2)
+d4 = Dense(21,activation='swish')(d3)
+d5 = Dense(16,activation='swish')(d4)
+d6 = Dense(21,activation='swish')(d5)
+# drop1 = Dropout(0.2)(d6)
+o1 = Dense(7,activation='softmax')(d6)
+model = Model(inputs = i1, outputs = o1)
+
+import datetime
+date = datetime.datetime.now()
+print(date)                     
+date = date.strftime("%m%d_%H%M")                        
+print(date)                     
+
+path = "..\\_data\\_save\\MCP\\"
+filename = '{epoch:05d}-{acc:.4f}-{loss:.4f}.hdf5'            
+filepath = "".join([path, 'k30_3_dacon_loan_',date,'_', filename])
+
+
+
+
+mcp = ModelCheckpoint(monitor='val_loss', mode='min', verbose=1, save_best_only=True, filepath=filepath)    
+model.compile(loss='categorical_crossentropy', optimizer='adam', metrics='acc')
+
+es = EarlyStopping(monitor='val_loss', mode='min', patience=3000, verbose=20, restore_best_weights=True)
+model.fit(X_train, y_train, epochs=30000, batch_size=480, validation_split=0.15, verbose=2, callbacks=[es])
+
+
+end = time.time()
+
+
+results = model.evaluate(X_test, y_test)
+print("ACC : ", results[1])
+
+y_predict = model.predict(X_test) 
+y_test = ohe.inverse_transform(y_test)
+y_predict = ohe.inverse_transform(y_predict)
+
+
+y_submit = model.predict(test_csv)  
+y_submit = ohe.inverse_transform(y_submit)
+
+y_submit = pd.DataFrame(y_submit)
+submission_csv['대출등급'] = y_submit
+# print(y_submit)
+
+fs = f1_score(y_test, y_predict, average='weighted')
+print("f1_score : ", fs)
+print("걸린시간 : ",round(end - start, 3), "초")
+submission_csv.to_csv(path + "submission_0126_11_.csv", index=False)
+print(y_submit)
+
+
+
+
+ 
