@@ -65,7 +65,7 @@ X_augmented = train_datagen.flow(
 # print(X_augmented)
 # print(X_augmented.shape)    # (40000, 28, 28, 1)
 
-'''
+
 X_train = X_train.reshape(60000, 28, 28, 1)
 X_test = X_test.reshape(10000, 28, 28, 1)
 
@@ -123,4 +123,3 @@ print("accuracy_score : ", acc)
 # acc 0.8928999900817871
 # 걸리시간 :  812.945 초
 # accuracy_score :  0.8929
-'''
