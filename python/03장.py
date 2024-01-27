@@ -67,16 +67,92 @@
         
 # print(result)
 
-i = 0
-while True:
-    i += 1
-    if i > 5:break
-    print('*' *i)
+# i = 0
+# while True:
+#     i += 1
+#     if i > 5:break
+#     print('*' *i)
 
+# test_list = ['one', 'two', 'three']
+# for i in test_list:
+#     print(i)
 
+# a = [(1,2), (3,4), (5,6)]
+# for (first, last) in a:
+#     print(first + last)
 
+# marks = [90, 25, 67, 45, 80]
 
+# number = 0
+# for i in marks:
+#     number = number + 1
+#     if i < 60:
+#         continue
+#     print("%d학생은 합격입니다" %number)
 
+# add  = 0
+# for i in range(1, 11):
+#     add = add + i
+# print(add)
 
+# marks = [90, 25, 67, 45, 80]
+# for number in range(len(marks)):
+#     if marks[number] < 60:
+#         continue
+#     print("%d축" %(number + 1))
+    
+# add = 0
+# for i in range(1, 101):
+#     add = add + i
+# print(add)    
 
+# for i in range(2, 10):
+#     for j in range(1, 10):
+#         print(i*j, end="")
+
+# a = [1,2,3,4]
+# result = []
+# for num in a:
+#     result.append(num*3)
+# print(result)    
+
+# a = 0
+# for i in range(100):
+#     a = a + i
+#     if a >= 10:
+#         break
+# print(a)
+
+# a = [1,2,3,4]
+# result = [num*3 for num in a]
+# print(result)
+
+# a = [1,2,3,4]
+# result = [num*3 for num in a if num%2 == 0]
+# print(result)
+# [6, 12]
+
+# i = 0
+# while True:
+#     i += 1
+#     if i > 5: break
+#     print( i*'*')
+
+# for i in range(101):
+#     print(i)
+# A = [70, 60, 55, 75, 95, 90, 80, 80, 85, 100]
+# total = 0
+# for score in A:
+#     total += score
+# average = total/len(A)
+# print(average)    
+
+# numbers = [1,2,3,4,5]
+# result = []
+# # for n in numbers:
+# #     if n % 2 ==1:
+# #         result.append(n*2)
+# #         print(result)
+# result = [num*2 for num in numbers if num%2 == 1]
+# print(result)
 
