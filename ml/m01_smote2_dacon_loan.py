@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 from keras.models import Sequential, Model
-from keras.layers import Dense, Dropout,Input
+from keras.layers import Dense, Dropout,Input, Conv2D, MaxPooling2D, Flatten, GlobalAveragePooling2D,concatenate, Reshape
 from keras. callbacks import EarlyStopping, ModelCheckpoint
 from keras. utils import to_categorical
 from sklearn.model_selection import train_test_split 
@@ -80,6 +80,17 @@ ohe = OneHotEncoder(sparse=False)
 ohe.fit(y)
 y1 = ohe.transform(y)
 
+# rbs = RobustScaler()
+# X = rbs.transform(X)
+# test_csv=rbs.transform(test_csv)
+
+# print(X.shape)
+
+# X = X.values.reshape(-1, 13, 1, 1)
+# test_csv = test_csv.values.reshape(-1, 13, 1, 1)
+
+# print(X.shape)              # (96294, 13, 1, 1)
+# print(test_csv.shape)       # (64197, 13, 1, 1)
 
 X_train, X_test, y_train, y_test = train_test_split(X, y1, test_size=0.15, shuffle=True, random_state=3, stratify=y1)
 start = time.time()
@@ -87,49 +98,84 @@ smote = SMOTE(random_state=713)
 X_train, y_train = smote.fit_resample(X_train, y_train)
 
 
-mms1 = ['대출기간',
-        '대출금액',
-        '연간소득',
-        '부채_대비_소득_비율',
-        '총계좌수',
-        '총상환원금',
-        '총상환이자'
-        ]
+# mms1 = ['대출기간',
+#         '대출금액',
+#         '연간소득',
+#         '부채_대비_소득_비율',
+#         '총계좌수',
+#         '총상환원금',
+#         '총상환이자'
+#         ]
+
+# mms = MinMaxScaler()
+# mms.fit(X_train[mms1])
+# X_train[mms1] = mms.transform(X_train[mms1])
+# X_test[mms1] = mms.transform(X_test[mms1])
+# test_csv[mms1] = mms.transform(test_csv[mms1])
 
 mms = MinMaxScaler()
-mms.fit(X_train[mms1])
-X_train[mms1] = mms.transform(X_train[mms1])
-X_test[mms1] = mms.transform(X_test[mms1])
-test_csv[mms1] = mms.transform(test_csv[mms1])
-
-print(np.unique(X_train[mms1],return_counts=True))
-rbs1 = [
-    '연체계좌수', 
-        '총연체금액', 
-        '최근_2년간_연체_횟수'
-        ]
-
-rbs = RobustScaler()
-rbs.fit(X_train[rbs1])
-X_train[rbs1] = rbs.transform(X_train[rbs1])
-X_test[rbs1] = rbs.transform(X_test[rbs1])
-test_csv[rbs1] = rbs.transform(test_csv[rbs1])
-
-# print(np.unique(X_train[rbs1], return_counts = True))
+mms.fit(X_train)
+X_train = mms.transform(X_train)
+X_test = mms.transform(X_test)
+test_csv = mms. transform(test_csv)
 
 
+# # print(np.unique(X_train[mms1],return_counts=True))
+# rbs1 = [
+#     '연체계좌수', 
+#         '총연체금액', 
+#         '최근_2년간_연체_횟수'
+#         ]
+
+# rbs = RobustScaler()
+# rbs.fit(X_train[rbs1])
+# X_train[rbs1] = rbs.transform(X_train[rbs1])
+# X_test[rbs1] = rbs.transform(X_test[rbs1])
+# test_csv[rbs1] = rbs.transform(test_csv[rbs1])
+
+# print(np.unique(X_train[rbs1], return_counts = True)
+
+# rbs = RobustScaler()
+# rbs.fit(X_train)
+# X_train = rbs.transform(X_train)
+# X_test = rbs.transform(X_test)
+# test_csv = rbs.transform(test_csv)
+
+X_train_dnn = X_train.reshape(-1, 13)  
+X_test_dnn = X_test.reshape(-1, 13) 
+test_csv_dnn = test_csv.reshape(-1, 13)
+
+X_train_cnn = X_train.reshape(-1, 13, 1, 1) 
+X_test_cnn = X_test.reshape(-1, 13, 1, 1) 
+test_csv_cnn = test_csv.reshape(-1, 13, 1, 1)
+
+input_shape_dnn = (13,)
+dip = Input(shape=input_shape_dnn)
+d1 = Dense(19, activation='swish')(dip)
+d2 = Dense(97, activation='swish')(d1)
+dop = Dense(9, activation='swish')(d2)
 
 
-i1 = Input(shape = (13,))
-d1 = Dense(19,activation='swish')(i1)      
-d2 = Dense(97,activation='swish')(d1)
-d3 = Dense(9,activation='swish')(d2)
-d4 = Dense(21,activation='swish')(d3)
-d5 = Dense(16,activation='swish')(d4)
-d6 = Dense(21,activation='swish')(d5)
-# drop1 = Dropout(0.2)(d6)
-o1 = Dense(7,activation='softmax')(d6)
-model = Model(inputs = i1, outputs = o1)
+input_shape_cnn = (13, 1, 1)
+cip = Input(shape=input_shape_cnn)
+c1 = Conv2D(19, (3, 3), activation='swish', padding='same')(cip)
+c2 = Conv2D(97, (3, 3), activation='swish', padding='same')(c1)
+c3 = Flatten()(c2)
+cop = Dense(9, activation='swish')(c3)
+
+combined = concatenate([dop, cop])
+
+fl = Dense(21, activation='swish')(combined)
+final_output = Dense(7, activation='softmax')(fl)  
+
+model = Model(inputs=[dip, cip], outputs=final_output)
+
+model.summary()
+
+
+
+
+
 
 import datetime
 date = datetime.datetime.now()
@@ -148,21 +194,23 @@ mcp = ModelCheckpoint(monitor='val_loss', mode='min', verbose=1, save_best_only=
 model.compile(loss='categorical_crossentropy', optimizer='adam', metrics='acc')
 
 es = EarlyStopping(monitor='val_loss', mode='min', patience=3000, verbose=20, restore_best_weights=True)
-model.fit(X_train, y_train, epochs=30000, batch_size=480, validation_split=0.15, verbose=2, callbacks=[es])
+model.fit([X_train_dnn, X_train_cnn], y_train, epochs=10000, batch_size=480, validation_split=0.15, verbose=2, callbacks=[es])
 
 
 end = time.time()
 
+# print(X_test_cnn.shape)
+# print(X_test_dnn.shape)
 
-results = model.evaluate(X_test, y_test)
+results = model.evaluate([X_test_dnn, X_test_cnn], y_test)
 print("ACC : ", results[1])
 
-y_predict = model.predict(X_test) 
+y_predict = model.predict([X_test_dnn, X_test_cnn]) 
 y_test = ohe.inverse_transform(y_test)
 y_predict = ohe.inverse_transform(y_predict)
 
 
-y_submit = model.predict(test_csv)  
+y_submit = model.predict([test_csv_dnn, test_csv_cnn])  
 y_submit = ohe.inverse_transform(y_submit)
 
 y_submit = pd.DataFrame(y_submit)
@@ -172,7 +220,7 @@ submission_csv['대출등급'] = y_submit
 fs = f1_score(y_test, y_predict, average='weighted')
 print("f1_score : ", fs)
 print("걸린시간 : ",round(end - start, 3), "초")
-submission_csv.to_csv(path + "submission_0126_11_.csv", index=False)
+submission_csv.to_csv(path + "submission_0127_12_.csv", index=False)
 print(y_submit)
 
 
