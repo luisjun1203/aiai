@@ -49,14 +49,14 @@ X_test = X_test/255
 model = Sequential()                    
 model.add(Conv2D(19, kernel_size=(3, 3), input_shape=(28, 28, 1), activation='swish', strides=2, padding='same'))   
 model.add(Conv2D(97, (4, 4), activation='swish', strides=2, padding='same'))                         
-model.add(Conv2D(210, (3, 3), activation='swish', strides=2, padding='same'))              
+model.add(Conv2D(21, (3, 3), activation='swish', strides=2, padding='same'))              
 model.add(GlobalAveragePooling2D())  
 model.add(Dense(124, activation='swish'))
 model.add(Dropout(0.3)) 
 model.add(Dense(48, activation='swish'))
 model.add(Dense(10, activation='softmax'))
 
-# model.summary()
+model.summary()
 
 # 3. 컴파일, 훈련
 
