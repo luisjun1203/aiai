@@ -92,7 +92,7 @@ y1 = ohe.transform(y)
 # print(X.shape)              # (96294, 13, 1, 1)
 # print(test_csv.shape)       # (64197, 13, 1, 1)
 
-X_train, X_test, y_train, y_test = train_test_split(X, y1, test_size=0.15, shuffle=True, random_state=3, stratify=y1)
+X_train, X_test, y_train, y_test = train_test_split(X, y1, test_size=0.4, shuffle=True, random_state=3, stratify=y1)
 start = time.time()
 
 
@@ -158,7 +158,8 @@ input_shape_dnn = (13,)
 dip = Input(shape=input_shape_dnn)
 d1 = Dense(19, activation='swish')(dip)
 d2 = Dense(97, activation='swish')(d1)
-d4 = Dense(21,activation='swish')(d2)
+d3 = Dense(9, activation='swish')(d2)
+d4 = Dense(21,activation='swish')(d3)
 dop = Dense(16, activation='swish')(d4)
 
 
@@ -168,7 +169,12 @@ input_shape_cnn = (13, 1, 1)
 cip = Input(shape=input_shape_cnn)
 c1 = Conv2D(19, (2, 2), activation='swish', padding='same', strides=2)(cip)
 c2 = Conv2D(97, (3, 3), activation='swish', padding='same', strides=1)(c1)
-c3 = Conv2D(21, (2, 2), activation='swish', padding='same', strides=2)(c2)
+c3 = Conv2D(9, (2, 2), activation='swish', padding='same', strides=2)(c2)
+c4 = Conv2D(21, (3, 3), activation='swish', padding='same', strides=1)(c3)
+c5 = Conv2D(19, (2, 2), activation='swish', padding='same', strides=2)(c4)
+c6 = Conv2D(97, (3, 3), activation='swish', padding='same', strides=1)(c5)
+c7 = Conv2D(9, (2, 2), activation='swish', padding='same', strides=2)(c6)
+c8 = Conv2D(21, (3, 3), activation='swish', padding='same', strides=1)(c7)
 gap1= GlobalAveragePooling2D()(c3)
 cop = Dense(16, activation='swish')(gap1)
 combined = concatenate([dop, cop])
@@ -200,8 +206,8 @@ filepath = "".join([path, 'k30_3_dacon_loan_',date,'_', filename])
 mcp = ModelCheckpoint(monitor='val_loss', mode='min', verbose=1, save_best_only=True, filepath=filepath)    
 model.compile(loss='categorical_crossentropy', optimizer='adam', metrics='acc')
 
-es = EarlyStopping(monitor='val_loss', mode='min', patience=30000, verbose=20, restore_best_weights=True)
-model.fit([X_train_dnn, X_train_cnn], y_train, epochs=10, batch_size=480, validation_split=0.15, verbose=2, callbacks=[es])
+es = EarlyStopping(monitor='val_loss', mode='min', patience=7000, verbose=20, restore_best_weights=True)
+model.fit([X_train_dnn, X_train_cnn], y_train, epochs=50000, batch_size=480, validation_split=0.15, verbose=2, callbacks=[es])
 
 
 end = time.time()
@@ -227,7 +233,7 @@ submission_csv['대출등급'] = y_submit
 fs = f1_score(y_test, y_predict, average='weighted')
 print("f1_score : ", fs)
 print("걸린시간 : ",round(end - start, 3), "초")
-submission_csv.to_csv(path + "submission_0128_11_.csv", index=False)
+submission_csv.to_csv(path + "submission_0128_44_.csv", index=False)
 print(y_submit)
 
 
