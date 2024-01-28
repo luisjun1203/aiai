@@ -94,6 +94,16 @@ y1 = ohe.transform(y)
 
 X_train, X_test, y_train, y_test = train_test_split(X, y1, test_size=0.15, shuffle=True, random_state=3, stratify=y1)
 start = time.time()
+
+
+rbs = RobustScaler()
+rbs.fit(X_train)
+X_train = rbs.transform(X_train)
+X_test = rbs.transform(X_test)
+test_csv = rbs.transform(test_csv)
+
+
+
 smote = SMOTE(random_state=713)
 X_train, y_train = smote.fit_resample(X_train, y_train)
 
@@ -113,11 +123,11 @@ X_train, y_train = smote.fit_resample(X_train, y_train)
 # X_test[mms1] = mms.transform(X_test[mms1])
 # test_csv[mms1] = mms.transform(test_csv[mms1])
 
-mms = MinMaxScaler()
-mms.fit(X_train)
-X_train = mms.transform(X_train)
-X_test = mms.transform(X_test)
-test_csv = mms. transform(test_csv)
+# mms = MinMaxScaler()
+# mms.fit(X_train)
+# X_train = mms.transform(X_train)
+# X_test = mms.transform(X_test)
+# test_csv = mms. transform(test_csv)
 
 
 # # print(np.unique(X_train[mms1],return_counts=True))
@@ -135,11 +145,6 @@ test_csv = mms. transform(test_csv)
 
 # print(np.unique(X_train[rbs1], return_counts = True)
 
-# rbs = RobustScaler()
-# rbs.fit(X_train)
-# X_train = rbs.transform(X_train)
-# X_test = rbs.transform(X_test)
-# test_csv = rbs.transform(test_csv)
 
 X_train_dnn = X_train.reshape(-1, 13)  
 X_test_dnn = X_test.reshape(-1, 13) 
@@ -153,16 +158,19 @@ input_shape_dnn = (13,)
 dip = Input(shape=input_shape_dnn)
 d1 = Dense(19, activation='swish')(dip)
 d2 = Dense(97, activation='swish')(d1)
-dop = Dense(9, activation='swish')(d2)
+d4 = Dense(21,activation='swish')(d2)
+dop = Dense(16, activation='swish')(d4)
+
+
 
 
 input_shape_cnn = (13, 1, 1)
 cip = Input(shape=input_shape_cnn)
-c1 = Conv2D(19, (3, 3), activation='swish', padding='same')(cip)
-c2 = Conv2D(97, (3, 3), activation='swish', padding='same')(c1)
-c3 = Flatten()(c2)
-cop = Dense(9, activation='swish')(c3)
-
+c1 = Conv2D(19, (2, 2), activation='swish', padding='same', strides=2)(cip)
+c2 = Conv2D(97, (3, 3), activation='swish', padding='same', strides=1)(c1)
+c3 = Conv2D(21, (2, 2), activation='swish', padding='same', strides=2)(c2)
+gap1= GlobalAveragePooling2D()(c3)
+cop = Dense(16, activation='swish')(gap1)
 combined = concatenate([dop, cop])
 
 fl = Dense(21, activation='swish')(combined)
@@ -171,7 +179,6 @@ final_output = Dense(7, activation='softmax')(fl)
 model = Model(inputs=[dip, cip], outputs=final_output)
 
 model.summary()
-
 
 
 
@@ -193,8 +200,8 @@ filepath = "".join([path, 'k30_3_dacon_loan_',date,'_', filename])
 mcp = ModelCheckpoint(monitor='val_loss', mode='min', verbose=1, save_best_only=True, filepath=filepath)    
 model.compile(loss='categorical_crossentropy', optimizer='adam', metrics='acc')
 
-es = EarlyStopping(monitor='val_loss', mode='min', patience=3000, verbose=20, restore_best_weights=True)
-model.fit([X_train_dnn, X_train_cnn], y_train, epochs=10000, batch_size=480, validation_split=0.15, verbose=2, callbacks=[es])
+es = EarlyStopping(monitor='val_loss', mode='min', patience=30000, verbose=20, restore_best_weights=True)
+model.fit([X_train_dnn, X_train_cnn], y_train, epochs=10, batch_size=480, validation_split=0.15, verbose=2, callbacks=[es])
 
 
 end = time.time()
@@ -220,7 +227,7 @@ submission_csv['대출등급'] = y_submit
 fs = f1_score(y_test, y_predict, average='weighted')
 print("f1_score : ", fs)
 print("걸린시간 : ",round(end - start, 3), "초")
-submission_csv.to_csv(path + "submission_0127_12_.csv", index=False)
+submission_csv.to_csv(path + "submission_0128_11_.csv", index=False)
 print(y_submit)
 
 
