@@ -47,6 +47,30 @@ train_csv.loc[train_csv['근로기간']=='Unknown', '근로기간']='10+ years'
 test_csv.loc[test_csv['근로기간']=='Unknown', '근로기간']='10+ years'
 train_csv.value_counts('근로기간')
  
+
+# for i in range(len(train_csv['근로기간'])):
+    
+#     if train_csv['근로기간'] == 'Unknown':
+#         train_csv['근로기간'].iloc[i] = np.nan
+#     elif train_csv['근로기간'] == '<1 year' or train_csv['근로기간'] == '< 1 year':
+#         train_csv['근로기간'].iloc[i] = int(0.5)
+#     elif train_csv['근로기간'] == '10+years' or train_csv['근로기간'] == '10+ years':
+#         train_csv['근로기간'].iloc[i] = int(20)
+#     else: 
+#         train_csv['근로기간'].iloc[i] = int(train_csv['근로기간'].split())[0]
+                    
+ 
+# train_csv['근로기간'] = train_csv['근로기간'].fillna(train_csv['근로기간'].bfill())
+
+
+# print(np.unique(train_csv['근로기간'], return_counts=True))
+
+ 
+ 
+ 
+ 
+
+ 
 train_csv.loc[train_csv['주택소유상태']=='ANY', '주택소유상태'] = 'OWN'
 # train_csv.loc[train_csv['대출등급']=='G', '대출등급'] = 
  
@@ -92,9 +116,12 @@ y1 = ohe.transform(y)
 # print(X.shape)              # (96294, 13, 1, 1)
 # print(test_csv.shape)       # (64197, 13, 1, 1)
 
-X_train, X_test, y_train, y_test = train_test_split(X, y1, test_size=0.4, shuffle=True, random_state=3, stratify=y1)
+X_train, X_test, y_train, y_test = train_test_split(X, y1, test_size=0.2, shuffle=True, random_state=3, stratify=y1)
 start = time.time()
 
+X_train = np.asarray(X_train).astype(np.float32)
+X_test = np.asarray(X_test).astype(np.float32)
+test_csv = np.asarray(test_csv).astype(np.float32)
 
 rbs = RobustScaler()
 rbs.fit(X_train)
@@ -104,8 +131,6 @@ test_csv = rbs.transform(test_csv)
 
 
 
-smote = SMOTE(random_state=713)
-X_train, y_train = smote.fit_resample(X_train, y_train)
 
 
 # mms1 = ['대출기간',
@@ -206,8 +231,8 @@ filepath = "".join([path, 'k30_3_dacon_loan_',date,'_', filename])
 mcp = ModelCheckpoint(monitor='val_loss', mode='min', verbose=1, save_best_only=True, filepath=filepath)    
 model.compile(loss='categorical_crossentropy', optimizer='adam', metrics='acc')
 
-es = EarlyStopping(monitor='val_loss', mode='min', patience=7000, verbose=20, restore_best_weights=True)
-model.fit([X_train_dnn, X_train_cnn], y_train, epochs=50000, batch_size=480, validation_split=0.15, verbose=2, callbacks=[es])
+es = EarlyStopping(monitor='val_loss', mode='min', patience=5000, verbose=20, restore_best_weights=True)
+model.fit([X_train_dnn, X_train_cnn], y_train, epochs=300, batch_size=480, validation_split=0.15, verbose=2, callbacks=[es])
 
 
 end = time.time()
@@ -233,7 +258,7 @@ submission_csv['대출등급'] = y_submit
 fs = f1_score(y_test, y_predict, average='weighted')
 print("f1_score : ", fs)
 print("걸린시간 : ",round(end - start, 3), "초")
-submission_csv.to_csv(path + "submission_0128_44_.csv", index=False)
+submission_csv.to_csv(path + "submission_0129_11_.csv", index=False)
 print(y_submit)
 
 
