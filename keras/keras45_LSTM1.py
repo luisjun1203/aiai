@@ -45,8 +45,8 @@ model.fit(X, y, epochs=10000)
 
 results = model.evaluate(X,y)
 print("loss : ", results)
-y_predict = np.array([8,9,10]).reshape(1, 3, 1)
-y_predict = model.predict(y_predict)
+X_predict = np.array([8,9,10]).reshape(1, 3, 1)
+y_predict = model.predict(X_predict)
 print("[8,9,10]의 예측값 : ", y_predict)
 
     # [8,9,10]의 예측값 :  [[10.909407]]
