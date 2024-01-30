@@ -11,7 +11,8 @@ import time
 from imblearn.over_sampling import SMOTE
 import matplotlib.pyplot as plt
 import os
-
+import matplotlib as mpl
+import seaborn as sns
 
 path = "c:\\_data\\kaggle\\jena_climate\\"
 path2 = "c:\\_data\\kaggle\\jena_climate\\"
@@ -42,9 +43,28 @@ datasets = pd.read_csv(path + "jena_climate_2009_2016.csv", index_col=0)
 
 # print(y.shape)      # (420551,)
 
+
+# print(datasets.isna().sum())
+# p (mbar)           0
+# T (degC)           0
+# Tpot (K)           0
+# Tdew (degC)        0
+# rh (%)             0
+# VPmax (mbar)       0
+# VPact (mbar)       0
+# VPdef (mbar)       0
+# sh (g/kg)          0
+# H2OC (mmol/mol)    0
+# rho (g/m**3)       0
+# wv (m/s)           0
+# max. wv (m/s)      0
+# wd (deg)           0
+# dtype: int64
+
+
 # size = 15
 # target_column = 4
-size = 5
+size = 3
 
 def split_Xy(dataset, size, target_column):
     X, y = [], []
@@ -64,19 +84,28 @@ X, y = split_Xy(datasets, size, 1)
 # print(X.shape)      # (420546, 5, 14)
 # print(np.unique(y,return_counts=True))      # (420550, 2)
 # print(y.shape)      # (420546,)
-X = X.reshape(-1, 5, 14)
+X = X.reshape(-1, 3, 14)
 
 
 
-np.save(path2 + "keras52_kaggle_jena_save_X.npy", X) 
-np.save(path2 + "keras52_kaggle_jena_save_y.npy", y) 
+# np.save(path2 + "keras52_kaggle_jena_save_X.npy", X) 
+# np.save(path2 + "keras52_kaggle_jena_save_y.npy", y) 
 
-'''
+
 X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=3, test_size=0.15 )
 
 
+X_train = np.asarray(X_train).astype(np.float32)
+X_test = np.asarray(X_test).astype(np.float32)
+
+mms = MinMaxScaler()
+mms.fit(X_train)
+X_train = mms.transform(X_train)
+X_test = mms.transform(X_test)
+
+
 model = Sequential()
-model.add(Bidirectional(LSTM(19, return_sequences=True, activation='relu'), input_shape=(5, 14)))
+model.add(Bidirectional(LSTM(19, return_sequences=True, activation='relu'), input_shape=(3, 14)))
 model.add(Bidirectional(LSTM(9, )))
 model.add(Dense(97, activation='swish'))
 model.add(Dense(21, activation='swish'))
@@ -105,4 +134,3 @@ print('acc', results[1])
 print("걸리시간 : ", round(end_time - strat_time, 3), "초")
 print("accuracy_score : ", acc)
 
-'''
