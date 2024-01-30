@@ -5,7 +5,7 @@ from keras.layers import Dense, Dropout,Input, Conv2D, MaxPooling2D, Flatten, Gl
 from keras. callbacks import EarlyStopping, ModelCheckpoint
 from keras. utils import to_categorical
 from sklearn.model_selection import train_test_split 
-from sklearn.metrics import f1_score, accuracy_score
+from sklearn.metrics import f1_score, accuracy_score,r2_score
 from sklearn.preprocessing import OneHotEncoder, LabelEncoder, StandardScaler, MinMaxScaler, RobustScaler, MaxAbsScaler
 import time
 from imblearn.over_sampling import SMOTE
@@ -98,10 +98,7 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=3, test_s
 X_train = np.asarray(X_train).astype(np.float32)
 X_test = np.asarray(X_test).astype(np.float32)
 
-mms = MinMaxScaler()
-mms.fit(X_train)
-X_train = mms.transform(X_train)
-X_test = mms.transform(X_test)
+
 
 
 model = Sequential()
@@ -118,7 +115,7 @@ model.summary()
 strat_time = time.time()
 model.compile(loss='mse', optimizer='adam', metrics=['acc'])
 es = EarlyStopping(monitor='val_loss', mode='min', patience=30, verbose=2, restore_best_weights=True)
-model.fit(X_train, y_train, epochs=200, batch_size=21,verbose=2, validation_split=0.15, callbacks=[es])
+model.fit(X_train, y_train, epochs=200, batch_size=300,verbose=2, validation_split=0.15, callbacks=[es])
 end_time = time.time()
 # print(X_train, X_test)
 
@@ -126,11 +123,10 @@ end_time = time.time()
 
 results = model.evaluate(X_test, y_test)
 y_predict = model.predict(X_test)
-acc = accuracy_score(y_test, y_predict)
+r2 = r2_score(y_test, y_predict)
 # print(y_test)
 
-print('loss' , results[0])
-print('acc', results[1])
+print('loss' , results)
 print("걸리시간 : ", round(end_time - strat_time, 3), "초")
-print("accuracy_score : ", acc)
+print("r2_score : ", r2)
 
