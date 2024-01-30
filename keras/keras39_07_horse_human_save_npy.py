@@ -10,7 +10,19 @@ from sklearn.metrics import f1_score, accuracy_score
 from sklearn.preprocessing import MinMaxScaler, StandardScaler, RobustScaler, LabelEncoder, OneHotEncoder
 import time
 import matplotlib.pyplot as plt
+import os
 
+def save_code_to_file(filename=None):
+    if filename is None:
+        # 현재 스크립트의 파일명을 가져와서 확장자를 txt로 변경
+        filename = os.path.splitext(os.path.basename(__file__))[0] + ".txt"
+    else:
+        filename = filename + ".txt"
+    with open(__file__, "r") as file:
+        code = file.read()
+    
+    with open(filename, "w") as file:
+        file.write(code)
 
 train_datagen = ImageDataGenerator(
     rescale=1./255,             # 크기 스케일링
