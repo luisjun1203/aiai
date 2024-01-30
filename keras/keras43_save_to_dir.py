@@ -2,7 +2,7 @@ from keras.datasets import fashion_mnist
 from keras.preprocessing.image import ImageDataGenerator
 import numpy as np
 import matplotlib.pyplot as plt
-from keras.utils.image_utils import img_to_array, load_img
+# from keras.utils.image_utils import img_to_array, load_img
 import pandas as pd
 from keras.models import Sequential, Model
 from keras.layers import Dense, Input, Conv2D, MaxPooling2D, GlobalAveragePooling2D, Dropout, Flatten
