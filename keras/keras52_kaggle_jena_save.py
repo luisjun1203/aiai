@@ -13,12 +13,38 @@ import matplotlib.pyplot as plt
 import os
 import matplotlib as mpl
 import seaborn as sns
+plt.rc('font', family = 'Malgun Gothic')
 
 path = "c:\\_data\\kaggle\\jena_climate\\"
 path2 = "c:\\_data\\kaggle\\jena_climate\\"
 
 datasets = pd.read_csv(path + "jena_climate_2009_2016.csv", index_col=0) 
 
+
+
+
+
+# print(np.unique(datasets['p (mbar)'],return_counts=True))   # (array([ 913.6 ,  914.1 ,  917.4 , ..., 1015.29, 1015.3 , 1015.35]), array([1, 1, 2, ..., 2, 1, 1], dtype=int64))
+# print(np.min(datasets["p (mbar)"]), np.max(datasets['p (mbar)']))   # 913.6 1015.35
+
+datasets["p (mbar)"] = np.log(datasets["p (mbar)"])
+
+# 막대 차트를 그림. x축 인덱스를 생성하고, "p (mbar)"의 값을 y축으로 사용합니다.
+y_values = np.array(datasets["p (mbar)"])
+
+# 막대 차트를 그림. x축으로는 데이터셋의 길이에 맞는 범위를 사용하고, y축으로는 변환된 "p (mbar)"의 값들을 사용합니다.
+plt.bar(range(len(y_values)), y_values)
+
+# 차트의 제목과 x, y축 레이블을 설정합니다.
+plt.title('p (mbar)의 제곱근')
+plt.xlabel('인덱스')
+plt.ylabel('p (mbar)의 제곱근 값')
+
+# 차트를 화면에 표시합니다.
+plt.show()
+
+
+'''
 # print(datasets.info())
  #   Column           Non-Null Count   Dtype
 # ---  ------           --------------   -----
@@ -87,6 +113,10 @@ X, y = split_Xy(datasets, size, 1)
 X = X.reshape(-1, 3, 14)
 
 
+mms = MinMaxScaler()
+
+X = mms.fit_transform(X.reshape(-1, 3*14)).reshape(-1, 3, 14)
+y = mms.fit_transform(y.reshape(-1, 1))
 
 # np.save(path2 + "keras52_kaggle_jena_save_X.npy", X) 
 # np.save(path2 + "keras52_kaggle_jena_save_y.npy", y) 
@@ -95,8 +125,6 @@ X = X.reshape(-1, 3, 14)
 X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=3, test_size=0.15 )
 
 
-X_train = np.asarray(X_train).astype(np.float32)
-X_test = np.asarray(X_test).astype(np.float32)
 
 
 
@@ -113,9 +141,9 @@ model.summary()
 
 
 strat_time = time.time()
-model.compile(loss='mse', optimizer='adam', metrics=['acc'])
+model.compile(loss='mse', optimizer='adam', metrics=['mse'])
 es = EarlyStopping(monitor='val_loss', mode='min', patience=30, verbose=2, restore_best_weights=True)
-model.fit(X_train, y_train, epochs=200, batch_size=300,verbose=2, validation_split=0.15, callbacks=[es])
+model.fit(X_train, y_train, epochs=200, batch_size=1000,verbose=2, validation_split=0.15, callbacks=[es])
 end_time = time.time()
 # print(X_train, X_test)
 
@@ -129,4 +157,21 @@ r2 = r2_score(y_test, y_predict)
 print('loss' , results)
 print("걸리시간 : ", round(end_time - strat_time, 3), "초")
 print("r2_score : ", r2)
+'''
+
+
+
+
+# LSTM(bidirectional 씀)
+# loss [1.9558448911993764e-05, 1.9558448911993764e-05]
+# 걸리시간 :  529.111 초
+# r2_score :  0.9989910262603748
+
+
+# LSTM(bidirectional 안씀)
+# loss [3.471592903137207, 0.0005865288549102843]
+# 걸리시간 :  3107.885 초
+# r2_score :  0.9507299097379145
+
+
 
