@@ -1,0 +1,77 @@
+import numpy as np
+from sklearn.model_selection import train_test_split
+from keras.models import Model, Sequential
+from keras.layers import Dense, Input, concatenate, Concatenate
+
+
+
+# 1. 데이터
+
+X1_datasets = np.array([range(100), range(301, 401)]).T         # ex) 삼성전자 종가, 하이닉스 종가
+X2_datasets = np.array([range(101, 201), range(411, 511), range(150, 250)]).T  # ex) 원유가, 환율, 금시세
+X3_datasets = np.array([range(100), range(301, 401), range(77, 177), range(33, 133)]).T
+
+print(X1_datasets.shape, X2_datasets.shape) # (100, 2) (100, 3)
+
+y1 = np.array(range(3001, 3101))             # 비트코인 종가
+y2 = np.array(range(13001, 13101))
+
+X1_train, X1_test, X2_train, X2_test, X3_train, X3_test, y1_train, y1_test, y2_train, y2_test = train_test_split(
+    X1_datasets, X2_datasets, X3_datasets, y1, y2,test_size=0.15, random_state=3)
+
+# print(X1_train.shape)   #(85, 2)
+# print(X2_train.shape)   #(85, 3)
+# print(y_train.shape)    #(85,)
+
+# 2-1. 모델구성1
+i1 = Input(shape=(2,))
+d1 = Dense(10, activation='relu', name= 'bit1')(i1)
+d2 = Dense(10, activation='relu', name= 'bit2')(d1)
+d3 = Dense(10, activation='relu', name= 'bit3')(d2)
+o1 = Dense(10, activation='relu', name= 'bit4')(d3)
+
+
+# 2-2. 모델구성 2
+i2 = Input(shape=(3,))
+d11 = Dense(100, activation='relu', name= 'bit11')(i2)
+d12 = Dense(100, activation='relu', name= 'bit12')(d11)
+d13 = Dense(100, activation='relu', name= 'bit13')(d12)
+o2 = Dense(100, activation='relu', name= 'bit14')(d13)
+
+# 2-3. 모델구성3
+i3 = Input(shape=(4,))
+d21 = Dense(50, activation='relu', name= 'bit21')(i3)
+d22 = Dense(50, activation='relu', name= 'bit22')(d21)
+d23 = Dense(50, activation='relu', name= 'bit23')(d22)
+o3 = Dense(50, activation='relu', name= 'bit24')(d23)
+
+
+
+m1 = concatenate([o1, o2, o3], name = 'mg1')
+m2 = Dense(7, name='mg2')(m1)
+m3 = Dense(11, name='mg3')(m2)
+
+final_layer = Dense(5, activation='relu')(m3)
+
+fo = Dense(1,activation='relu', name= 'last')(final_layer)
+fo1 = Dense(1,activation='relu', name='last2')(final_layer)
+
+model = Model(inputs=[i1,i2, i3], outputs=[fo,fo1])
+
+model.summary()
+
+# 2-3. concatenate
+
+model.compile(loss='mse', optimizer='adam')
+model.fit([X1_train, X2_train, X3_train], [y1_train,y2_train], epochs=1500, batch_size=30)
+
+
+results = model.evaluate([X1_test, X2_test, X3_test], [y1_test, y2_test])
+
+print("로스 : ", results)
+
+
+
+# 로스 :  [0.912901759147644, 0.12126313894987106, 0.7916386127471924]
+
+
