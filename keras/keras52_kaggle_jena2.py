@@ -28,7 +28,7 @@ size = 720
 def split_Xy(dataset, size, target_column):
     X, y = [], []
     for i in range(len(dataset) - size - 144 ):             
-        X_subset = dataset.iloc[i : (i + size), :]      # X에는 모든 행과, 첫 번째 컬럼부터 target_column 전까지의 컬럼을 포함
+        X_subset = dataset.iloc[i : (i + size):4, :]      # X에는 모든 행과, 첫 번째 컬럼부터 target_column 전까지의 컬럼을 포함
         y_subset = dataset.iloc[i + size + 144,  target_column]        # Y에는 모든 행과, target_column 컬럼만 포함 
         X.append(X_subset)
         y.append(y_subset)
@@ -50,7 +50,7 @@ print(y.shape)        # (419687,)
 
 mms = MinMaxScaler()
 
-X = mms.fit_transform(X.reshape(-1, 720*14)).reshape(-1, 72, 140)
+X = mms.fit_transform(X.reshape(-1, 180*14)).reshape(-1, 180, 14)
 y = mms.fit_transform(y.reshape(-1, 1))
 
 # print(X.shape)
@@ -66,7 +66,7 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=3, test_s
 model = Sequential()
 # model.add(GRU(19, return_sequences=True, activation='relu', input_shape=(72, 140)))
 # model.add(GRU(9, ))
-model.add(Conv1D(filters=19, kernel_size=72, input_shape=(140,1)))
+model.add(Conv1D(filters=19, kernel_size=5, input_shape=(180,14)))
 model.add(Flatten())
 model.add(Dense(97, activation='swish'))
 model.add(Dense(21, activation='swish'))
@@ -79,17 +79,23 @@ model.summary()
 strat_time = time.time()
 model.compile(loss='mse', optimizer='adam', metrics=['mse'])
 es = EarlyStopping(monitor='val_loss', mode='min', patience=30, verbose=2, restore_best_weights=True)
-model.fit(X_train, y_train, epochs=5, batch_size=2,verbose=2, validation_split=0.15, callbacks=[es])
+model.fit(X_train, y_train, epochs=5, batch_size=2000,verbose=2, validation_split=0.15, callbacks=[es])
 end_time = time.time()
 # print(X_train, X_test)
 
 # 4. 평가, 예측
 
-results = model.evaluate(X_test, y_test)
-y_predict = model.predict(X_test)
+results = model.evaluate(X_test, y_test, batch_size=10)
+y_predict = model.predict(X_test, batch_size=10)
 r2 = r2_score(y_test, y_predict)
 # print(y_test)
 
 print('loss' , results)
 print("걸리시간 : ", round(end_time - strat_time, 3), "초")
 print("r2_score : ", r2)
+
+
+
+# loss [0.0028905323706567287, 0.0028905323706567287]
+# 걸리시간 :  9.965 초
+# r2_score :  0.8511693412262654

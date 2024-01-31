@@ -62,8 +62,8 @@ y = mms.fit_transform(y.reshape(-1, 1))
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=3, test_size=0.15 )
 
-X_train = np.asarray(X_train).astype(np.float16)
-X_test = np.asarray(X_test).astype(np.float16)
+# X_train = np.asarray(X_train).astype(np.float16)
+# X_test = np.asarray(X_test).astype(np.float16)
 
 
 model = Sequential()
@@ -80,19 +80,29 @@ model.summary()
 
 
 strat_time = time.time()
-model.compile(loss='mse', optimizer='adam', metrics=['mse'])
+model.compile(loss='mse', optimizer='adam')
 es = EarlyStopping(monitor='val_loss', mode='min', patience=40, verbose=2, restore_best_weights=True)
-model.fit(X_train, y_train, epochs=5, batch_size=2000,verbose=2, validation_split=0.15, callbacks=[es])
+model.fit(X_train, y_train, epochs=5, batch_size=1000,verbose=2, validation_split=0.1, callbacks=[es])
 end_time = time.time()
 # print(X_train, X_test)
 
 # 4. 평가, 예측
 
-results = model.evaluate(X_test, y_test, batch_size=10)
-y_predict = model.predict(X_test, batch_size=10)
+results = model.evaluate(X_test, y_test, batch_size=3)
+y_predict = model.predict(X_test, batch_size=3)
 r2 = r2_score(y_test, y_predict)
 # print(y_test)
 
 print('loss' , results)
 print("걸리시간 : ", round(end_time - strat_time, 3), "초")
 print("r2_score : ", r2)
+
+#batch 2000, 40min, float16
+# loss [0.0029541703406721354, 0.0029541703406721354]
+# 걸리시간 :  13.127 초
+# r2_score :  0.8478933160376985
+
+#batch 2000, 40min, float64
+# loss [0.0030399784445762634, 0.0030399784445762634]
+# 걸리시간 :  10.238 초
+# r2_score :  0.8434744820016349
