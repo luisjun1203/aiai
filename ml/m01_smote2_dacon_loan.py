@@ -177,9 +177,11 @@ c7 = Conv2D(9, (2, 2), activation='swish', padding='same', strides=2)(c6)
 c8 = Conv2D(21, (3, 3), activation='swish', padding='same', strides=1)(c7)
 gap1= GlobalAveragePooling2D()(c8)
 cop = Dense(16, activation='swish')(gap1)
+
 combined = concatenate([dop, cop])
 
 fl = Dense(21, activation='swish')(combined)
+
 final_output = Dense(7, activation='softmax')(fl)  
 
 model = Model(inputs=[dip, cip], outputs=final_output)
