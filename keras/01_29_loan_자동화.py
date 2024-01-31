@@ -251,7 +251,7 @@ def auto(a, b, c, d, test_csv):
     if fs > 0.92:
         filename = "".join(["..//_data//_save//dacon_loan_2//dacon_loan_2_auto_", "rs_",str(a), "_bs_", str(c),"_f1_", str(fs.round(4))])
         model.save(filename + ".h5")
-        submission_csv.to_csv(path + "submisson_01_30_5_auto.csv", index=False)
+        submission_csv.to_csv(path + "submisson_01_31_1_auto.csv", index=False)
         save_code_to_file(filename)
     return fs 
 
@@ -262,8 +262,8 @@ def auto(a, b, c, d, test_csv):
 import random
 # for i in range(100000000):
 while True:
-    # a = random.randrange(1, 10000)     # random_state
-    a = 3169
+    a = random.randrange(1, 10000)     # random_state
+    # a = 3169
     b = random.randrange(1000, 2000)           # epochs
     c = random.randrange(480, 520)          # patience
     fs = auto(a, b, c, 500, test_csv)

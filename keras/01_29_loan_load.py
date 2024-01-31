@@ -69,7 +69,7 @@ ohe.fit(y)
 y1 = ohe.transform(y)
 
 
-X_train, X_test, y_train, y_test = train_test_split(X, y1, test_size=0.15, shuffle=True, random_state=2771, stratify=y1)
+X_train, X_test, y_train, y_test = train_test_split(X, y1, test_size=0.1, shuffle=True, random_state=8900, stratify=y1)
 # start = time.time()
 
 X_train = np.asarray(X_train).astype(np.float32)
@@ -198,7 +198,7 @@ test_csv_dnn2 = test_csv.reshape(-1, 13)
 
 
 
-model= load_model("c:\\_data\\_save\\dacon_loan_2\\dacon_loan_2_auto_rs_2771_bs_491_f1_0.9181.h5")
+model= load_model("c:\\_data\\_save\\dacon_loan_2\\dacon_loan_2_auto_rs_8900_bs_510_f1_0.9428.h5")
 
 
 results = model.evaluate([X_test_dnn, X_test_dnn2], y_test)

@@ -27,24 +27,24 @@ datasets = pd.read_csv(path + "jena_climate_2009_2016.csv", index_col=0)
 # print(np.unique(datasets['p (mbar)'],return_counts=True))   # (array([ 913.6 ,  914.1 ,  917.4 , ..., 1015.29, 1015.3 , 1015.35]), array([1, 1, 2, ..., 2, 1, 1], dtype=int64))
 # print(np.min(datasets["p (mbar)"]), np.max(datasets['p (mbar)']))   # 913.6 1015.35
 
-datasets["p (mbar)"] = np.log(datasets["p (mbar)"])
+# datasets["p (mbar)"] = np.log(datasets["p (mbar)"])
 
-# 막대 차트를 그림. x축 인덱스를 생성하고, "p (mbar)"의 값을 y축으로 사용합니다.
-y_values = np.array(datasets["p (mbar)"])
+# # 막대 차트를 그림. x축 인덱스를 생성하고, "p (mbar)"의 값을 y축으로 사용합니다.
+# y_values = np.array(datasets["p (mbar)"])
 
-# 막대 차트를 그림. x축으로는 데이터셋의 길이에 맞는 범위를 사용하고, y축으로는 변환된 "p (mbar)"의 값들을 사용합니다.
-plt.bar(range(len(y_values)), y_values)
+# # 막대 차트를 그림. x축으로는 데이터셋의 길이에 맞는 범위를 사용하고, y축으로는 변환된 "p (mbar)"의 값들을 사용합니다.
+# plt.bar(range(len(y_values)), y_values)
 
-# 차트의 제목과 x, y축 레이블을 설정합니다.
-plt.title('p (mbar)의 제곱근')
-plt.xlabel('인덱스')
-plt.ylabel('p (mbar)의 제곱근 값')
+# # 차트의 제목과 x, y축 레이블을 설정합니다.
+# plt.title('p (mbar)의 제곱근')
+# plt.xlabel('인덱스')
+# plt.ylabel('p (mbar)의 제곱근 값')
 
-# 차트를 화면에 표시합니다.
-plt.show()
+# # 차트를 화면에 표시합니다.
+# plt.show()
 
 
-'''
+
 # print(datasets.info())
  #   Column           Non-Null Count   Dtype
 # ---  ------           --------------   -----
@@ -90,7 +90,7 @@ plt.show()
 
 # size = 15
 # target_column = 4
-size = 3
+size = 30
 
 def split_Xy(dataset, size, target_column):
     X, y = [], []
@@ -110,12 +110,12 @@ X, y = split_Xy(datasets, size, 1)
 # print(X.shape)      # (420546, 5, 14)
 # print(np.unique(y,return_counts=True))      # (420550, 2)
 # print(y.shape)      # (420546,)
-X = X.reshape(-1, 3, 14)
+X = X.reshape(-1, 30, 14)
 
 
 mms = MinMaxScaler()
 
-X = mms.fit_transform(X.reshape(-1, 3*14)).reshape(-1, 3, 14)
+X = mms.fit_transform(X.reshape(-1, 3*14)).reshape(-1, 30, 14)
 y = mms.fit_transform(y.reshape(-1, 1))
 
 # np.save(path2 + "keras52_kaggle_jena_save_X.npy", X) 
@@ -130,7 +130,7 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=3, test_s
 
 
 model = Sequential()
-model.add(Bidirectional(LSTM(19, return_sequences=True, activation='relu'), input_shape=(3, 14)))
+model.add(Bidirectional(LSTM(19, return_sequences=True, activation='relu'), input_shape=(30, 14)))
 model.add(Bidirectional(LSTM(9, )))
 model.add(Dense(97, activation='swish'))
 model.add(Dense(21, activation='swish'))
@@ -157,7 +157,7 @@ r2 = r2_score(y_test, y_predict)
 print('loss' , results)
 print("걸리시간 : ", round(end_time - strat_time, 3), "초")
 print("r2_score : ", r2)
-'''
+
 
 
 
