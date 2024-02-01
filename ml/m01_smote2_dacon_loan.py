@@ -96,6 +96,10 @@ X_train, X_test, y_train, y_test = train_test_split(X, y1, test_size=0.4, shuffl
 start = time.time()
 
 
+print(X_train.shape)
+print(y_train.shape)
+
+'''
 rbs = RobustScaler()
 rbs.fit(X_train)
 X_train = rbs.transform(X_train)
@@ -238,7 +242,7 @@ print("걸린시간 : ",round(end - start, 3), "초")
 submission_csv.to_csv(path + "submission_0128_44_.csv", index=False)
 print(y_submit)
 
-
+'''
 
 
  
