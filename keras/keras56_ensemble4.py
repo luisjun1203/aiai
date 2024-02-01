@@ -61,3 +61,4 @@ results = model.evaluate(X1_test, [y1_test, y2_test])
 
 print("로스 : ", results)
 
+# 로스 :  [1302.199951171875, 1232.16943359375, 70.030517578125]
