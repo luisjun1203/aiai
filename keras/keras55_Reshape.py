@@ -62,7 +62,7 @@ model.add(Dense(10, activation= 'softmax'))     # (N, 10)
 
 model.summary()
 
-
+'''
 # 3. 컴파일 , 훈련
 strat_time = time.time()
 model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['acc'])
@@ -89,4 +89,4 @@ print("걸리시간 : ", round(end_time - strat_time, 3), "초")
 # 걸리시간 :  334.828 초
 
 
-
+'''
