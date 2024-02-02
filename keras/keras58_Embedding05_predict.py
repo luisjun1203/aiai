@@ -41,10 +41,13 @@ token.fit_on_texts(docs)
 #              ('별로에요', 1), ('생각보다', 1), ('지루해요', 1), ('연기가', 1), ('어색해요', 1),
 #              ('재미없어요', 1), ('재미없다', 1), ('재밋네요', 1), ('상헌이', 1), ('바보', 1),
 #              ('반장', 1), ('못생겼다', 1), ('욱이', 1), ('또', 1), ('잔다', 1)])
-a = ['나는 정룡이가 정말 싫다. 재미없다 너무 정말']
+# a = ['나는 정룡이가 정말 싫다. 재미있다 너무 정말']
+# token.fit_on_texts(a)
 
-token.fit_on_texts(a)
+
 X = token.texts_to_sequences(docs)
+# print(token.word_index)
+
 
 X_pad = pad_sequences(X,
                         #  padding='pre',
@@ -77,7 +80,7 @@ model= Sequential()
 #           ) 
 
 ################## Embedding2 ################################
-model.add(Embedding(input_dim= word_size , output_dim = 100, input_length=5))       # input_length가 1, 5는 돌아가지만 2,3,4,6... 안돼
+model.add(Embedding(input_dim= 35 , output_dim = 100, input_length=5))       # input_length가 1, 5는 돌아가지만 2,3,4,6... 안돼
 # input_dim = 31    # 디폴트
 # input_dim = 20    # 단어사전의 개수보다 작을때 : 연산량 줄어든다, 단어사전에서 임의으로 빠진다 : 성능 저하 될지도? ### 다른사람들은 돌아가는데 난 왜 안돌아갈까###
 # input_dim = 40    # 단어사전의 개수보다 많을떄 : 연산량 늘어난다, 임의의 랜덤 임베딩 생성 : 성능 저하 될지도?
@@ -98,7 +101,7 @@ model.add(Dense(21, activation='relu'))
 model.add(Dense(1,activation='sigmoid'))
 model.summary()
 
-'''
+
 model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['acc'])
 es = EarlyStopping(monitor='loss', mode='min', patience=300, verbose=2, restore_best_weights=True)
 model.fit(X_pad, labels, epochs=1000, batch_size=10,verbose=2, callbacks=[es])
@@ -110,7 +113,8 @@ results = model.evaluate(X_pad, labels)
 # print('loss' , results[0])
 # print('acc', results[1])
 
-
+a = ['나는 정룡이가 정말 싫다. 재미없다 너무 정말']
+token.fit_on_texts(a)
 
 
 aaa = token.texts_to_sequences(a)
@@ -118,7 +122,8 @@ aaa_pad = pad_sequences(aaa, padding = 'pre', maxlen=5, truncating='pre')
 print(aaa_pad)
 y_predict = model.predict(aaa_pad)
 y_predict = np.array(y_predict)
-# y_predict = np.argmax(y_predict, axis=1)
+print(y_predict)
+y_predict = np.argmax(y_predict, axis=1)
 # print(token.word_index)
 # {'너무': 1, '참': 2, '재미없다': 3, '정말': 4,
 #  '재미있다': 5, '최고에요': 6, '잘만든': 7, '영화에요': 8,
@@ -127,9 +132,9 @@ y_predict = np.array(y_predict)
 #  '글쎄': 17, '별로에요': 18, '생각보다': 19, '지루해요': 20,
 #  '연기가': 21, '어색해요': 22, '재미없어요': 23, '재밋네요': 24,
 #  '상헌이': 25, '바보': 26, '반장': 27, '못생겼다': 28,
-#  '욱이': 29, '또': 30, '잔다': 31, '나는': 32, '정룡이가': 33, '좋다': 34}
+#  '욱이': 29, '또': 30, '잔다': 31, '나는': 32, '정룡이가': 33, '싫다': 34}
 print(y_predict)
-'''
+
 
 
 
