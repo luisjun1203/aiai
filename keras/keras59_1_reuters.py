@@ -18,7 +18,7 @@ import time
 
 
 
-(X_train,  y_train), (X_test, y_test) = reuters.load_data(num_words=2048,     # 단어사용 빈도수에 맞춰서 순서대로 설정가능, None은 모든 단어 전부다 사용
+(X_train,  y_train), (X_test, y_test) = reuters.load_data(num_words=1000,     # 단어사용 빈도수에 맞춰서 순서대로 설정가능, None은 모든 단어 전부다 사용
                                                           test_split=0.2
                                                           
                                                           )
@@ -49,8 +49,8 @@ print("뉴스기사의 평균거리 : ", sum(map(len,X_train))/ len(X_train))   
 # print(type(X_train))       # <class 'numpy.ndarray'>
 # print(type(X_train[0]))     # <class 'list'>
 
-X_train = pad_sequences(X_train, padding='pre', maxlen=1024, truncating='pre')
-X_test = pad_sequences(X_test, padding='pre', maxlen=1024, truncating='pre')
+X_train = pad_sequences(X_train, padding='pre', maxlen=150, truncating='pre')
+X_test = pad_sequences(X_test, padding='pre', maxlen=150, truncating='pre')
 # y 원핫은 하고싶으면 하고 하기 싫으면 sparse_categorical_crossentropy
 print(X_train.shape)    # (8982, 100)
 print(X_test.shape)     # (2246, 100)
@@ -80,11 +80,10 @@ print(y_test.shape)     # (2246, 46)
 
 
 model = Sequential()
-model.add(Embedding(input_dim=2049, output_dim=19, input_length= 1024))
-model.add(Conv1D(97, 9, 19, activation='swish'))
-model.add(Conv1D(9, 21, 97, activation='swish'))
-model.add(GRU(21, return_sequences=True))
-model.add(Flatten())                                                   
+model.add(Embedding(input_dim=1001, output_dim=19, input_length= 150))
+model.add(LSTM(97, return_sequences=True))
+model.add(GRU(9))                                                   
+model.add(Dense(21, activation='relu'))
 model.add(Dense(16, activation='relu'))
 model.add(Dense(21, activation='relu'))
 model.add(Dense(46,activation='softmax'))
