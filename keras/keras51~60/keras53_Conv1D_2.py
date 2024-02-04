@@ -15,7 +15,7 @@ y = np.array([4,5,6,7,8,9,10,11,12,13,50,60,70])
 
 X = X.reshape(-1, 3, 1)
 print(X.shape) #(13,3,1)
-
+    
 
 model = Sequential()
 # model.add(LSTM(19, return_sequences=True,           # return_sequences : 2번이상 RNN을 쓸 수 있게 해준다. timesteps를 살려서 다음 레이어로 보내준다.
