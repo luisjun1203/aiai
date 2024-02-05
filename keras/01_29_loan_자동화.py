@@ -109,17 +109,21 @@ def auto(a, b, c, d, test_csv):
     X_train, X_test, y_train, y_test = train_test_split(X, y1, test_size=0.15, shuffle=True, random_state=a, stratify=y1)
     start = time.time()
 
-    X_train = np.asarray(X_train).astype(np.float32)
-    X_test = np.asarray(X_test).astype(np.float32)
-    test_csv = np.asarray(test_csv).astype(np.float32)
+    # X_train = np.asarray(X_train).astype(np.float32)
+    # X_test = np.asarray(X_test).astype(np.float32)
+    # test_csv = np.asarray(test_csv).astype(np.float32)
 
-    rbs = RobustScaler(quantile_range=(2,98))
-    rbs.fit(X_train)
-    X_train = rbs.transform(X_train)
-    X_test = rbs.transform(X_test)
-    test_csv = rbs.transform(test_csv)
-
-
+    # rbs = RobustScaler(quantile_range=(2,98))
+    # rbs.fit(X_train)
+    # X_train = rbs.transform(X_train)
+    # X_test = rbs.transform(X_test)
+    # test_csv = rbs.transform(test_csv)
+    
+    mms = MinMaxScaler()
+    mms.fit(X_train)
+    X_train = mms.transform(X_train) 
+    X_test = mms.transform(X_test)
+    test_csv = mms.transform(test_csv)
 
    
 
@@ -182,11 +186,12 @@ def auto(a, b, c, d, test_csv):
 
     input_shape_dnn = (13,)
     dip2 = Input(shape=input_shape_dnn)
-    d11 = Dense(21, activation='swish')(dip)
-    d22 = Dense(16, activation='swish')(d11)
-    d33 = Dense(9, activation='swish')(d22)
-    d44 = Dense(19, activation='swish')(d33)
-    dop2 = Dense(97, activation='swish')(d44)
+    d11 = Dense(19, activation='swish')(dip)
+    d22 = Dense(99, activation='swish')(d11)
+    d33 = Dense(7, activation='swish')(d22)
+    d44 = Dense(13, activation='swish')(d33)
+    
+    dop2 = Dense(16, activation='swish')(d44)
 
     combined = concatenate([dop, dop2])
 
@@ -249,9 +254,9 @@ def auto(a, b, c, d, test_csv):
     # submission_csv.to_csv(path + "submission_0129_789_.csv", index=False)
     # print(y_submit)
     if fs > 0.92:
-        filename = "".join(["..//_data//_save//dacon_loan_2//dacon_loan_2_auto_", "rs_",str(a), "_bs_", str(c),"_f1_", str(fs.round(4))])
+        filename = "".join(["..//_data//_save//dacon_loan_3//dacon_loan_3_auto_", "rs_",str(a), "_bs_", str(c),"_f1_", str(fs.round(4))])
         model.save(filename + ".h5")
-        submission_csv.to_csv(path + "submisson_01_31_1_auto.csv", index=False)
+        submission_csv.to_csv(path + "submisson_02_05_7_mms_auto.csv", index=False)
         save_code_to_file(filename)
     return fs 
 
@@ -262,10 +267,10 @@ def auto(a, b, c, d, test_csv):
 import random
 # for i in range(100000000):
 while True:
-    a = random.randrange(1, 10000)     # random_state
-    # a = 3169
-    b = random.randrange(1000, 2000)           # epochs
-    c = random.randrange(480, 520)          # patience
+    # a = random.randrange(1, 4000000000)     # random_state
+    a = 2623144940
+    b = random.randrange(3000, 5000)           # epochs
+    c = random.randrange(1480, 1520)          # patience
     fs = auto(a, b, c, 500, test_csv)
     # print("random_state : ", a)
     if fs > 0.94:
@@ -274,6 +279,19 @@ while True:
         print("batch_size : ", c)
         print("f1 : ", fs)
         break
+
+
+
+
+
+
+
+
+
+
+
+    
+
 
 
 

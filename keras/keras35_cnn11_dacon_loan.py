@@ -213,7 +213,7 @@ filepath = "".join([path, 'k30_3_dacon_loan_',date,'_', filename])
 model.compile(loss='categorical_crossentropy', optimizer='adam', metrics='acc')
 start = time.time()
 es = EarlyStopping(monitor='val_loss', mode='min', patience=150, verbose=20, restore_best_weights=True)
-model.fit(X_train, y_train, epochs=1000, batch_size=480, validation_split=0.15, verbose=2, callbacks=[es])
+model.fit(X_train, y_train, epochs=10, batch_size=480, validation_split=0.15, verbose=2, callbacks=[es])
 
 
 end = time.time()
@@ -232,7 +232,7 @@ y_submit = ohe.inverse_transform(y_submit)
 
 y_submit = pd.DataFrame(y_submit)
 submission_csv['대출등급'] = y_submit
-# print(y_submit)
+print(y_submit.shape)
 
 fs = f1_score(y_test, y_predict, average='weighted')
 print("f1_score : ", fs)

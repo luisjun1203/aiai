@@ -60,7 +60,7 @@ model.summary()
 
 model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
 es = EarlyStopping(monitor='val_loss', mode='min', patience=100, verbose=2, restore_best_weights=True)
-model.fit(X_train, y_train, epochs=500, batch_size=50, verbose=2, validation_split=0.15, callbacks=[es])
+model.fit(X_train, y_train, epochs=500, batch_size=500, verbose=2, validation_split=0.15, callbacks=[es])
 
 
 results = model.evaluate(X_test, y_test)
@@ -74,4 +74,7 @@ print("acc : ", results[1])
 
 # 로스 :  0.3234172463417053
 # acc :  0.8611199855804443
+
+# 로스 :  0.3191022574901581
+# acc :  0.865559995174408
 

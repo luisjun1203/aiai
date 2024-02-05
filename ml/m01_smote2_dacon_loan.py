@@ -69,16 +69,35 @@ lae.fit(train_csv['근로기간'])
 train_csv['근로기간'] = lae.transform(train_csv['근로기간'])
 test_csv['근로기간'] = lae.transform(test_csv['근로기간'])
 
-
+# train_csv_FG = train_csv[train_csv['대출등급'].isin(['F', 'G'])]
 
 X = train_csv.drop(['대출등급'], axis=1)
 y = train_csv['대출등급']
 # test_csv = test_csv.drop([''], axis=1)
 
+# num_E = (y == 'E').sum()
+
+
+# smote = SMOTE(sampling_strategy={'F': num_E, 'G': num_E})
+
+
+# X_resampled, y_resampled = smote.fit_resample(X, y)
+
+
+# print(np.unique(y_resampled, return_counts=True))
+
+# print(X_resampled.shape, y_resampled.shape) # (108628, 13) (108628,)
+
+
 y = y.values.reshape(-1, 1)
 ohe = OneHotEncoder(sparse=False)
-ohe.fit(y)
-y1 = ohe.transform(y)
+# ohe.fit(y)
+# y1 = ohe.transform(y)
+
+# print(y2)
+# print(y2.shape)     # (108628, 7)
+
+
 
 # rbs = RobustScaler()
 # X = rbs.transform(X)
@@ -92,24 +111,42 @@ y1 = ohe.transform(y)
 # print(X.shape)              # (96294, 13, 1, 1)
 # print(test_csv.shape)       # (64197, 13, 1, 1)
 
-X_train, X_test, y_train, y_test = train_test_split(X, y1, test_size=0.4, shuffle=True, random_state=3, stratify=y1)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.4, shuffle=True, random_state=3, stratify=y)
 start = time.time()
 
+# X_train = np.asarray(X_train).astype(np.float32)
+# X_test = np.asarray(X_test).astype(np.float32)
+# test_csv = np.asarray(test_csv).astype(np.float32)
 
-print(X_train.shape)
-print(y_train.shape)
 
-'''
+
+# num_E = (y == 'E').sum()
+
+
+smote = SMOTE(sampling_strategy={'F': 4412 , 'G': 4412})
+
+
+X_resampled, y_resampled = smote.fit_resample(X_train, y_train)
+
+y_resampled = np.asarray(y_resampled).astype(np.float32) 
+print(X_resampled)
+print(y_resampled)
+print(y_resampled.shape)
+
 rbs = RobustScaler()
-rbs.fit(X_train)
-X_train = rbs.transform(X_train)
+rbs.fit(X_resampled)
+X_resampled = rbs.transform(X_resampled)
 X_test = rbs.transform(X_test)
 test_csv = rbs.transform(test_csv)
 
+# print(np.unique(X_resampled, return_counts=True))
 
-
-smote = SMOTE(random_state=713)
-X_train, y_train = smote.fit_resample(X_train, y_train)
+# print(X_resampled.shape)
+# print(X_resampled.shape)
+# print(y_resampled.shape)
+# print(np.unique(y_resampled, return_counts=True))
+# X_resampled = np.asarray(X_resampled).astype(np.float32)
+# y_resampled = np.asarray(y_resampled).astype(np.float32)
 
 
 # mms1 = ['대출기간',
@@ -150,11 +187,11 @@ X_train, y_train = smote.fit_resample(X_train, y_train)
 # print(np.unique(X_train[rbs1], return_counts = True)
 
 
-X_train_dnn = X_train.reshape(-1, 13)  
+X_train_dnn = X_resampled.reshape(-1, 13)  
 X_test_dnn = X_test.reshape(-1, 13) 
 test_csv_dnn = test_csv.reshape(-1, 13)
 
-X_train_cnn = X_train.reshape(-1, 13, 1, 1) 
+X_train_cnn = X_resampled.reshape(-1, 13, 1, 1) 
 X_test_cnn = X_test.reshape(-1, 13, 1, 1) 
 test_csv_cnn = test_csv.reshape(-1, 13, 1, 1)
 
@@ -203,17 +240,17 @@ date = date.strftime("%m%d_%H%M")
 print(date)                     
 
 path = "..\\_data\\_save\\MCP\\"
-filename = '{epoch:05d}-{acc:.4f}-{loss:.4f}.hdf5'            
+filename = '{epoch:05d}-{acc:.4f}-{val_loss:.4f}.hdf5'            
 filepath = "".join([path, 'k30_3_dacon_loan_',date,'_', filename])
 
 
 
 
 mcp = ModelCheckpoint(monitor='val_loss', mode='min', verbose=1, save_best_only=True, filepath=filepath)    
-model.compile(loss='categorical_crossentropy', optimizer='adam', metrics='acc')
+model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics='acc')
 
 es = EarlyStopping(monitor='val_loss', mode='min', patience=7000, verbose=20, restore_best_weights=True)
-model.fit([X_train_dnn, X_train_cnn], y_train, epochs=50000, batch_size=480, validation_split=0.15, verbose=2, callbacks=[es])
+model.fit([X_train_dnn, X_train_cnn], y_resampled, epochs=50000, batch_size=480, validation_split=0.15, verbose=2, callbacks=[es])
 
 
 end = time.time()
@@ -242,7 +279,7 @@ print("걸린시간 : ",round(end - start, 3), "초")
 submission_csv.to_csv(path + "submission_0128_44_.csv", index=False)
 print(y_submit)
 
-'''
+
 
 
  
