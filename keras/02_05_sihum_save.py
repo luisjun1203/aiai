@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 import time
 from keras.models import Sequential, Model
-from keras. layers import Dense, Conv1D, SimpleRNN, LSTM, Flatten, LSTM, Dropout, Input, concatenate
+from keras. layers import Dense, Conv1D, SimpleRNN, GRU, Flatten, GRU, Dropout, Input, concatenate
 from keras. callbacks import EarlyStopping, ModelCheckpoint
 from keras. utils import to_categorical
 from sklearn.model_selection import train_test_split 
@@ -10,7 +10,12 @@ from sklearn.metrics import f1_score, mean_squared_error, accuracy_score, r2_sco
 from sklearn.preprocessing import OneHotEncoder, LabelEncoder, StandardScaler, MinMaxScaler, RobustScaler, MaxAbsScaler
 from imblearn.over_sampling import SMOTE
 import matplotlib.pyplot as plt
+import tensorflow as tf
+import random as rn
 
+tf.random.set_seed(3)       
+np.random.seed(3)
+rn.seed(3)
 start_time = time.time()
 path = "c:\\_data\\sihum\\"
 
@@ -101,53 +106,54 @@ X_pre_ss = ss_csv[-180:].reshape(-1, 180, 15)  # 삼성전자 데이터
 X_pre_am = am_csv[-180:].reshape(-1, 180, 15)
 
 X1_train, X1_test, X2_train, X2_test, X3_train, X3_test, X4_train, X4_test, y1_train, y1_test, y2_train, y2_test = train_test_split(X1, X2, X3, X4, y1, y2,
-                                                                                                               random_state=3, test_size=0.15 )
+                                                                                                        #  shuffle=False,
+                                                                                                         random_state=3, test_size=0.15 )
 
 input_shape_rnn = (180,15)
 rip = Input(shape=input_shape_rnn)
-L1 = LSTM(19)(rip)
-d2 = Dense(97, activation='swish')(L1)
-d3 = Dense(9, activation='swish')(d2)
-d4 = Dense(21, activation='swish')(d3)
+L1 = GRU(19)(rip)
+d2 = Dense(97, activation='swish', name='1')(L1)
+d3 = Dense(9, activation='swish', name= '2')(d2)
+d4 = Dense(21, activation='swish', name= '3')(d3)
 
-rop = Dense(7, activation='swish')(d4)
+rop = Dense(7, activation='swish', name= '4')(d4)
 
 
 input_shape_rnn2 = (180,15)
 rip2 = Input(shape=input_shape_rnn2)
-L11 = LSTM(19)(rip2)
-d22 = Dense(99, activation='swish')(L11)
-d33 = Dense(7, activation='swish')(d22)
-d44 = Dense(13, activation='swish')(d33)
+L11 = GRU(19)(rip2)
+d22 = Dense(99, activation='swish', name= '11')(L11)
+d33 = Dense(7, activation='swish', name= '22')(d22)
+d44 = Dense(13, activation='swish', name= '33')(d33)
 
-rop2 = Dense(7, activation='swish')(d44)
+rop2 = Dense(6, activation='swish', name= '44')(d44)
 
 input_shape_rnn3 = (180,15)
 rip3 = Input(shape=input_shape_rnn3)
-L111 = LSTM(19)(rip3)
-d222 = Dense(71, activation='swish')(L111)
-d333 = Dense(11, activation='swish')(d222)
-d444 = Dense(11, activation='swish')(d333)
+L111 = GRU(19)(rip3)
+d222 = Dense(71, activation='swish', name= '111')(L111)
+d333 = Dense(11, activation='swish', name= '222')(d222)
+d444 = Dense(11, activation='swish', name= '333')(d333)
 
-rop3 = Dense(7, activation='swish')(d444)
+rop3 = Dense(5, activation='swish', name= '444')(d444)
 
 
 input_shape_rnn4 = (180,15)
 rip4 = Input(shape=input_shape_rnn4)
-L1111 = LSTM(19)(rip4)
-d2222 = Dense(66, activation='swish')(L1111)
-d3333 = Dense(12, activation='swish')(d2222)
-d4444 = Dense(11, activation='swish')(d3333)
+L1111 = GRU(19)(rip4)
+d2222 = Dense(66, activation='swish', name= '1111')(L1111)
+d3333 = Dense(12, activation='swish', name= '2222')(d2222)
+d4444 = Dense(11, activation='swish', name= '3333')(d3333)
 
-rop4 = Dense(7, activation='swish')(d4444)
+rop4 = Dense(4, activation='swish', name= '4444')(d4444)
 
 combined = concatenate([rop, rop2, rop3, rop4])
 
 
 
-fl = Dense(6, activation='swish')(combined)
-final_output = Dense(1)(fl)  
-final_output2 = Dense(1)(fl)
+fl = Dense(6, activation='swish', name= '0')(combined)
+final_output = Dense(1, name= '00')(fl)  
+final_output2 = Dense(1, name= '000')(fl)
 model = Model(inputs=[rip, rip2, rip3, rip4], outputs=[final_output,final_output2])
 
 model.summary()
@@ -160,13 +166,13 @@ print(date)
 
 path2 = "c:\\_data\\sihum\\sihum2\\"
 filename = '{epoch:05d}-{loss:.4f}.hdf5'            
-filepath = "".join([path2, '02_05_sihum',date,'_', filename])
+filepath = "".join([path2, '02_06_sihum7',date,'_', filename])
 
 mcp = ModelCheckpoint(monitor='val_loss', mode='min', verbose=1, save_best_only=True, filepath=filepath)    
 model.compile(loss='mae', optimizer='adam')
 
 es = EarlyStopping(monitor='val_loss', mode='min', patience=300, verbose=20, restore_best_weights=True)
-model.fit([X1_train, X2_train, X3_train,X4_train],[y1_train, y2_train], epochs=3000, validation_split=0.15, batch_size=100, verbose=2, callbacks=[es,mcp])
+model.fit([X1_train, X2_train, X3_train,X4_train],[y1_train, y2_train], epochs=5000, validation_split=0.15, batch_size=1000, verbose=2, callbacks=[es, mcp])
 
 end = time.time()
 
@@ -220,4 +226,18 @@ print("아모레 R2스코어 : ", r2_am)
 # 아모레 예측가 :  123638.3366882801
 # 삼성 R2스코어 :  0.9975963448031284
 # 아모레 R2스코어 :  0.990528740647695
+
+
+
+
+# shuffle=True
+# 2월 7일의 삼성전자  예측 시가 : 74638.1600856781
+# 2월 7일의 아모레 예측 종가 :  120634.90580022335
+# 삼성 R2스코어 :  0.9999080855104711
+# 아모레 R2스코어 :  0.9999691148238176
+
+#shuffle=False
+#결과 안좋음
+
+
 

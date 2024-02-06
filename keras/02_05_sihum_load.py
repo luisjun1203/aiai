@@ -10,6 +10,15 @@ from sklearn.metrics import f1_score, mean_squared_error, accuracy_score, r2_sco
 from sklearn.preprocessing import OneHotEncoder, LabelEncoder, StandardScaler, MinMaxScaler, RobustScaler, MaxAbsScaler
 from imblearn.over_sampling import SMOTE
 import matplotlib.pyplot as plt
+import keras
+import tensorflow as tf
+import random as rn
+
+tf.random.set_seed(3)       
+np.random.seed(3)
+rn.seed(3)
+
+
 
 start_time = time.time()
 path = "c:\\_data\\sihum\\"
@@ -99,7 +108,7 @@ X1_train, X1_test, X2_train, X2_test, X3_train, X3_test, X4_train, X4_test, y1_t
                                                                                                                random_state=3, test_size=0.15 )
 
 
-model = load_model("c:\\_data\\sihum\\")
+model = load_model("c:\\_data\\sihum\\02_06_sihum70206_1747_02025-0.0079.hdf5")
 
 
 
@@ -120,10 +129,32 @@ y2_temp[0][0] = y_predict_am[0]
 y_predict_ss = mms.inverse_transform(y1_temp)
 y_predict_am = mms.inverse_transform(y2_temp)
 
-print("2월 7일의 삼성전자  예측 시가 :", y_predict_ss[0][0]/50)
-print("2월 7일의 아모레 예측 종가 : ", y_predict_am[0][0]/10)
+print("2월 7일의 삼성전자  예측 시가 :", round(y_predict_ss[0][0]/50, 2))
+print("2월 7일의 아모레 예측 종가 : ", round(y_predict_am[0][0]/10, 2))
 
 r2_ss = r2_score(y1_test, y_predict[0])
 r2_am = r2_score(y2_test, y_predict[1])
 print("삼성 R2스코어 : ", r2_ss)
 print("아모레 R2스코어 : ", r2_am)
+
+# 2월 7일의 삼성전자  예측 시가 : 74579.55
+# 2월 7일의 아모레 예측 종가 :  121115.74
+# 삼성 R2스코어 :  0.9999502656193989
+# 아모레 R2스코어 :  0.9999767392924293
+
+
+# 2월 7일의 삼성전자  예측 시가 : 74638.16
+# 2월 7일의 아모레 예측 종가 :  120634.91
+# 삼성 R2스코어 :  0.9999080855104711
+# 아모레 R2스코어 :  0.9999691148238176
+
+# 2월 7일의 삼성전자  예측 시가 : 74470.5667257309
+# 2월 7일의 아모레 예측 종가 :  120593.09854358435
+# 삼성 R2스코어 :  0.9999216441268735
+# 아모레 R2스코어 :  0.9999795028976664
+############################################################
+# 2월 7일의 삼성전자  예측 시가 : 74393.54664683342
+# 2월 7일의 아모레 예측 종가 :  120809.93763357401
+# 삼성 R2스코어 :  0.9990050084823417
+# 아모레 R2스코어 :  0.9998431363686084
+#############################################################
