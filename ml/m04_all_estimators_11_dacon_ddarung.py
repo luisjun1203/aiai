@@ -80,7 +80,61 @@ for name, algorithm in allAlgorithms:
 
 
 
-
+# ARDRegression 의 정답률은 :  0.7157112460020667
+# AdaBoostRegressor 의 정답률은 :  0.5270506580567736
+# BaggingRegressor 의 정답률은 :  0.8514258099065722
+# BayesianRidge 의 정답률은 :  0.7151809662563697
+# CCA  :은 바보멍충이!!
+# DecisionTreeRegressor 의 정답률은 :  0.6956229360882128
+# DummyRegressor 의 정답률은 :  -0.01264282645421777
+# ElasticNet 의 정답률은 :  0.707203045607421
+# ElasticNetCV 의 정답률은 :  0.6394956955269883
+# ExtraTreeRegressor 의 정답률은 :  0.6728953719332519
+# ExtraTreesRegressor 의 정답률은 :  0.8762990055712846
+# GammaRegressor 의 정답률은 :  0.5473420255490494
+# GaussianProcessRegressor 의 정답률은 :  -1.3411089670741565
+# GradientBoostingRegressor 의 정답률은 :  0.8662767224589
+# HistGradientBoostingRegressor 의 정답률은 :  0.8758552833658662
+# HuberRegressor 의 정답률은 :  0.6835299345042267
+# IsotonicRegression  :은 바보멍충이!!
+# KNeighborsRegressor 의 정답률은 :  0.40247448412422704
+# KernelRidge 의 정답률은 :  0.7126141348905266
+# Lars 의 정답률은 :  0.7191655987347882
+# LarsCV 의 정답률은 :  0.7191655987347882
+# Lasso 의 정답률은 :  0.7127328806526763
+# LassoCV 의 정답률은 :  0.6933644024833001
+# LassoLars 의 정답률은 :  0.28358761681682254
+# LassoLarsCV 의 정답률은 :  0.7191655987347882
+# LassoLarsIC 의 정답률은 :  0.7163036950447229
+# LinearRegression 의 정답률은 :  0.7191655987347895
+# LinearSVR 의 정답률은 :  0.5652268978239263
+# MLPRegressor 의 정답률은 :  0.7130088409117391
+# MultiOutputRegressor  :은 바보멍충이!!
+# MultiTaskElasticNet  :은 바보멍충이!!
+# MultiTaskElasticNetCV  :은 바보멍충이!!
+# MultiTaskLasso  :은 바보멍충이!!
+# MultiTaskLassoCV  :은 바보멍충이!!
+# NuSVR 의 정답률은 :  0.08484390888697135
+# OrthogonalMatchingPursuit 의 정답률은 :  0.44325146780685165
+# OrthogonalMatchingPursuitCV 의 정답률은 :  0.6971942774646274
+# PLSCanonical  :은 바보멍충이!!
+# PLSRegression 의 정답률은 :  0.7130397379731289
+# PassiveAggressiveRegressor 의 정답률은 :  0.5198301179283158
+# PoissonRegressor 의 정답률은 :  -0.012488683051069094
+# QuantileRegressor 의 정답률은 :  0.4626880107396707
+# RANSACRegressor 의 정답률은 :  0.6265697204075334
+# RadiusNeighborsRegressor  :은 바보멍충이!!
+# RandomForestRegressor 의 정답률은 :  0.8639088983666489
+# RegressorChain  :은 바보멍충이!!
+# Ridge 의 정답률은 :  0.7156822861976403
+# RidgeCV 의 정답률은 :  0.718307796780151
+# SGDRegressor 의 정답률은 :  -7.041675262549504e+25
+# SVR 의 정답률은 :  0.09197948117229648
+# StackingRegressor  :은 바보멍충이!!
+# TheilSenRegressor 의 정답률은 :  0.6929980693021178
+# TransformedTargetRegressor 의 정답률은 :  0.7191655987347895
+# TweedieRegressor 의 정답률은 :  0.6771865706362916
+# VotingRegressor  :은 바보멍충이!!
 
 
 

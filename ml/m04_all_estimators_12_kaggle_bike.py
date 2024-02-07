@@ -31,7 +31,7 @@ allAlgorithms = all_estimators(type_filter='regressor')
 for name, algorithm in allAlgorithms:
     try:
         #2. 모델 구성
-        model = algorithm()
+        model = algorithm(verbose=1)
         #3. 컴파일, 훈련
         model.fit(X_train, y_train)
         acc = model.score(X_test, y_test)
@@ -65,11 +65,62 @@ for name, algorithm in allAlgorithms:
 
 # print("RMSLE : ", rmsle)
 # print("RMSE : ", rmse)
-
-
-
-
-
+# ARDRegression 의 정답률은 :  0.30887130761960313
+# AdaBoostRegressor 의 정답률은 :  0.24696015093891044
+# BaggingRegressor 의 정답률은 :  0.307162527620503
+# BayesianRidge 의 정답률은 :  0.30889229576364996
+# CCA  :은 바보멍충이!!
+# DecisionTreeRegressor 의 정답률은 :  -0.08949770127002266
+# DummyRegressor 의 정답률은 :  -0.0010700171817252802
+# ElasticNet 의 정답률은 :  0.30647077016203916
+# ElasticNetCV 의 정답률은 :  0.3031374004458536
+# ExtraTreeRegressor 의 정답률은 :  0.038368144383383984
+# ExtraTreesRegressor 의 정답률은 :  0.28464207515420326
+# GammaRegressor 의 정답률은 :  0.20529377559234796
+# GaussianProcessRegressor 의 정답률은 :  -0.13737716352606566
+# GradientBoostingRegressor 의 정답률은 :  0.38400786661875863
+# HistGradientBoostingRegressor 의 정답률은 :  0.4075821965458051
+# HuberRegressor 의 정답률은 :  0.28978715970960456
+# IsotonicRegression  :은 바보멍충이!!
+# KNeighborsRegressor 의 정답률은 :  0.28806831509392106
+# KernelRidge 의 정답률은 :  0.2931936157442179
+# Lars 의 정답률은 :  0.3089325724639751
+# LarsCV 의 정답률은 :  0.3083201550974195
+# Lasso 의 정답률은 :  0.3086703535053241
+# LassoCV 의 정답률은 :  0.3086383820893682
+# LassoLars 의 정답률은 :  -0.0010700171817252802
+# LassoLarsCV 의 정답률은 :  0.3083201550974195
+# LassoLarsIC 의 정답률은 :  0.30865576734767486
+# LinearRegression 의 정답률은 :  0.308932572463975
+# LinearSVR 의 정답률은 :  0.27866590686104487
+# MLPRegressor 의 정답률은 :  0.3405076673191888
+# MultiOutputRegressor  :은 바보멍충이!!
+# MultiTaskElasticNet  :은 바보멍충이!!
+# MultiTaskElasticNetCV  :은 바보멍충이!!
+# MultiTaskLasso  :은 바보멍충이!!
+# MultiTaskLassoCV  :은 바보멍충이!!
+# NuSVR 의 정답률은 :  0.2640088685603562
+# OrthogonalMatchingPursuit 의 정답률은 :  0.17494071841316172
+# OrthogonalMatchingPursuitCV 의 정답률은 :  0.30443624060050256
+# PLSCanonical  :은 바보멍충이!!
+# PLSRegression  :은 바보멍충이!!
+# PassiveAggressiveRegressor 의 정답률은 :  -0.21712298980918376
+# PoissonRegressor 의 정답률은 :  0.3131634960096831
+# QuantileRegressor  :은 바보멍충이!!
+# RANSACRegressor  :은 바보멍충이!!
+# RadiusNeighborsRegressor  :은 바보멍충이!!
+# RandomForestRegressor 의 정답률은 :  0.3552229673099193
+# RegressorChain  :은 바보멍충이!!
+# Ridge  :은 바보멍충이!!
+# RidgeCV  :은 바보멍충이!!
+# SGDRegressor 의 정답률은 :  -1.9376416131693308e+16
+# SVR 의 정답률은 :  0.2520165447500744
+# StackingRegressor  :은 바보멍충이!!
+# Breakdown point: 0.0740631737186066
+# TheilSenRegressor 의 정답률은 :  0.3064211138774464
+# TransformedTargetRegressor  :은 바보멍충이!!
+# TweedieRegressor 의 정답률은 :  0.3041184273724099
+# VotingRegressor  :은 바보멍충이!!
 
 
 

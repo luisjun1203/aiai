@@ -75,7 +75,47 @@ for name, algorithm in allAlgorithms:
 # model.score :  0.4961346066393815
 # accuracy_score :  0.4961346066393815
 
-
+# AdaBoostClassifier 의 정답률은 :  0.36243747157799
+# BaggingClassifier 의 정답률은 :  0.6093678944974988
+# BernoulliNB 의 정답률은 :  0.44565711687130516
+# CalibratedClassifierCV 의 정답률은 :  0.5079581628012733
+# CategoricalNB  :은 바보멍충이!!
+# ClassifierChain  :은 바보멍충이!!
+# ComplementNB 의 정답률은 :  0.32833105957253295
+# DecisionTreeClassifier 의 정답률은 :  0.5466120964074579
+# DummyClassifier 의 정답률은 :  0.43974533879035926
+# ExtraTreeClassifier 의 정답률은 :  0.5488858572078218
+# ExtraTreesClassifier 의 정답률은 :  0.6407457935425194
+# GaussianNB 의 정답률은 :  0.42155525238744884
+# GaussianProcessClassifier 의 정답률은 :  0.5152341973624375
+# GradientBoostingClassifier 의 정답률은 :  0.5852660300136425
+# HistGradientBoostingClassifier 의 정답률은 :  0.6330150068212824
+# KNeighborsClassifier 의 정답률은 :  0.4483856298317417
+# LabelPropagation 의 정답률은 :  0.5084129149613461
+# LabelSpreading 의 정답률은 :  0.5084129149613461
+# LinearDiscriminantAnalysis 의 정답률은 :  0.5266030013642565
+# LinearSVC 의 정답률은 :  0.44247385175079584
+# LogisticRegression 의 정답률은 :  0.4679399727148704
+# LogisticRegressionCV 의 정답률은 :  0.5206912232833106
+# MLPClassifier 의 정답률은 :  0.4579354251932697
+# MultiOutputClassifier  :은 바보멍충이!!
+# MultinomialNB 의 정답률은 :  0.3501591632560255
+# NearestCentroid 의 정답률은 :  0.13824465666211916
+# NuSVC  :은 바보멍충이!!
+# OneVsOneClassifier  :은 바보멍충이!!
+# OneVsRestClassifier  :은 바보멍충이!!
+# OutputCodeClassifier  :은 바보멍충이!!
+# PassiveAggressiveClassifier 의 정답률은 :  0.47203274215552526
+# Perceptron 의 정답률은 :  0.08685766257389722
+# QuadraticDiscriminantAnalysis 의 정답률은 :  0.46612096407457937
+# RadiusNeighborsClassifier  :은 바보멍충이!!
+# RandomForestClassifier 의 정답률은 :  0.6475670759436107
+# RidgeClassifier 의 정답률은 :  0.5302410186448385
+# RidgeClassifierCV 의 정답률은 :  0.5302410186448385
+# SGDClassifier 의 정답률은 :  0.4733969986357435
+# SVC 의 정답률은 :  0.43974533879035926
+# StackingClassifier  :은 바보멍충이!!
+# VotingClassifier  :은 바보멍충이!!
 
 
 
