@@ -24,7 +24,7 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.15, shuffl
 
 models = [
 LinearSVR(),
-Perceptron(),
+# Perceptron(),
 LinearRegression(),
 KNeighborsRegressor(),
 DecisionTreeRegressor(),
@@ -64,3 +64,8 @@ for model in models:
 # loss = 'mae'
 # R2스코어 :  0.7919380058581664
 
+# LinearSVR r2: -0.8943
+# LinearRegression r2: 0.8158
+# KNeighborsRegressor r2: 0.4512
+# DecisionTreeRegressor r2: 0.4813
+# RandomForestRegressor r2: 0.8017
