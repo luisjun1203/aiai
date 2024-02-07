@@ -23,7 +23,7 @@ print(X_data.shape, y_data.shape)   # (4, 2) (4,)
 model = Sequential()
 model.add(Dense(19, input_shape=(2,)))
 model.add(Dense(97,activation='relu'))
-model.add(Dense(9, activation='relu'))
+model.add(Dense(9,activation='relu'))
 model.add(Dense(1, activation='sigmoid'))
 
 
