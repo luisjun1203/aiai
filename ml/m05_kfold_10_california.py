@@ -8,6 +8,7 @@ from sklearn.svm import LinearSVR
 import warnings
 from sklearn.utils import all_estimators
 from sklearn.model_selection import train_test_split, KFold, cross_val_score
+from sklearn.ensemble import RandomForestRegressor
 
 warnings.filterwarnings ('ignore')
 
@@ -21,7 +22,7 @@ kfold = KFold(n_splits=n_splits, shuffle=True, random_state=123)
 
 
 # 2.모델
-model = GaussianNB()
+model = RandomForestRegressor()
 
 # 3. 훈련
 scores = cross_val_score(model, X, y, cv=kfold)

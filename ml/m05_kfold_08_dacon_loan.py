@@ -95,6 +95,13 @@ scores = cross_val_score(model, X, y, cv=kfold)
 
 print("ACC : ", scores, "\n 평균 ACC : ", round(np.mean(scores), 4))
 
+
+
+
+
+
+
+
 # y_predict = model.predict(X_test) 
 
 # y_submit = model.predict(test_csv)  
