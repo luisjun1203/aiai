@@ -7,7 +7,7 @@ import time
 from sklearn.svm import LinearSVC
 import warnings
 from sklearn.utils import all_estimators
-from sklearn.model_selection import train_test_split, KFold, cross_val_score
+from sklearn.model_selection import train_test_split, KFold, cross_val_score,StratifiedKFold
 import numpy as np
 from sklearn.svm import SVC  
 warnings.filterwarnings ('ignore')
@@ -18,7 +18,7 @@ X = datasets.data
 y = datasets.target
 
 n_splits= 5
-kfold = KFold(n_splits=n_splits, shuffle=True, random_state=123)
+kfold = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=123)
 
 
 
@@ -38,7 +38,8 @@ print("ACC : ", scores, "\n 평균 ACC : ", round(np.mean(scores), 4))
 
 # ACC :  [0.01123596 0.         0.01136364 0.01136364 0.        ] 
 #  평균 ACC :  0.0068
-
+# ACC :  [0.02247191 0.01123596 0.01136364 0.02272727 0.02272727] 
+#  평균 ACC :  0.0181
 
 
 # AdaBoostClassifier 의 정답률은 :  0.0

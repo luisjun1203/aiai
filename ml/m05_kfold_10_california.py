@@ -7,7 +7,7 @@ import time                     # 시간 알고싶을때
 from sklearn.svm import LinearSVR
 import warnings
 from sklearn.utils import all_estimators
-from sklearn.model_selection import train_test_split, KFold, cross_val_score
+from sklearn.model_selection import train_test_split, KFold, cross_val_score,StratifiedKFold
 from sklearn.ensemble import RandomForestRegressor
 
 warnings.filterwarnings ('ignore')
@@ -17,7 +17,7 @@ X = datasets.data
 y = datasets.target
 
 n_splits= 5
-kfold = KFold(n_splits=n_splits, shuffle=True, random_state=123)
+kfold = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=123)
 
 
 
@@ -28,6 +28,12 @@ model = RandomForestRegressor()
 scores = cross_val_score(model, X, y, cv=kfold)
 
 print("ACC : ", scores, "\n 평균 ACC : ", round(np.mean(scores), 4))
+
+
+
+# ACC :  [0.81291424 0.82577312 0.80987238 0.79220613 0.80506127] 
+#  평균 ACC :  0.8092
+
 
 # epochs=10000, batch_size=80, test_size=0.15, random_state=59
 # 로스 :  0.5511764883995056

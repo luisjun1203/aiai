@@ -63,6 +63,12 @@ print("ACC : ", scores, "\n 평균 ACC : ", round(np.mean(scores), 4))
 
 # submission_csv.to_csv(path + "submission_0207_1.csv", index=False)
 
+
+# ACC :  [0.82296914 0.73777655 0.76490903 0.7886017  0.76187034 0.80576339
+#  0.79796407]
+#  평균 ACC :  0.7828
+
+
 # #  random_state=3
 # 로스 :  2983.10009765625
 # R2스코어 :  0.6315264586114105

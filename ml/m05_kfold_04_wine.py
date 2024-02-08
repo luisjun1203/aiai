@@ -11,7 +11,7 @@ from keras. callbacks import EarlyStopping
 from sklearn.svm import LinearSVC
 import warnings
 from sklearn.utils import all_estimators
-from sklearn.model_selection import train_test_split, KFold, cross_val_score
+from sklearn.model_selection import train_test_split, KFold, cross_val_score,StratifiedKFold
 from sklearn.ensemble import RandomForestClassifier
 warnings.filterwarnings ('ignore')
 
@@ -19,7 +19,7 @@ warnings.filterwarnings ('ignore')
 X, y = load_wine(return_X_y=True)
 
 n_splits= 5
-kfold = KFold(n_splits=n_splits, shuffle=True, random_state=123)
+kfold = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=123)
 
 
 
@@ -35,7 +35,8 @@ print("ACC : ", scores, "\n 평균 ACC : ", round(np.mean(scores), 4))
 #  평균 ACC :  0.983
 
 
-
+# ACC :  [0.94444444 1.         0.94444444 0.97142857 0.97142857] 
+#  평균 ACC :  0.9663
 
 
 

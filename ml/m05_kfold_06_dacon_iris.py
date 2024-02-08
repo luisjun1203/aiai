@@ -1,7 +1,7 @@
 # https://dacon.io/competitions/open/235610/mysubmission
 
 
-from sklearn.model_selection import train_test_split, KFold, cross_val_score
+from sklearn.model_selection import train_test_split, KFold, cross_val_score,StratifiedKFold
 
 import numpy as np
 import pandas as pd
@@ -34,7 +34,7 @@ y = train_csv['species']
 
 
 n_splits= 5
-kfold = KFold(n_splits=n_splits, shuffle=True, random_state=123)
+kfold = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=123)
 
 
 
@@ -50,7 +50,8 @@ print("ACC : ", scores, "\n 평균 ACC : ", round(np.mean(scores), 4))
 # ACC :  [0.95833333 0.875      0.875      1.         0.95833333] 
 #  평균 ACC :  0.9333
 
-
+# ACC :  [0.95833333 0.95833333 0.95833333 0.875      0.95833333] 
+#  평균 ACC :  0.9417
 
 
 # y_submit = model.predict(test_csv)  

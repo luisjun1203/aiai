@@ -61,6 +61,20 @@ print("ACC : ", scores, "\n 평균 ACC : ", round(np.mean(scores), 4))
 
 # print("RMSLE : ", rmsle)
 # print("RMSE : ", rmse)
+
+
+
+
+# ACC :  [0.33787554 0.34673456 0.35355217 0.38048027 0.37563452] 
+#  평균 ACC :  0.3589
+
+
+
+
+
+
+
+
 # ARDRegression 의 정답률은 :  0.30887130761960313
 # AdaBoostRegressor 의 정답률은 :  0.24696015093891044
 # BaggingRegressor 의 정답률은 :  0.307162527620503

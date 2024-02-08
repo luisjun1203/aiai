@@ -14,8 +14,9 @@ import os
 from sklearn.svm import LinearSVC
 import warnings
 from sklearn.utils import all_estimators
-from sklearn.model_selection import train_test_split, KFold, cross_val_score
+from sklearn.model_selection import train_test_split, KFold, cross_val_score, StratifiedKFold
 from sklearn.svm import SVC
+from sklearn.ensemble import RandomForestClassifier
 
 warnings.filterwarnings ('ignore')
 
@@ -83,12 +84,12 @@ y = train_csv['대출등급']
 
 
 n_splits= 5
-kfold = KFold(n_splits=n_splits, shuffle=True, random_state=123)
+kfold = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=123)
 
 
 
 # 2.모델
-model = SVC()
+model = RandomForestClassifier()
 
 # 3. 훈련
 scores = cross_val_score(model, X, y, cv=kfold)
@@ -96,10 +97,12 @@ scores = cross_val_score(model, X, y, cv=kfold)
 print("ACC : ", scores, "\n 평균 ACC : ", round(np.mean(scores), 4))
 
 
+# ACC :  [0.32805442 0.32795057 0.32961213 0.33454489 0.33627583] 
+#  평균 ACC :  0.3313
 
 
-
-
+# ACC :  [0.80024923 0.80762241 0.80538969 0.80310504 0.80574307] 
+#  평균 ACC :  0.8044
 
 
 # y_predict = model.predict(X_test) 

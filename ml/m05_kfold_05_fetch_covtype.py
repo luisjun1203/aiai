@@ -28,7 +28,7 @@ kfold = KFold(n_splits=n_splits, shuffle=True, random_state=123)
 
 
 # 2.모델
-model = RandomForestClassifier()
+model = RandomForestClassifier(verbose=1)
 
 # 3. 훈련
 scores = cross_val_score(model, X, y, cv=kfold)
@@ -40,7 +40,8 @@ print("ACC : ", scores, "\n 평균 ACC : ", round(np.mean(scores), 4))
 # ACC :  [0.95432992 0.95426108 0.95562899 0.95646374 0.95529337] 
 #  평균 ACC :  0.9552
 
-
+# ACC :  [0.95418363 0.95363287 0.9553364  0.95615394 0.95604206] 
+#  평균 ACC :  0.9551
 
 
 

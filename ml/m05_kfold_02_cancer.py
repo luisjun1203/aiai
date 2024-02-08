@@ -10,7 +10,7 @@ from sklearn.preprocessing import MinMaxScaler, MaxAbsScaler, StandardScaler, Ro
 from sklearn.svm import LinearSVC
 import warnings
 from sklearn.utils import all_estimators
-from sklearn.model_selection import KFold, cross_val_score
+from sklearn.model_selection import KFold, cross_val_score,StratifiedKFold
 from sklearn.calibration import CalibratedClassifierCV
 warnings.filterwarnings ('ignore')
 #1. 데이터
@@ -22,7 +22,7 @@ y = datasets.target
 
 
 n_splits= 5
-kfold = KFold(n_splits=n_splits, shuffle=True, random_state=123)
+kfold = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=123)
 
 
 
@@ -60,6 +60,8 @@ print("ACC : ", scores, "\n 평균 ACC : ", round(np.mean(scores), 4))
 
 # ACC :  [0.93859649 0.93859649 0.92982456 0.92105263 0.87610619] 
 #  평균 ACC :  0.9208
+# ACC :  [0.89473684 0.9122807  0.94736842 0.93859649 0.9380531 ] 
+#  평균 ACC :  0.9262
 
 # AdaBoostClassifier 의 정답률은 :  0.9605263157894737
 # BaggingClassifier 의 정답률은 :  0.9342105263157895
