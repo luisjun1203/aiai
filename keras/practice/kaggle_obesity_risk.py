@@ -14,7 +14,7 @@ import keras
 import tensorflow as tf
 import random as rn
 from sklearn.ensemble import RandomForestClassifier 
-
+from xgboost import XGBClassifier
 
 
 path = "c:\\_data\\kaggle\\obesity_risk\\"
@@ -188,16 +188,18 @@ X = train_csv.drop(['NObeyesdad'], axis=1)
 y = train_csv['NObeyesdad']
 
 
-# y = y.values.reshape(-1, 1)
-# ohe = OneHotEncoder(sparse=False)
-# ohe.fit(y)
-# y1 = ohe.transform(y)
+y = y.values.reshape(-1, 1)
+ohe = OneHotEncoder(sparse=False,
+                    # handle_unknown= 'infrequent_if_exist'
+                    )
+ohe.fit(y)
+y1 = ohe.transform(y)
 
 # print(y1)
 # print(y1.shape)  # (20758, 7)
 
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.15, shuffle=True, random_state=3, stratify=y)
+X_train, X_test, y_train, y_test = train_test_split(X, y1, test_size=0.15, shuffle=True, random_state=42, stratify=y1)
 
 # mms1 = ['Age', 'Height', 'Weight', 'FCVC', 'NCP', 'CH2O', 'TUE', 'FAF']
 # mms = MinMaxScaler()
@@ -222,8 +224,8 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.15, shuffl
 # model.add(Dense(21,activation='relu'))
 # model.add(Dense(7, activation='softmax'))
 
-model = RandomForestClassifier(random_state=3, n_estimators=713, verbose=1, )
-
+# model = RandomForestClassifier(random_state=713, n_estimators=420, verbose=1, )
+model = XGBClassifier(n_estimators=100, learning_rate=0.1, max_depth=4)
 
 
 # model.compile(loss='categorical_crossentropy', optimizer='adam', metrics='acc')
@@ -233,35 +235,36 @@ model.fit(X_train, y_train)
 results = model.score(X_test, y_test)
 
 # results = model.evaluate(X_test, y_test)
-print("ACC : ", results)
 
 y_predict = model.predict(X_test) 
-# y_test = ohe.inverse_transform(y_test)
-# y_predict = ohe.inverse_transform(y_predict)
+y_test = ohe.inverse_transform(y_test)
+y_predict = ohe.inverse_transform(y_predict)
 
 
 y_submit = model.predict(test_csv)  
-# y_submit = ohe.inverse_transform(y_submit)
+y_submit = ohe.inverse_transform(y_submit)
 
-# y_submit = pd.DataFrame(y_submit)
+y_submit = pd.DataFrame(y_submit)
 submission_csv['NObeyesdad'] = y_submit
 print(y_submit)
+print("ACC : ", results)
 
-fs = f1_score(y_test, y_predict, average='macro')
-print("f1_score : ", fs)
+# fs = f1_score(y_test, y_predict, average='macro')
+# print("f1_score : ", fs)
     
-submission_csv.to_csv(path + "submisson_02_08_1_random_forest.csv", index=False)
+# submission_csv.to_csv(path + "submisson_02_08_2_random_forest.csv", index=False)
+submission_csv.to_csv(path + "submisson_02_08_1_xgb.csv", index=False)
 
 
 
 
-
+#random
 # f1_score :  0.8469567014233303
 
 
 
-
-
+# xgb
+# f1_score :  0.8799252701582044
 
 
 
