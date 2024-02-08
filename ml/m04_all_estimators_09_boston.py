@@ -29,7 +29,7 @@ allAlgorithms = all_estimators(type_filter='regressor')
 for name, algorithm in allAlgorithms:
     try:
         #2. 모델 구성
-        model = algorithm()
+        model = algorithm(verbose=1)
         #3. 컴파일, 훈련
         model.fit(X_train, y_train)
         acc = model.score(X_test, y_test)
@@ -101,4 +101,8 @@ for name, algorithm in allAlgorithms:
 # RidgeClassifierCV 의 정답률은 :  0.0
 # SGDClassifier 의 정답률은 :  0.0
 # SVC 의 정답률은 :  0.044444444444444446
-# StackingClassifier  :은 바보멍충이!!
+# # StackingClassifier  :은 바보멍충이!!
+# TheilSenRegressor 의 정답률은 :  0.7909953095456494
+# TransformedTargetRegressor  :은 바보멍충이!!
+# TweedieRegressor 의 정답률은 :  0.6967474122424941
+# VotingRegressor  :은 바보멍충이!!
