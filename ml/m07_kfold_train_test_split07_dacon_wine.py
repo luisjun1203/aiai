@@ -65,6 +65,10 @@ print("ACC : ", scores, "\n 평균 ACC : ", round(np.mean(scores), 4))
 # ACC :  [0.65727273 0.69727273 0.69426752 0.65241128 0.67515924] 
 #  평균 ACC :  0.6753
 
+# ACC :  [0.66       0.68727273 0.6933576  0.65514104 0.67060965] 
+#  평균 ACC :  0.6733
+
+
 # y_submit = model.predict(test_csv)  
 # y_predict = model.predict(X_test) 
 
