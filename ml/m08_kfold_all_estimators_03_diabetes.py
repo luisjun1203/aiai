@@ -55,3 +55,42 @@ for name, algorithm in allAlgorithms:
 
 # model.score :  0.022222222222222223
 # R2스코어 :  0.5699312314693923
+
+
+# AdaBoostClassifier  :은 바보멍충이!!
+# ================== BaggingClassifier =======================
+# ACC :  [0.0125     0.         0.01265823 0.         0.        ]
+#  평균 ACC :  0.005
+# BaggingClassifier  :은 바보멍충이!!
+# BernoulliNB  :은 바보멍충이!!
+# CalibratedClassifierCV  :은 바보멍충이!!
+# CategoricalNB  :은 바보멍충이!!
+# ClassifierChain  :은 바보멍충이!!
+# ComplementNB  :은 바보멍충이!!
+# DecisionTreeClassifier  :은 바보멍충이!!
+# DummyClassifier  :은 바보멍충이!!
+# ExtraTreeClassifier  :은 바보멍충이!!
+# ExtraTreesClassifier  :은 바보멍충이!!
+# GaussianNB  :은 바보멍충이!!
+# GaussianProcessClassifier  :은 바보멍충이!!
+# ================== GradientBoostingClassifier =======================
+# ACC :  [0.     0.0125 0.     0.     0.    ]
+#  평균 ACC :  0.0025
+# GradientBoostingClassifier  :은 바보멍충이!!
+# ================== SVC =======================
+# ACC :  [0.025      0.025      0.         0.01265823 0.02531646]
+#  평균 ACC :  0.0176
+# SVC  :은 바보멍충이!!
+# StackingClassifier  :은 바보멍충이!!
+# VotingClassifier  :은 바보멍충이!!
+
+
+
+
+
+
+
+
+
+
+
