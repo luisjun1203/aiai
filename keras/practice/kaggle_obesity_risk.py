@@ -15,6 +15,7 @@ import tensorflow as tf
 import random as rn
 from sklearn.ensemble import RandomForestClassifier 
 from xgboost import XGBClassifier
+from sklearn.model_selection import StratifiedKFold, cross_val_predict, GridSearchCV, KFold
 
 
 path = "c:\\_data\\kaggle\\obesity_risk\\"
@@ -184,22 +185,24 @@ test_csv['MTRANS'] = lae.transform(test_csv['MTRANS'])
 
 
 
-X = train_csv.drop(['NObeyesdad'], axis=1)
+X = train_csv.drop(['NObeyesdad','SMOKE'], axis=1)
 y = train_csv['NObeyesdad']
+test_csv = test_csv.drop(['SMOKE'], axis=1)
 
-
-y = y.values.reshape(-1, 1)
-ohe = OneHotEncoder(sparse=False,
-                    # handle_unknown= 'infrequent_if_exist'
-                    )
-ohe.fit(y)
-y1 = ohe.transform(y)
+# y = y.values.reshape(-1, 1)
+# ohe = OneHotEncoder(sparse=False,
+#                     # handle_unknown= 'infrequent_if_exist'
+#                     )
+# ohe.fit(y)
+# y1 = ohe.transform(y)
 
 # print(y1)
 # print(y1.shape)  # (20758, 7)
 
+n_splits= 5
+kfold = KFold(n_splits=n_splits, shuffle=True, random_state=948)
 
-X_train, X_test, y_train, y_test = train_test_split(X, y1, test_size=0.15, shuffle=True, random_state=42, stratify=y1)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, shuffle=True, random_state=948, stratify=y)
 
 # mms1 = ['Age', 'Height', 'Weight', 'FCVC', 'NCP', 'CH2O', 'TUE', 'FAF']
 # mms = MinMaxScaler()
@@ -225,38 +228,86 @@ X_train, X_test, y_train, y_test = train_test_split(X, y1, test_size=0.15, shuff
 # model.add(Dense(7, activation='softmax'))
 
 # model = RandomForestClassifier(random_state=713, n_estimators=420, verbose=1, )
-model = XGBClassifier(n_estimators=100, learning_rate=0.1, max_depth=4)
+# model = XGBClassifier(n_estimators=100, learning_rate=0.1, max_depth=4)
 
+
+
+
+parameters = [
+    {'n_estimators': [100,200], 'max_depth': [6,12,18],
+     'min_samples_leaf' : [3, 10]},
+    {'max_depth' : [6, 8, 10, 12], 'min_samples_leaf' : [3, 5, 7, 10]},
+    {'min_samples_leaf' : [3, 5, 7, 10],
+     'min_samples_split' : [2, 3, 5, 10]},
+    {'min_samples_split' : [2, 3, 5,10]},
+    {'n_jobs' : [-1, 10, 20], 'min_samples_split' : [2, 3, 5, 10]}   
+]
+
+ #2. 모델 구성
+model = GridSearchCV(RandomForestClassifier(), parameters, cv=kfold, verbose=1,
+                    #  random_state = 3,
+                    # refit = True,     # default
+                     n_jobs=-1
+                     )
+
+
+
+start_time = time.time()
+model.fit(X_train, y_train)
+end_time = time.time()
+print("최적의 매개변수 : ", model.best_estimator_)
+# 최적의 매개변수 :  SVC(C=1, kernel='linear')
+
+print("최적의 파라미터 : ", model.best_params_)
+# 최적의 파라미터 :  {'C': 1, 'degree': 3, 'kernel': 'linear'}
+
+print('best_score : ', model.best_score_)
+print('model.score : ', model.score(X_test, y_test))
+# results = model.score(X_test, y_test)
+# print(results)
+y_predict = model.predict(X_test)
+acc = accuracy_score(y_test, y_predict)
+print("accuracy_score : ", acc)
+
+y_pred_best = model.best_estimator_.predict(X_test)
+print("최적튠 ACC : " , accuracy_score(y_test, y_pred_best))
+# best_score :  0.975 
+# model.score :  0.9333333333333333
+print("걸린시간 : ", round(end_time - start_time, 2), "초")
 
 # model.compile(loss='categorical_crossentropy', optimizer='adam', metrics='acc')
 # es = EarlyStopping(monitor='acc', mode='max', patience=500, verbose=20, restore_best_weights=True)
 # model.fit(X_train, y_train, epochs=100, batch_size=500, validation_split=0.2, callbacks=[es], verbose=2)
-model.fit(X_train, y_train)
-results = model.score(X_test, y_test)
+# model.fit(X_train, y_train)
+# results = model.score(X_test, y_test)
 
-# results = model.evaluate(X_test, y_test)
+# # results = model.evaluate(X_test, y_test)
 
-y_predict = model.predict(X_test) 
-y_test = ohe.inverse_transform(y_test)
-y_predict = ohe.inverse_transform(y_predict)
+# y_predict = model.predict(X_test) 
+# y_test = ohe.inverse_transform(y_test)
+# y_predict = ohe.inverse_transform(y_predict)
 
 
 y_submit = model.predict(test_csv)  
-y_submit = ohe.inverse_transform(y_submit)
+# y_submit = ohe.inverse_transform(y_submit)
 
 y_submit = pd.DataFrame(y_submit)
 submission_csv['NObeyesdad'] = y_submit
-print(y_submit)
-print("ACC : ", results)
+# print(y_submit)
+# print("ACC : ", results)
 
 # fs = f1_score(y_test, y_predict, average='macro')
 # print("f1_score : ", fs)
     
 # submission_csv.to_csv(path + "submisson_02_08_2_random_forest.csv", index=False)
-submission_csv.to_csv(path + "submisson_02_08_1_xgb.csv", index=False)
+submission_csv.to_csv(path + "submisson_02_10_5_rf.csv", index=False)
 
 
-
+# best_score :  0.8982092015043479
+# model.score :  0.9075144508670521
+# accuracy_score :  0.9075144508670521
+# 최적튠 ACC :  0.9075144508670521
+# 걸린시간 :  19.54 초
 
 #random
 # f1_score :  0.8469567014233303
@@ -267,10 +318,17 @@ submission_csv.to_csv(path + "submisson_02_08_1_xgb.csv", index=False)
 # f1_score :  0.8799252701582044
 
 
+# best_score :  0.8979257387284753
+# model.score :  0.9071933204881182
+# accuracy_score :  0.9071933204881182
+# 최적튠 ACC :  0.9071933204881182
+# 걸린시간 :  19.75 초
 
-
-
-
+# best_score :  0.8987759824814029
+# model.score :  0.9071933204881182
+# accuracy_score :  0.9071933204881182
+# 최적튠 ACC :  0.9071933204881182
+# 걸린시간 :  308.94 초
 
 
 
