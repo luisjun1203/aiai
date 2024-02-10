@@ -10,7 +10,7 @@ from sklearn.svm import LinearSVC
 datasets = load_diabetes()
 X = datasets.data
 y = datasets.target
-
+    
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.1, shuffle=True, random_state=1226)           # 1226 713
 
 model=LinearSVC(C=10, verbose=1, random_state=3)
