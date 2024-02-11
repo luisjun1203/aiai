@@ -15,7 +15,7 @@ datasets = load_boston()
 
 X = datasets.data
 y = datasets.target
-
+     
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.15, shuffle=True, random_state=20)
 
