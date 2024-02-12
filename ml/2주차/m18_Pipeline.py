@@ -13,7 +13,7 @@ np.random.seed(42)
 #1 . 데이터
 X, y = load_iris(return_X_y=True)
 print(X.shape, y.shape)
-
+       
 X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=123, train_size=0.8, stratify=y)
 
 # print(np.mean(X_train), np.max(X_train))    #3.454583333333333 7.9
