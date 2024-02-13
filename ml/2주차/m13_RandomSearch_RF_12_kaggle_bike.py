@@ -10,7 +10,7 @@ import time
 from sklearn.utils import all_estimators
 import warnings
 warnings.filterwarnings('ignore')
-
+ 
 
 #1. 데이터
 
