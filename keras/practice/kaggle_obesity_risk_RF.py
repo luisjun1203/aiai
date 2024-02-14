@@ -264,7 +264,7 @@ parameters = [
 #                      )
 
 # model = make_pipeline(MinMaxScaler(), StandardScaler(), PCA(), GridSearchCV(RandomForestClassifier(), parameters, cv=kfold, verbose=1, n_jobs=-1))
-pipe = Pipeline([('mm', MinMaxScaler()), ('rf', RandomForestClassifier( random_state=9616560))])
+pipe = Pipeline([('ss',StandardScaler()), ('rf', RandomForestClassifier( random_state=9616560))])
 model = GridSearchCV(pipe, parameters, cv=5, verbose=1,)
 
 
@@ -316,7 +316,7 @@ submission_csv['NObeyesdad'] = y_submit
 # print("f1_score : ", fs)
     
 # submission_csv.to_csv(path + "submisson_02_08_2_random_forest.csv", index=False)
-submission_csv.to_csv(path + "submisson_02_14_1_rf.csv", index=False)
+submission_csv.to_csv(path + "submisson_02_14_2_rf.csv", index=False)
     # return acc
     # time.sleep(1)
 
