@@ -51,3 +51,8 @@ sns.heatmap(data=df.corr(),
             )
 plt.show()
 # matplotlib의 3.7.2에서는 수치가 잘나오나, 3.8.0에서는 수치가 안나온다 그래서 버전 롤백
+
+
+
+
+
