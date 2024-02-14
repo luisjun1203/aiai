@@ -34,9 +34,9 @@ model.fit(X_train, y_train)
 #4 평가
 results = model.score(X_test, y_test)
 print('model : ', " acc :", results)
-y_pred = model.predict(X_test)
+y_predict = model.predict(X_test)
 
-acc = accuracy_score(y_test, y_pred)
+acc = accuracy_score(y_test, y_predict)
 print("model : ", model, ", ","acc : ", acc)
 
 # model :   acc : 0.9666666666666667

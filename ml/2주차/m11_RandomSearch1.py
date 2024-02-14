@@ -28,10 +28,10 @@ print("best parameters : ", model.best_params_)
 print("best score : ", model.best_score_)
 print("model.score : ", model.score(X_test, y_test))
 
-y_pred = model.predict(X_test)
-print("best acc_score : ", accuracy_score(y_test, y_pred))
-y_pred_best = model.best_estimator_.predict(X_test)
-print("best tuned acc : ", accuracy_score(y_test, y_pred_best))
+y_predict = model.predict(X_test)
+print("best acc_score : ", accuracy_score(y_test, y_predict))
+y_predict_best = model.best_estimator_.predict(X_test)
+print("best tuned acc : ", accuracy_score(y_test, y_predict_best))
 print("time : {} 초".format(round(endtime - starttime, 2)))
 
 import pandas as pd

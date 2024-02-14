@@ -21,7 +21,7 @@ parameters = [
     {"C":[1,10,100,1000], 'kernel':['sigmoid'],'gamma':[0.001, 0.0001], 'degree':[3,4]}]
 print("===============================하빙 그리드 시작=====================")
 # model = GridSearchCV(SVC(), parameters, cv=StratifiedKFold, verbose=1, n_jobs=10)
-model = HalvingGridSearchCV(SVC(), parameters, cv=StratifiedKFold, verbose=1, n_jobs=-3, random_state=5, factor=2)
+model = HalvingGridSearchCV(SVC(), parameters, cv=StratifiedKFold, verbose=1, n_jobs=-3, random_state=5, factor=2)  # factor : 데이터 양 조절 
 
 starttime = time.time()
 model.fit(X_train, y_train)

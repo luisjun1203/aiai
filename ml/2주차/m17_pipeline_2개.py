@@ -27,9 +27,9 @@ model.fit(X_train,y_train)
 results = model.score(X_test, y_test)
 
 print("model : ", model, ", ",'score : ', results)
-y_pred = model.predict(X_test)
+y_predict = model.predict(X_test)
 
-acc = accuracy_score(y_test, y_pred)
+acc = accuracy_score(y_test, y_predict)
 print("model : ", model, ", ","acc : ", acc)
 print("\n")
 
