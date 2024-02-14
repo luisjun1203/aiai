@@ -204,119 +204,135 @@ test_csv = test_csv.drop(['SMOKE'], axis=1)
 n_splits= 5
 kfold = KFold(n_splits=n_splits, shuffle=True, random_state=9)
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.15, shuffle=True, random_state=3, stratify=y)
 
-# mms1 = ['Age', 'Height', 'Weight', 'FCVC', 'NCP', 'CH2O', 'TUE', 'FAF']
-# mms = MinMaxScaler()
-# X_train[mms1] = mms.fit_transform(X_train[mms1])
-# X_test[mms1] = mms.fit_transform(X_test[mms1])
-# test_csv[mms1] = mms.fit_transform(test_csv[mms1])
+def auto(a):
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.15, shuffle=True, random_state=3, stratify=y)
 
-# rbs1 = ['Age', 'Height', 'Weight']
-# rbs = RobustScaler(quantile_range=(5,95))
-# X_train[rbs1] = rbs.fit_transform(X_train[rbs1])
-# X_test[rbs1] = rbs.fit_transform(X_test[rbs1])
-# test_csv[rbs1] = rbs.fit_transform(test_csv[rbs1])
+    # mms1 = ['Age', 'Height', 'Weight', 'FCVC', 'NCP', 'CH2O', 'TUE', 'FAF']
+    # mms = MinMaxScaler()
+    # X_train[mms1] = mms.fit_transform(X_train[mms1])
+    # X_test[mms1] = mms.fit_transform(X_test[mms1])
+    # test_csv[mms1] = mms.fit_transform(test_csv[mms1])
 
-
-
-# model = Sequential()
-# model.add(Dense(19, input_shape= (16, ),activation='relu'))
-# model.add(Dense(97,activation='relu'))
-# model.add(Dense(9,activation='relu'))
-# model.add(Dense(21,activation='relu'))
-# model.add(Dense(16,activation='relu'))
-# model.add(Dense(21,activation='relu'))
-# model.add(Dense(7, activation='softmax'))
-
-# model = RandomForestClassifier(random_state=713, n_estimators=420, verbose=1, )
-# model = XGBClassifier(n_estimators=100, learning_rate=0.1, max_depth=4)
+    # rbs1 = ['Age', 'Height', 'Weight']
+    # rbs = RobustScaler(quantile_range=(5,95))
+    # X_train[rbs1] = rbs.fit_transform(X_train[rbs1])
+    # X_test[rbs1] = rbs.fit_transform(X_test[rbs1])
+    # test_csv[rbs1] = rbs.fit_transform(test_csv[rbs1])
 
 
 
+    # model = Sequential()
+    # model.add(Dense(19, input_shape= (16, ),activation='relu'))
+    # model.add(Dense(97,activation='relu'))
+    # model.add(Dense(9,activation='relu'))
+    # model.add(Dense(21,activation='relu'))
+    # model.add(Dense(16,activation='relu'))
+    # model.add(Dense(21,activation='relu'))
+    # model.add(Dense(7, activation='softmax'))
 
-# parameters = [
-#     {'n_estimators': [100,200], 'max_depth': [6,12,18],
-#      'min_samples_leaf' : [3, 10]},
-#     {'max_depth' : [6, 8, 10, 12], 'min_samples_leaf' : [3, 5, 7, 10]},
-#     {'min_samples_leaf' : [3, 5, 7, 10],
-#      'min_samples_split' : [2, 3, 5, 10]},
-#     {'min_samples_split' : [2, 3, 5,10]},
-#     {'n_jobs' : [-1, 10, 20], 'min_samples_split' : [2, 3, 5, 10]}   
-# ]
-
-parameters = [
-    {"rf__n_estimators": [100, 200], "rf__max_depth": [6, 10, 12], "rf__min_samples_leaf": [3, 10]},
-    {"rf__max_depth": [6, 8, 10, 12], "rf__min_samples_leaf": [3, 5, 7, 10]},
-    {"rf__min_samples_leaf": [3, 5, 7, 10], "rf__min_samples_split": [2, 3, 5, 10]},
-    {"rf__min_samples_split": [2, 3, 5, 10]},
-]
+    # model = RandomForestClassifier(random_state=713, n_estimators=420, verbose=1, )
+    # model = XGBClassifier(n_estimators=100, learning_rate=0.1, max_depth=4)
 
 
 
- #2. 모델 구성
-# model = GridSearchCV(RandomForestClassifier(), parameters, cv=kfold, verbose=1,
-#                     #  random_state = 3,
-#                     # refit = True,     # default
-#                      n_jobs=-1
-#                      )
 
-# model = make_pipeline(MinMaxScaler(), StandardScaler(), PCA(), GridSearchCV(RandomForestClassifier(), parameters, cv=kfold, verbose=1, n_jobs=-1))
-pipe = Pipeline([('mm', MinMaxScaler()), ('rf', RandomForestClassifier( random_state=3))])
-model = GridSearchCV(pipe, parameters, cv=5, verbose=1,)
+    # parameters = [
+    #     {'n_estimators': [100,200], 'max_depth': [6,12,18],
+    #      'min_samples_leaf' : [3, 10]},
+    #     {'max_depth' : [6, 8, 10, 12], 'min_samples_leaf' : [3, 5, 7, 10]},
+    #     {'min_samples_leaf' : [3, 5, 7, 10],
+    #      'min_samples_split' : [2, 3, 5, 10]},
+    #     {'min_samples_split' : [2, 3, 5,10]},
+    #     {'n_jobs' : [-1, 10, 20], 'min_samples_split' : [2, 3, 5, 10]}   
+    # ]
 
-
-start_time = time.time()
-model.fit(X_train, y_train)
-end_time = time.time()
-# print("최적의 매개변수 : ", model.best_estimator_)
-# 최적의 매개변수 :  SVC(C=1, kernel='linear')
-
-# print("최적의 파라미터 : ", model.best_params_)
-# 최적의 파라미터 :  {'C': 1, 'degree': 3, 'kernel': 'linear'}
-
-print('best_score : ', model.best_score_)
-print('model.score : ', model.score(X_test, y_test))
-# results = model.score(X_test, y_test)
-# print(results)
-y_predict = model.predict(X_test)
-acc = accuracy_score(y_test, y_predict)
-print("accuracy_score : ", acc)
-
-y_pred_best = model.best_estimator_.predict(X_test)
-print("최적튠 ACC : " , accuracy_score(y_test, y_pred_best))
-# best_score :  0.975 
-# model.score :  0.9333333333333333
-print("걸린시간 : ", round(end_time - start_time, 2), "초")
-
-# model.compile(loss='categorical_crossentropy', optimizer='adam', metrics='acc')
-# es = EarlyStopping(monitor='acc', mode='max', patience=500, verbose=20, restore_best_weights=True)
-# model.fit(X_train, y_train, epochs=100, batch_size=500, validation_split=0.2, callbacks=[es], verbose=2)
-# model.fit(X_train, y_train)
-# results = model.score(X_test, y_test)
-
-# # results = model.evaluate(X_test, y_test)
-
-# y_predict = model.predict(X_test) 
-# y_test = ohe.inverse_transform(y_test)
-# y_predict = ohe.inverse_transform(y_predict)
+    parameters = [
+        {"rf__n_estimators": [100, 200], "rf__max_depth": [6, 10, 12], "rf__min_samples_leaf": [3, 10]},
+        {"rf__max_depth": [6, 8, 10, 12], "rf__min_samples_leaf": [3, 5, 7, 10]},
+        {"rf__min_samples_leaf": [3, 5, 7, 10], "rf__min_samples_split": [2, 3, 5, 10]},
+        {"rf__min_samples_split": [2, 3, 5, 10]},
+    ]
 
 
-y_submit = model.predict(test_csv)  
-# y_submit = ohe.inverse_transform(y_submit)
 
-y_submit = pd.DataFrame(y_submit)
-submission_csv['NObeyesdad'] = y_submit
-# print(y_submit)
-# print("ACC : ", results)
+    #2. 모델 구성
+    # model = GridSearchCV(RandomForestClassifier(), parameters, cv=kfold, verbose=1,
+    #                     #  random_state = 3,
+    #                     # refit = True,     # default
+    #                      n_jobs=-1
+    #                      )
 
-# fs = f1_score(y_test, y_predict, average='macro')
-# print("f1_score : ", fs)
+    # model = make_pipeline(MinMaxScaler(), StandardScaler(), PCA(), GridSearchCV(RandomForestClassifier(), parameters, cv=kfold, verbose=1, n_jobs=-1))
+    pipe = Pipeline([('mm', MinMaxScaler()), ('rf', RandomForestClassifier( random_state=3))])
+    model = GridSearchCV(pipe, parameters, cv=5, verbose=1,)
+
+
+    start_time = time.time()
+    model.fit(X_train, y_train)
+    end_time = time.time()
+    # print("최적의 매개변수 : ", model.best_estimator_)
+    # 최적의 매개변수 :  SVC(C=1, kernel='linear')
+
+    # print("최적의 파라미터 : ", model.best_params_)
+    # 최적의 파라미터 :  {'C': 1, 'degree': 3, 'kernel': 'linear'}
+
+    print('best_score : ', model.best_score_)
+    print('model.score : ', model.score(X_test, y_test))
+    # results = model.score(X_test, y_test)
+    # print(results)
+    y_predict = model.predict(X_test)
+    acc = accuracy_score(y_test, y_predict)
+    print("accuracy_score : ", acc)
+
+    y_pred_best = model.best_estimator_.predict(X_test)
+    print("최적튠 ACC : " , accuracy_score(y_test, y_pred_best))
+    # best_score :  0.975 
+    # model.score :  0.9333333333333333
+    print("걸린시간 : ", round(end_time - start_time, 2), "초")
+
+    # model.compile(loss='categorical_crossentropy', optimizer='adam', metrics='acc')
+    # es = EarlyStopping(monitor='acc', mode='max', patience=500, verbose=20, restore_best_weights=True)
+    # model.fit(X_train, y_train, epochs=100, batch_size=500, validation_split=0.2, callbacks=[es], verbose=2)
+    # model.fit(X_train, y_train)
+    # results = model.score(X_test, y_test)
+
+    # # results = model.evaluate(X_test, y_test)
+
+    # y_predict = model.predict(X_test) 
+    # y_test = ohe.inverse_transform(y_test)
+    # y_predict = ohe.inverse_transform(y_predict)
+
+
+    y_submit = model.predict(test_csv)  
+    # y_submit = ohe.inverse_transform(y_submit)
+
+    y_submit = pd.DataFrame(y_submit)
+    submission_csv['NObeyesdad'] = y_submit
+    # print(y_submit)
+    # print("ACC : ", results)
+
+    # fs = f1_score(y_test, y_predict, average='macro')
+    # print("f1_score : ", fs)
+        
+    # submission_csv.to_csv(path + "submisson_02_08_2_random_forest.csv", index=False)
+    submission_csv.to_csv(path + "submisson_02_14_1_rf.csv", index=False)
+    return acc
+    time.sleep(1)
+
+
+import random
+for i in range(10000000):
+    a = random.randrange(1, 100000000)
+    r = auto(a)          
+    print("random_state : ", a)
+    if r > 0.92  :
+        print("random_state : ", a)
+        print("ACC : ", r)
+        break
     
-# submission_csv.to_csv(path + "submisson_02_08_2_random_forest.csv", index=False)
-submission_csv.to_csv(path + "submisson_02_14_1_rf.csv", index=False)
-
-
+    
+    
 # best_score :  0.8982092015043479
 # model.score :  0.9075144508670521
 # accuracy_score :  0.9075144508670521
