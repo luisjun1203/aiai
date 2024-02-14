@@ -16,6 +16,8 @@ import random as rn
 from sklearn.ensemble import RandomForestClassifier 
 from xgboost import XGBClassifier
 from sklearn.model_selection import StratifiedKFold, cross_val_predict, GridSearchCV, KFold
+from sklearn.pipeline import make_pipeline, Pipeline
+from sklearn.decomposition import PCA 
 
 
 path = "c:\\_data\\kaggle\\obesity_risk\\"
@@ -200,9 +202,9 @@ test_csv = test_csv.drop(['SMOKE'], axis=1)
 # print(y1.shape)  # (20758, 7)
 
 n_splits= 5
-kfold = KFold(n_splits=n_splits, shuffle=True, random_state=948)
+kfold = KFold(n_splits=n_splits, shuffle=True, random_state=9)
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, shuffle=True, random_state=948, stratify=y)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.15, shuffle=True, random_state=3, stratify=y)
 
 # mms1 = ['Age', 'Height', 'Weight', 'FCVC', 'NCP', 'CH2O', 'TUE', 'FAF']
 # mms = MinMaxScaler()
@@ -233,32 +235,44 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, shuffle
 
 
 
+# parameters = [
+#     {'n_estimators': [100,200], 'max_depth': [6,12,18],
+#      'min_samples_leaf' : [3, 10]},
+#     {'max_depth' : [6, 8, 10, 12], 'min_samples_leaf' : [3, 5, 7, 10]},
+#     {'min_samples_leaf' : [3, 5, 7, 10],
+#      'min_samples_split' : [2, 3, 5, 10]},
+#     {'min_samples_split' : [2, 3, 5,10]},
+#     {'n_jobs' : [-1, 10, 20], 'min_samples_split' : [2, 3, 5, 10]}   
+# ]
+
 parameters = [
-    {'n_estimators': [100,200], 'max_depth': [6,12,18],
-     'min_samples_leaf' : [3, 10]},
-    {'max_depth' : [6, 8, 10, 12], 'min_samples_leaf' : [3, 5, 7, 10]},
-    {'min_samples_leaf' : [3, 5, 7, 10],
-     'min_samples_split' : [2, 3, 5, 10]},
-    {'min_samples_split' : [2, 3, 5,10]},
-    {'n_jobs' : [-1, 10, 20], 'min_samples_split' : [2, 3, 5, 10]}   
+    {"rf__n_estimators": [100, 200], "rf__max_depth": [6, 10, 12], "rf__min_samples_leaf": [3, 10]},
+    {"rf__max_depth": [6, 8, 10, 12], "rf__min_samples_leaf": [3, 5, 7, 10]},
+    {"rf__min_samples_leaf": [3, 5, 7, 10], "rf__min_samples_split": [2, 3, 5, 10]},
+    {"rf__min_samples_split": [2, 3, 5, 10]},
 ]
 
- #2. 모델 구성
-model = GridSearchCV(RandomForestClassifier(), parameters, cv=kfold, verbose=1,
-                    #  random_state = 3,
-                    # refit = True,     # default
-                     n_jobs=-1
-                     )
 
+
+ #2. 모델 구성
+# model = GridSearchCV(RandomForestClassifier(), parameters, cv=kfold, verbose=1,
+#                     #  random_state = 3,
+#                     # refit = True,     # default
+#                      n_jobs=-1
+#                      )
+
+# model = make_pipeline(MinMaxScaler(), StandardScaler(), PCA(), GridSearchCV(RandomForestClassifier(), parameters, cv=kfold, verbose=1, n_jobs=-1))
+pipe = Pipeline([('mm', MinMaxScaler()), ('rf', RandomForestClassifier( random_state=3))])
+model = GridSearchCV(pipe, parameters, cv=5, verbose=1,)
 
 
 start_time = time.time()
 model.fit(X_train, y_train)
 end_time = time.time()
-print("최적의 매개변수 : ", model.best_estimator_)
+# print("최적의 매개변수 : ", model.best_estimator_)
 # 최적의 매개변수 :  SVC(C=1, kernel='linear')
 
-print("최적의 파라미터 : ", model.best_params_)
+# print("최적의 파라미터 : ", model.best_params_)
 # 최적의 파라미터 :  {'C': 1, 'degree': 3, 'kernel': 'linear'}
 
 print('best_score : ', model.best_score_)
@@ -300,7 +314,7 @@ submission_csv['NObeyesdad'] = y_submit
 # print("f1_score : ", fs)
     
 # submission_csv.to_csv(path + "submisson_02_08_2_random_forest.csv", index=False)
-submission_csv.to_csv(path + "submisson_02_10_5_rf.csv", index=False)
+submission_csv.to_csv(path + "submisson_02_14_1_rf.csv", index=False)
 
 
 # best_score :  0.8982092015043479
