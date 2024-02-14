@@ -9,6 +9,13 @@ from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
 from xgboost import XGBClassifier
 
 
+class CustomXGBClassfier(XGBClassifier):        # XGBClassfier을 상속받겠다.
+    def __str__(self):
+        return 'XGBClassifier()'                
+
+aaa = CustomXGBClassfier()
+# aaa는 인스턴스
+
 # 1.데이터
 
 X, y = load_iris(return_X_y=True)
@@ -27,7 +34,7 @@ models = [
 DecisionTreeClassifier(),
 RandomForestClassifier(),
 GradientBoostingClassifier(),
-XGBClassifier()
+aaa
 ]
 
 
@@ -37,7 +44,7 @@ for model in models:
     predictions = model.predict(X_test)
     accuracy = accuracy_score(y_test, predictions)
     print(f"{model_name} accuracy: {accuracy:.4f}")
-    print(model.__class__.__name__, ":", model.feature_importances_)
+    print(model, ":", model.feature_importances_)
 
 
 
