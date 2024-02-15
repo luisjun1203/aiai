@@ -19,7 +19,7 @@ from sklearn.experimental import enable_halving_search_cv
 from sklearn.model_selection import  HalvingGridSearchCV
 from sklearn.pipeline import Pipeline
 from sklearn.model_selection import StratifiedKFold,cross_val_predict
-
+from lightgbm import LGBMClassifier
 
 path = "c:\\_data\\kaggle\\obesity_risk\\"
 
@@ -83,40 +83,32 @@ y = train_csv['NObeyesdad']
 test_csv = test_csv.drop(['SMOKE'], axis=1)
 
 
-# print(y)
-
-# y = lae.fit_transform(y)
 
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.15, shuffle=True, random_state=43297347, stratify=y)
 
-
 splits = 3
 kfold = StratifiedKFold(n_splits=splits, shuffle=True, random_state=28)
 
+
 parameters = {
-    'CB__iterations': [100, 500, 1000],  # 트리의 개수
-    'CB__learning_rate': [0.01, 0.1, 0.5],  # 학습률
-    'CB__depth': [3, 6, 10],  # 트리의 깊이
-    'CB__l2_leaf_reg': [1, 3, 5],  # L2 정규화 계수
-    'CB__border_count': [32, 64, 128],  # 분할을 위한 피처 값의 개수
-    'CB__loss_function': ['MultiClass'],  # 손실 함수
-    'CB__eval_metric': ['Accuracy'],  # 평가 지표
-    'CB__random_seed': [42]
+    'LG__num_leaves': [31, 127],
+    'LG__max_depth': [-1, 8, 16],
+    'LG__learning_rate': [0.1, 0.01, 0.05],
+    'LG__n_estimators': [100, 200, 500],
+    'LG__min_child_samples': [20, 50, 100],
+    'LG__subsample': [0.8, 1.0],  
 }
 
 
-
-# model = CatBoostClassifier(random_seed=3)
-
 pipe = Pipeline([('MM', MinMaxScaler()),
-                 ('CB', CatBoostClassifier(random_seed=3, verbose=False))])
+                 ('LG', LGBMClassifier(random_state=3))])
 
 model = HalvingGridSearchCV(pipe, param_grid=parameters,
                      cv = kfold,
                      verbose=1,
                      refit=True,
-                     n_jobs=3,   
+                     n_jobs=-1,   
                     # n_iter=10 # 디폴트 10
                     factor=2,
                     min_resources=462)
@@ -125,6 +117,10 @@ model = HalvingGridSearchCV(pipe, param_grid=parameters,
 model.fit(X_train,y_train)
 
 
+
+
+
+# model = LGBMClassifier()
 print("최적의 매개변수:",model.best_estimator_)
 print("최적의 파라미터:",model.best_params_)
 print("best_score:",model.best_score_) 
@@ -135,8 +131,6 @@ print("acc.score:", accuracy_score(y_test,y_predict))
 y_pred_best=model.best_estimator_.predict(X_test)
 
 print("best_acc.score:",accuracy_score(y_test,y_pred_best))
-
-
 
 # model.fit(X_train, y_train)
 # results = model.score(X_test, y_test)
@@ -154,10 +148,26 @@ submission_csv['NObeyesdad'] = y_submit
 # print("f1_score : ", fs)
     
 print(y_submit)
-submission_csv.to_csv(path + "submisson_02_15_1_cb.csv", index=False)
+submission_csv.to_csv(path + "submisson_02_15_3_lgbm.csv", index=False)
 
 
-# best_score: 0.9027198614929485
-# model.score: 0.9155427103403982
-# acc.score: 0.9155427103403982
-# best_acc.score: 0.9155427103403982
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
