@@ -92,18 +92,18 @@ kfold = StratifiedKFold(n_splits=splits, shuffle=True, random_state=18884475)
 
 
 parameters = {
-     'LG__num_leaves': [31, 127],  # 트리가 가질 수 있는 최대 잎의 수
-    'LG__max_depth': [-1, 0],  # 트리의 최대 깊이
+     'LG__num_leaves': [31],  # 트리가 가질 수 있는 최대 잎의 수
+    'LG__max_depth': [ 0],  # 트리의 최대 깊이
     'LG__learning_rate': [0.05],  # 학습률
     'LG__subsample': [0.8],  # 각 트리를 구축할 때 사용하는 데이터의 비율
-    'LG__verbosity': [-1],  # LightGBM의 실행 중 정보 출력 설정
-    'LG__min_child_samples': [20, 50, 100],  # 리프 노드가 되기 위해 필요한 최소 샘플 수
-    'LG__min_child_weight': [0.001, 0.01],  # 자식에 필요한 모든 관측치에 대한 가중치 합의 최소값
-    'LG__colsample_bytree': [0.6, 0.8, 1.0],  # 각 트리를 구축할 때 사용하는 특성의 비율
-    # 'LG__reg_alpha': [0, 0.1],  # L1 규제 항
-    # 'LG__reg_lambda': [0, 0.1],  # L2 규제 항
-    'LG__n_estimators': [100, 200, 500],  # 부스팅 단계의 수
-    'LG__boosting_type': ['gbdt']  # 부스팅 타입
+    'LG__verbosity': [2],  # LightGBM의 실행 중 정보 출력 설정
+    'LG__min_child_samples': [20],  # 리프 노드가 되기 위해 필요한 최소 샘플 수
+    'LG__min_child_weight': [0.001],  # 자식에 필요한 모든 관측치에 대한 가중치 합의 최소값
+    'LG__colsample_bytree': [0.6],  # 각 트리를 구축할 때 사용하는 특성의 비율
+    'LG__reg_alpha': [0, 0.1],  # L1 규제 항
+    'LG__reg_lambda': [0, 0.1],  # L2 규제 항
+    'LG__n_estimators': [200],  # 부스팅 단계의 수
+    'LG__boosting_type': ['gbdt', 'dart', 'goss']  # 부스팅 타입
       
 }
 
@@ -164,13 +164,19 @@ submission_csv['NObeyesdad'] = y_submit
 # print("f1_score : ", fs)
     
 print(y_submit)
-submission_csv.to_csv(path + "submisson_02_15_5_lgbm.csv", index=False)
+submission_csv.to_csv(path + "submisson_02_15_3_lgbm.csv", index=False)
 
 
-
-
-
-
+# submisson_02_15_5_lgbm.csv
+# {'LG__verbosity': 2, 'LG__subsample': 0.8, 'LG__reg_lambda': 0.1,
+#  'LG__reg_alpha': 0.1, 'LG__num_leaves': 31, 'LG__n_estimators': 200,
+#  'LG__min_child_weight': 0.001, 'LG__min_child_samples': 20, 'LG__max_depth': 0,
+#  'LG__learning_rate': 0.05, 'LG__colsample_bytree': 0.6, 'LG__boosting_type': 'gbdt'}
+# best_score: 0.9055608666838877
+# model.score: 0.9174694926140012
+# acc.score: 0.9174694926140012
+# best_acc.score: 0.9174694926140012
+# 0.91184
 
 
 

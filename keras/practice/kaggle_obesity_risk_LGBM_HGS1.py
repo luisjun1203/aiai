@@ -14,12 +14,12 @@ import keras
 import tensorflow as tf
 import random as rn
 from sklearn.ensemble import RandomForestClassifier 
-from xgboost import XGBClassifier
+from catboost import CatBoostClassifier
 from sklearn.experimental import enable_halving_search_cv
 from sklearn.model_selection import  HalvingGridSearchCV,HalvingRandomSearchCV
 from sklearn.pipeline import Pipeline
-from sklearn.model_selection import StratifiedKFold
-
+from sklearn.model_selection import StratifiedKFold,cross_val_predict
+from lightgbm import LGBMClassifier
 
 path = "c:\\_data\\kaggle\\obesity_risk\\"
 
@@ -27,6 +27,7 @@ path = "c:\\_data\\kaggle\\obesity_risk\\"
 train_csv = pd.read_csv(path + "train.csv", index_col=0)
 test_csv = pd.read_csv(path + "test.csv", index_col=0)
 submission_csv = pd.read_csv(path + "sample_submission.csv")
+
 
 test_csv.loc[test_csv['CALC']=='Always', 'CALC'] = 'Frequently'
 
@@ -77,39 +78,48 @@ test_csv['MTRANS'] = lae.transform(test_csv['MTRANS'])
 
 
 
-
 X = train_csv.drop(['NObeyesdad','SMOKE'], axis=1)
 y = train_csv['NObeyesdad']
 test_csv = test_csv.drop(['SMOKE'], axis=1)
 
-lae.fit(y)
-y = lae.transform(y)
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.15, shuffle=True, random_state=43297347, stratify=y)
+
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.15, shuffle=True, random_state=86306949)
 
 splits = 3
 kfold = StratifiedKFold(n_splits=splits, shuffle=True, random_state=95969402)
 
 parameters = {
-    'XGB__n_estimators': [100, 200, 300],  # 부스팅 라운드의 수
-    'XGB__learning_rate': [0.01, 0.05, 0.1],  # 학습률
-    'XGB__max_depth': [3, 6, 9],  # 트리의 최대 깊이
-    'XGB__min_child_weight': [1, 5, 10],  # 자식에 필요한 모든 관측치에 대한 가중치 합의 최소
-    'XGB__gamma': [0.5, 1, 1.5, 2],  # 리프 노드를 추가적으로 나눌지 결정하기 위한 최소 손실 감소
-    'XGB__subsample': [0.6, 0.8, 1.0],  # 각 트리마다의 관측 데이터 샘플링 비율
-    'XGB__colsample_bytree': [0.6, 0.8, 1.0],  # 각 트리 구성에 필요한 컬럼(특성) 샘플링 비율
-    'XGB__objective': ['multi:softmax'],  # 학습 태스크 파라미터
-    'XGB__num_class': [16],  # 분류해야 할 전체 클래스 수, 멀티클래스 분류인 경우 설정
-    'XGB__verbosity' : [1] 
+     'LG__num_leaves': [31],  # 트리가 가질 수 있는 최대 잎의 수
+    'LG__max_depth': [ 0],  # 트리의 최대 깊이
+    'LG__learning_rate': [0.05],  # 학습률
+    'LG__subsample': [0.8],  # 각 트리를 구축할 때 사용하는 데이터의 비율
+    'LG__verbosity': [2],  # LightGBM의 실행 중 정보 출력 설정
+    'LG__min_child_samples': [20],  # 리프 노드가 되기 위해 필요한 최소 샘플 수
+    'LG__min_child_weight': [0.001],  # 자식에 필요한 모든 관측치에 대한 가중치 합의 최소값
+    'LG__colsample_bytree': [0.6],  # 각 트리를 구축할 때 사용하는 특성의 비율
+    'LG__reg_alpha': [0.1],  # L1 규제 항
+    'LG__reg_lambda': [0.1],  # L2 규제 항
+    'LG__n_estimators': [200],  # 부스팅 단계의 수
+    'LG__boosting_type': ['gbdt']  # 부스팅 타입
+      
 }
 
-
+# parameters = {
+#         'LG__num_leaves': [31],
+#         'LG__max_depth': [-1],
+#         'LG__learning_rate': [0.05],
+#         'LG__n_estimators': [100],
+#         'LG__min_child_samples': [50],
+#         'LG__subsample': [0.8],  
+#     }
 
 
 pipe = Pipeline([('MM', MinMaxScaler()),
-                 ('XGB', XGBClassifier(random_state=3))])
+                 ('LG', LGBMClassifier(random_state=2560064, objective='multiclass'))])
 
-model = HalvingRandomSearchCV(pipe, parameters,
+model = HalvingGridSearchCV(pipe, param_grid=parameters,
                      cv = kfold,
                      verbose=1,
                      refit=True,
@@ -120,7 +130,6 @@ model = HalvingRandomSearchCV(pipe, parameters,
 
 
 model.fit(X_train,y_train)
-
 
 
 print("최적의 매개변수:",model.best_estimator_)
@@ -134,24 +143,32 @@ y_pred_best=model.best_estimator_.predict(X_test)
 
 print("best_acc.score:",accuracy_score(y_test,y_pred_best))
 
+# model.fit(X_train, y_train)
+# results = model.score(X_test, y_test)
+# y_predict = model.predict(X_test)
+# acc = accuracy_score(y_test, y_predict)
+# print("acc : ", acc)
+
 y_submit = model.predict(test_csv)  
-y_submit = lae.inverse_transform(y_submit)
 y_submit = pd.DataFrame(y_submit)
-# y_submit = lae.inverse_transform(y_submit)
 submission_csv['NObeyesdad'] = y_submit
+# print(y_submit)
+# print("ACC : ", results)
+
+# fs = f1_score(y_test, y_predict, average='macro')
+# print("f1_score : ", fs)
+    
 print(y_submit)
-
-submission_csv.to_csv(path + "submisson_02_16_1_xgb.csv", index=False)
-
+submission_csv.to_csv(path + "submisson_02_16_1_lgbm.csv", index=False)
 
 
 
 
-# 최적의 파라미터: {'XGB__verbosity': 1, 'XGB__subsample': 0.6, 'XGB__objective': 'multi:softmax',
-#            'XGB__num_class': 16, 'XGB__n_estimators': 200, 'XGB__min_child_weight': 1,
-#            'XGB__max_depth': 9, 'XGB__learning_rate': 0.05, 'XGB__gamma': 0.5, 'XGB__colsample_bytree': 0.6}
-# best_score: 0.9010283087624776
-# model.score: 0.9213230571612074
-# acc.score: 0.9213230571612074
-# best_acc.score: 0.9213230571612074
+
+
+# random_state :  86306949
+# random_state :  95969402
+# random_state :  2560064
+
+
 
