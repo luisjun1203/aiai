@@ -16,7 +16,7 @@ import random as rn
 from sklearn.ensemble import RandomForestClassifier 
 from catboost import CatBoostClassifier
 from sklearn.experimental import enable_halving_search_cv
-from sklearn.model_selection import  HalvingGridSearchCV
+from sklearn.model_selection import  HalvingGridSearchCV,HalvingRandomSearchCV
 from sklearn.pipeline import Pipeline
 from sklearn.model_selection import StratifiedKFold,cross_val_predict
 from lightgbm import LGBMClassifier
@@ -85,26 +85,42 @@ test_csv = test_csv.drop(['SMOKE'], axis=1)
 
 
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.15, shuffle=True, random_state=43297347, stratify=y)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.15, shuffle=True, random_state=20908701)
 
 splits = 3
-kfold = StratifiedKFold(n_splits=splits, shuffle=True, random_state=28)
+kfold = StratifiedKFold(n_splits=splits, shuffle=True, random_state=18884475)
 
 
 parameters = {
-    'LG__num_leaves': [31, 127],
-    'LG__max_depth': [-1, 8, 16],
-    'LG__learning_rate': [0.1, 0.01, 0.05],
-    'LG__n_estimators': [100, 200, 500],
-    'LG__min_child_samples': [20, 50, 100],
-    'LG__subsample': [0.8, 1.0],  
+     'LG__num_leaves': [31, 127],  # 트리가 가질 수 있는 최대 잎의 수
+    'LG__max_depth': [-1, 0],  # 트리의 최대 깊이
+    'LG__learning_rate': [0.05],  # 학습률
+    'LG__subsample': [0.8],  # 각 트리를 구축할 때 사용하는 데이터의 비율
+    'LG__verbosity': [-1],  # LightGBM의 실행 중 정보 출력 설정
+    'LG__min_child_samples': [20, 50, 100],  # 리프 노드가 되기 위해 필요한 최소 샘플 수
+    'LG__min_child_weight': [0.001, 0.01],  # 자식에 필요한 모든 관측치에 대한 가중치 합의 최소값
+    'LG__colsample_bytree': [0.6, 0.8, 1.0],  # 각 트리를 구축할 때 사용하는 특성의 비율
+    # 'LG__reg_alpha': [0, 0.1],  # L1 규제 항
+    # 'LG__reg_lambda': [0, 0.1],  # L2 규제 항
+    'LG__n_estimators': [100, 200, 500],  # 부스팅 단계의 수
+    'LG__boosting_type': ['gbdt']  # 부스팅 타입
+      
 }
+
+# parameters = {
+#         'LG__num_leaves': [31],
+#         'LG__max_depth': [-1],
+#         'LG__learning_rate': [0.05],
+#         'LG__n_estimators': [100],
+#         'LG__min_child_samples': [50],
+#         'LG__subsample': [0.8],  
+#     }
 
 
 pipe = Pipeline([('MM', MinMaxScaler()),
-                 ('LG', LGBMClassifier(random_state=3))])
+                 ('LG', LGBMClassifier(random_state=93230931, objective='multiclass'))])
 
-model = HalvingGridSearchCV(pipe, param_grid=parameters,
+model = HalvingRandomSearchCV(pipe, param_distributions=parameters,
                      cv = kfold,
                      verbose=1,
                      refit=True,
@@ -148,7 +164,7 @@ submission_csv['NObeyesdad'] = y_submit
 # print("f1_score : ", fs)
     
 print(y_submit)
-submission_csv.to_csv(path + "submisson_02_15_3_lgbm.csv", index=False)
+submission_csv.to_csv(path + "submisson_02_15_5_lgbm.csv", index=False)
 
 
 
@@ -159,7 +175,10 @@ submission_csv.to_csv(path + "submisson_02_15_3_lgbm.csv", index=False)
 
 
 
-
+# randomstate조합   0.920038
+# random_state :  86306949
+# random_state :  95969402
+# random_state :  2560064
 
 
 
