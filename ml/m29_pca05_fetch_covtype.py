@@ -89,6 +89,48 @@ for n in range(1, n_features + 1):
     print(f"n_components = {n}, Accuracy: {acc}")
 
 
+EVR = pca.explained_variance_ratio_         
+print(EVR)
+
+evr_cumsum = np.cumsum(EVR)
+print(evr_cumsum)
+
+print(sum(EVR)) 
+
+
+# n_components = 1, Accuracy: 0.4335669150008606
+# n_components = 2, Accuracy: 0.5314007523788449
+# n_components = 3, Accuracy: 0.6594723513068279
+# n_components = 4, Accuracy: 0.7601730963094097
+# n_components = 5, Accuracy: 0.7964741461975363
+# n_components = 6, Accuracy: 0.8491800054092596
+# n_components = 7, Accuracy: 0.8632735856015342
+# n_components = 8, Accuracy: 0.8836222369747486
+# n_components = 9, Accuracy: 0.8776671338300017
+# n_components = 10, Accuracy: 0.8698728823977773
+# n_components = 11, Accuracy: 0.8660421430503307
+# n_components = 12, Accuracy: 0.8817142435642104
+# n_components = 13, Accuracy: 0.8930048437461582
+# n_components = 14, Accuracy: 0.8758378205601043
+# n_components = 15, Accuracy: 0.8832927638858155
+# n_components = 16, Accuracy: 0.8897248653831968
+# n_components = 17, Accuracy: 0.8758476555776843
+# n_components = 18, Accuracy: 0.8907821297730569
+# n_components = 19, Accuracy: 0.8990337095227557
+# n_components = 20, Accuracy: 0.8964569349167711
+# n_components = 21, Accuracy: 0.9073738044306754
+# n_components = 22, Accuracy: 0.9119913451845295
+
+
+
+
+EVR = pca.explained_variance_ratio_         
+print(EVR)
+
+evr_cumsum = np.cumsum(EVR)
+print(evr_cumsum)
+
+print(sum(EVR)) 
 
 # 로스 :  0.6938604116439819
 # ACC :  0.701832115650177

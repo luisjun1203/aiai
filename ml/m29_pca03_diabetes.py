@@ -6,7 +6,7 @@ from sklearn.metrics import r2_score
 import time
 from sklearn.svm import LinearSVC
 from sklearn.tree import DecisionTreeClassifier
-from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
+from sklearn.ensemble import RandomForestRegressor, GradientBoostingClassifier
 from xgboost import XGBClassifier
 import pandas as pd
 from sklearn.preprocessing import OneHotEncoder, LabelEncoder
@@ -63,7 +63,7 @@ for n in range(1, n_features + 1):
     X_train_p = pca.fit_transform(X_train)
     X_test_p = pca.transform(X_test)  
 
-    model = RandomForestClassifier(random_state=3)
+    model = RandomForestRegressor(random_state=3)
     model.fit(X_train_p, y_train)
     y_predict = model.predict(X_test_p)
     r2 = r2_score(y_test, y_predict)

@@ -130,6 +130,16 @@ for n in range(1, n_features + 1):
     print(f"n_components = {n}, f1_score : {f1}")
 
 
+EVR = pca.explained_variance_ratio_         
+print(EVR)
+
+evr_cumsum = np.cumsum(EVR)
+print(evr_cumsum)
+
+print(sum(EVR)) 
+
+# 1.
+
 # n_components = 1, f1_score : 0.15601455028426287
 # n_components = 2, f1_score : 0.177220840551155
 # n_components = 3, f1_score : 0.2717883423287208

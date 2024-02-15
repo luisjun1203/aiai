@@ -65,8 +65,14 @@ for n in range(1, n_features + 1):
 # n_components = 3, Accuracy: 0.8958333333333334
 # n_components = 4, Accuracy: 0.8958333333333334
 
+EVR = pca.explained_variance_ratio_         
+print(EVR)
 
+evr_cumsum = np.cumsum(EVR)
+print(evr_cumsum)
 
+print(sum(EVR)) 
+# 0.95530892
 
 
 

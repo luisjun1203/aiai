@@ -88,8 +88,14 @@ for n in range(1, n_features + 1):
     print(f"n_components = {n}, Accuracy: {acc}")
 
   
-  
-  
+EVR = pca.explained_variance_ratio_         
+print(EVR)
+
+evr_cumsum = np.cumsum(EVR)
+print(evr_cumsum)
+
+print(sum(EVR)) 
+#    0.93675385 ,0.98754721
 # n_components = 1, Accuracy: 0.4793087767166894
 # n_components = 2, Accuracy: 0.5306957708049114
 # n_components = 3, Accuracy: 0.5625284220100045
@@ -99,6 +105,9 @@ for n in range(1, n_features + 1):
 # n_components = 7, Accuracy: 0.6202819463392452
 # n_components = 8, Accuracy: 0.629831741700773
 # n_components = 9, Accuracy: 0.6230104592996817  
+# n_components = 10, Accuracy: 0.629831741700773
+# n_components = 11, Accuracy: 0.6230104592996817
+# n_components = 12, Accuracy: 0.6252842201000455
 
 # y_submit = model.predict(test_csv)  
 # y_predict = model.predict(X_test) 

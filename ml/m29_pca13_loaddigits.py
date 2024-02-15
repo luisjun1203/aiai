@@ -137,6 +137,67 @@ for n in range(1, n_features + 1):
     print(f"n_components = {n}, Accuracy: {acc}")
 
 
+EVR = pca.explained_variance_ratio_         
+print(EVR)
+
+evr_cumsum = np.cumsum(EVR)
+print(evr_cumsum)
+
+print(sum(EVR)) 
+
+# 0.98515656
+
+
+# n_components = 1, Accuracy: 0.33611111111111114
+# n_components = 2, Accuracy: 0.5722222222222222
+# n_components = 3, Accuracy: 0.775
+# n_components = 4, Accuracy: 0.8722222222222222
+# n_components = 5, Accuracy: 0.8916666666666667
+# n_components = 6, Accuracy: 0.9166666666666666
+# n_components = 7, Accuracy: 0.9277777777777778
+# n_components = 8, Accuracy: 0.9361111111111111
+# n_components = 9, Accuracy: 0.9472222222222222
+# n_components = 10, Accuracy: 0.9527777777777777
+# n_components = 11, Accuracy: 0.9666666666666667
+# n_components = 12, Accuracy: 0.9611111111111111
+# n_components = 13, Accuracy: 0.9694444444444444
+# n_components = 14, Accuracy: 0.9638888888888889
+# n_components = 15, Accuracy: 0.9722222222222222
+# n_components = 16, Accuracy: 0.9722222222222222
+# n_components = 17, Accuracy: 0.9694444444444444
+# n_components = 18, Accuracy: 0.9722222222222222
+# n_components = 19, Accuracy: 0.975
+# n_components = 20, Accuracy: 0.9694444444444444
+# n_components = 21, Accuracy: 0.9722222222222222
+# n_components = 22, Accuracy: 0.9666666666666667
+# n_components = 23, Accuracy: 0.9777777777777777
+# n_components = 24, Accuracy: 0.975
+# n_components = 25, Accuracy: 0.9777777777777777
+# n_components = 26, Accuracy: 0.9694444444444444
+# n_components = 27, Accuracy: 0.9722222222222222
+# n_components = 28, Accuracy: 0.9777777777777777
+# n_components = 29, Accuracy: 0.9777777777777777
+# n_components = 30, Accuracy: 0.9694444444444444
+# n_components = 31, Accuracy: 0.975
+# n_components = 32, Accuracy: 0.9805555555555555
+# n_components = 33, Accuracy: 0.9638888888888889
+# n_components = 34, Accuracy: 0.9694444444444444
+# n_components = 35, Accuracy: 0.975
+# n_components = 36, Accuracy: 0.9777777777777777
+# n_components = 37, Accuracy: 0.9777777777777777
+# n_components = 38, Accuracy: 0.9777777777777777
+# n_components = 39, Accuracy: 0.9805555555555555
+# n_components = 40, Accuracy: 0.9833333333333333
+# n_components = 41, Accuracy: 0.975
+# n_components = 42, Accuracy: 0.975
+# n_components = 43, Accuracy: 0.9722222222222222
+# n_components = 44, Accuracy: 0.9722222222222222
+# n_components = 45, Accuracy: 0.9777777777777777
+# n_components = 46, Accuracy: 0.9666666666666667
+# n_components = 47, Accuracy: 0.9777777777777777
+# n_components = 48, Accuracy: 0.975
+
+
 # start_time = time.time()
 # model.fit(x_train, y_train)
 # end_time = time.time()
