@@ -2,7 +2,13 @@
 
 import numpy as np
 
-aaa = np.array([-10, 2,3,4,5,6,7,8,9,10,11,12,50])
+aaa = np.array([[-10, 2,3,4,5,6,7,8,9,10,11,12,50],
+               [100, 200, -30, 400, 500, 600, -70000, 800, 900, 1000, 210, 420, 350]]
+               ).T #(13,2)
+
+# seies : 벡터
+# dataframe : 2차원 행렬
+
 
 def outliers(data_out):
     quartile_1, q2, quartile_3 = np.percentile(data_out, [25, 50, 75])      # 사분위 값 25%, 50%, 75% 계산
@@ -23,11 +29,16 @@ import matplotlib.pyplot as plt
 plt.boxplot(aaa)
 plt.show()   
     
-# 1사분위 :  4.0
-# q2 :  7.0
-# 3사분위 :  10.0
-# iqr :  6.0
-# 이상치의 위치 :  (array([ 0, 12], dtype=int64),)
+# 1사분위 :  5.25
+# q2 :  11.5
+# 3사분위 :  387.5
+# iqr :  382.25
+# 이상치의 위치 :  (array([6, 9], dtype=int64), array([1, 1], dtype=int64))
     
+### 과제// 이상치 결측치를 적용한 결과를 넣을것!
+# pd04_1 대출
+# pd04_2 따릉이 
+# pd04_3 kaggle bike
+# pd04_4 obesity risk
     
     
