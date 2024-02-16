@@ -109,7 +109,7 @@ parameters = {
 pipe = Pipeline([('MM', MinMaxScaler()),
                  ('XGB', XGBClassifier(random_state=3))])
 
-model = HalvingRandomSearchCV(pipe, parameters,
+model = HalvingGridSearchCV(pipe, parameters,
                      cv = kfold,
                      verbose=1,
                      refit=True,
@@ -141,17 +141,17 @@ y_submit = pd.DataFrame(y_submit)
 submission_csv['NObeyesdad'] = y_submit
 print(y_submit)
 
-submission_csv.to_csv(path + "submisson_02_16_1_xgb.csv", index=False)
+submission_csv.to_csv(path + "submisson_02_16_3_xgb.csv", index=False)
 
 
 
 
-
+# submisson_02_16_2_xgb.csv
 # 최적의 파라미터: {'XGB__verbosity': 1, 'XGB__subsample': 0.6, 'XGB__objective': 'multi:softmax',
 #            'XGB__num_class': 16, 'XGB__n_estimators': 200, 'XGB__min_child_weight': 1,
 #            'XGB__max_depth': 9, 'XGB__learning_rate': 0.05, 'XGB__gamma': 0.5, 'XGB__colsample_bytree': 0.6}
 # best_score: 0.9010283087624776
-# model.score: 0.9213230571612074
-# acc.score: 0.9213230571612074
-# best_acc.score: 0.9213230571612074
+# model.score: 0.9233230571612074
+# acc.score: 0.9233230571612074
+# best_acc.score: 0.9233230571612074
 
