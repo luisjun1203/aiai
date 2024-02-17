@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 import keras
 import tensorflow as tf
 import random as rn
-from sklearn.ensemble import RandomForestClassifier ,VotingClassifier
+from sklearn.ensemble import RandomForestClassifier ,VotingClassifier, StackingClassifier
 from xgboost import XGBClassifier
 from sklearn.experimental import enable_halving_search_cv
 from sklearn.model_selection import  HalvingGridSearchCV,HalvingRandomSearchCV
@@ -32,6 +32,8 @@ path = "c:\\_data\\kaggle\\obesity_risk\\"
 train_csv = pd.read_csv(path + "train.csv", index_col=0)
 test_csv = pd.read_csv(path + "test.csv", index_col=0)
 submission_csv = pd.read_csv(path + "sample_submission.csv")
+
+#################### 이상치 하나 변경 ##################################
 
 test_csv.loc[test_csv['CALC']=='Always', 'CALC'] = 'Frequently'
 
@@ -70,6 +72,12 @@ def classify_diet(caec, calc, favc, family_history):
     
 train_csv['Diet_Class'] = train_csv.apply(lambda row: classify_diet(row['CAEC'], row['CALC'], row['FAVC'], row['family_history_with_overweight']), axis=1)  
 test_csv['Diet_Class'] = test_csv.apply(lambda row: classify_diet(row['CAEC'], row['CALC'], row['FAVC'], row['family_history_with_overweight']), axis=1)  
+
+# print(np.unique(train_csv['Diet_Class'], return_counts=True))
+# print(np.unique(train_csv['family_history_with_overweight'], return_counts=True))
+# print(train_csv['Diet_Class'])
+# print(test_csv['Diet_Class'])
+
 
 
 lae = LabelEncoder()
@@ -110,9 +118,12 @@ lae.fit(train_csv['MTRANS'])
 train_csv['MTRANS'] = lae.transform(train_csv['MTRANS'])
 test_csv['MTRANS'] = lae.transform(test_csv['MTRANS'])
 
+
 lae.fit(train_csv['Diet_Class'])
 train_csv['Diet_Class'] = lae.transform(train_csv['Diet_Class'])
 test_csv['Diet_Class'] = lae.transform(test_csv['Diet_Class'])
+
+
 
 
 # print(train_csv['MTRANS'])
@@ -121,12 +132,12 @@ test_csv['Diet_Class'] = lae.transform(test_csv['Diet_Class'])
 # print(train_csv['CAEC'])
 # print(train_csv['SMOKE'])
 
-# train_csv['BMI'] = 1.3 * (train_csv['Weight'] / (train_csv['Height']*2.5))            # 이상치에 좋은 bmi계산법
-# test_csv['BMI'] = 1.3 * (test_csv['Weight'] / (test_csv['Height']*2.5))
+train_csv['BMI'] = 1.3 * (train_csv['Weight'] / (train_csv['Height']*2.5))            # 이상치에 좋은 bmi계산법
+test_csv['BMI'] = 1.3 * (test_csv['Weight'] / (test_csv['Height']*2.5))
 
 
-train_csv['BMI'] = (train_csv['Weight'] / (train_csv['Height'] * train_csv['Height']))
-test_csv['BMI'] = (test_csv['Weight'] / (test_csv['Height'] * test_csv['Height']))
+# train_csv['BMI'] = (train_csv['Weight'] / (train_csv['Height'] * train_csv['Height']))
+# test_csv['BMI'] = (test_csv['Weight'] / (test_csv['Height'] * test_csv['Height']))
 
 
 
@@ -141,50 +152,37 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.15, shuffl
 
 # splits = 3
 # kfold = StratifiedKFold(n_splits=splits, shuffle=True, random_state=4125478883)
+base_models = [
+    ('xgb', XGBClassifier(n_estimators=300, learning_rate=0.05, max_depth=9, gamma=0.5, colsample_bytree=0.6)),
+    ('lgb', LGBMClassifier(colsample_bytree=0.4097712934687264,
+               lambda_l1=0.009667446568254372, lambda_l2=0.040186414373018,
+               learning_rate=0.03096221154683276, max_depth=10,
+               metric='multi_logloss', min_child_samples=26, n_estimators=500,
+               num_class=7, objective='multiclass', random_state=42,
+               subsample=0.9535797422450176, verbosity=-1)),
+    ('cat', CatBoostClassifier(iterations=300, learning_rate=0.05, depth=10))
+]
 
-xgb_model = xgb.XGBClassifier(n_estimators=300, learning_rate = 0.05, max_depth = 9, gamma = 0.5, colsample_bytree = 0.6, verbosity = 1 )
-# {'XGB__verbosity': 1, 'XGB__subsample': 0.6, 'XGB__objective': 'multi:softmax',
-# #            'XGB__num_class': 16, 'XGB__n_estimators': 200, 'XGB__min_child_weight': 1,
-# #            'XGB__max_depth': 9, 'XGB__learning_rate': 0.05, 'XGB__gamma': 0.5, 'XGB__colsample_bytree': 0.6}
+meta_model = RandomForestClassifier(n_estimators=100)
 
-lgb_model = lgb.LGBMClassifier(n_estimators=300, learning_rate=0.05, max_depth=0, num_leaves=31, colsample_bytree=0.6, verbose=0)
-# {'LG__verbosity': 2, 'LG__subsample': 0.8, 'LG__reg_lambda': 0.1,
-#  'LG__reg_alpha': 0.1, 'LG__num_leaves': 31, 'LG__n_estimators': 200,
-#  'LG__min_child_weight': 0.001, 'LG__min_child_samples': 20, 'LG__max_depth': 0,
-#  'LG__learning_rate': 0.05, 'LG__colsample_bytree': 0.6, 'LG__boosting_type': 'gbdt'}
+stacking_model = StackingClassifier(estimators=base_models, final_estimator=meta_model, cv=5)
 
-cat_model = CatBoostClassifier(iterations=300, learning_rate=0.05, max_depth=0)
-
-
-voting_model = VotingClassifier(estimators=[('xgb', xgb_model), ('lgb', lgb_model), ('cat', cat_model)], voting='soft')
-
-
-voting_model.fit(X_train, y_train)
+stacking_model.fit(X_train, y_train)
 
 
-accuracy = voting_model.score(X_test, y_test)
-y_submit = voting_model.predict(test_csv)  
+y_predict = stacking_model.predict(X_test)
+
+stacking_accuracy = accuracy_score(y_test, y_predict)
+y_submit = stacking_model.predict(test_csv)
 # y_submit = lae.inverse_transform(y_submit)
 
-y_predict = voting_model.predict(X_test)
-acc = accuracy_score(y_test, y_predict)
 
 y_submit = pd.DataFrame(y_submit)
 submission_csv['NObeyesdad'] = y_submit
 print(y_submit)
-print("Voting Ensemble Accuracy:", accuracy)
+print("Stacking Model Accuracy:", stacking_accuracy) 
 
-submission_csv.to_csv(path + "submisson_02_17_2_voting.csv", index=False)
-# return acc
-# print(voting_model.feature_importances_)
-# import random
-# for i in range(100000):
-#     a = random.randrange(1,4200000000)
-#     r = auto(a)
-#     if r > 0.925 :
-#         print("random_state : ", a)
-#         print("ACC : ", r)
-#         break
 
-# Voting Ensemble Accuracy: 0.924373795761079
+submission_csv.to_csv(path + "submisson_02_17_4_stacking.csv", index=False)
+
 

@@ -40,58 +40,45 @@ submission_csv = pd.read_csv(path + "sample_submission.csv")
 
 
 
-print(np.unique(train_csv['NCP'], return_counts=True))
-
-
-
-
 # print(np.unique(train_csv['NCP'], return_counts=True))
-train_csv['BMI'] = 1.3 * (train_csv['Weight'] / (train_csv['Height']*2.5))
-
-# print(train_csv['BMI'])
-
-print(train_csv.info())
 
 
-# BMI = 100/(1.7*1.7)
-# print(BMI) 
+# (array(['Automobile', 'Bike', 'Motorbike', 'Public_Transportation',
+#        'Walking'], dtype=object), array([ 3534,    32,    38, 16687,   467], dtype=int64))
+########################### 교통수단 ###################################################
 
-aaa = train_csv["Weight"]
+# train_csv.loc[train_csv['MTRANS']=='Bike', 'MTRANS'] = 'Public_Transportation'
+# train_csv.loc[train_csv['MTRANS']=='Motorbike', 'MTRANS'] = 'Automobile'
 
-def outliers(data_out):
-    quartile_1, q2, quartile_3 = np.percentile(data_out, [25, 50, 75])      # 사분위 값 25%, 50%, 75% 계산
-    print("1사분위 : ", quartile_1)
-    print("q2 : ", q2)
-    print("3사분위 : ", quartile_3)
-    iqr = quartile_3 -quartile_1                # iqr계산 : quartile_3 - quartile_1
-    print("iqr : ", iqr)
-    lower_bound = quartile_1 - (iqr * 1.5)      # lower_bound와 upper_bound: 이상치를 식별하기 위한 하한값과 상한값을 계산함.
-    upper_bound = quartile_3 + (iqr * 1.5)      # 여기서  나온 하한값보다 작거나 상한값보다 큰 애들은 이상치라 판별
-    return np.where((data_out > upper_bound) |  # np.where : 이상치의 위치를 반환, | : 또는 
-                    (data_out < lower_bound))
+# test_csv.loc[test_csv['MTRANS']=='Bike', 'MTRANS'] = 'Public_Transportation'
+# test_csv.loc[test_csv['MTRANS']=='Motorbike', 'MTRANS'] = 'Automobile'
+
+# print(np.unique(train_csv['MTRANS'], return_counts=True))
+# print(np.unique(test_csv['MTRANS'], return_counts=True))
+
+train_csv['Exercise_Score'] = train_csv['FAF'] - train_csv['TUE'] + train_csv['FCVC']
+test_csv['Exercise_Score'] = test_csv['FAF'] - test_csv['TUE'] + test_csv['FCVC']
+
+# print(train_csv['Exercise_Score'])
+
+
+def classify_diet(caec, calc, favc, family_history):
+    if family_history == 'yes':
+        return 'Moderate'
+    elif caec == 'Always' and calc == 'Frequently' and favc == 'yes':
+        return 'Unhealthy'
+    elif caec == 'Frequently' and calc == 'Always' and favc == 'yes':
+        return 'Unhealthy'
+    elif caec == 'Sometimes' and calc == 'Frequently'and favc == 'yes':
+        return 'Moderate'
+    elif caec == 'Sometimes' and calc == 'Always'and favc == 'yes':
+        return 'Moderate'
+    else:
+        return 'Healthy'
     
-outliers_loc = outliers(aaa)
-print("이상치의 위치 : ", outliers_loc) 
-
-import matplotlib.pyplot as plt
-plt.boxplot(aaa)
-plt.show()   
-
-
-# train_csv['Height]
-# 1사분위 :  1.631856
-# q2 :  1.7
-# 3사분위 :  1.762887
-# iqr :  0.13103100000000012
-# 이상치의 위치 :  (array([ 1271,  4084,  7272, 11718], dtype=int64),)
-
-# train_csv['Weight]
-# 1사분위 :  66.0
-# q2 :  84.064875
-# 3사분위 :  111.600553
-# iqr :  45.600553000000005
-# 이상치의 위치 :  (array([], dtype=int64),)
-
-
-
+train_csv['Diet_Class'] = train_csv.apply(lambda row: classify_diet(row['CAEC'], row['CALC'], row['FAVC'], row['family_history_with_overweight']), axis=1)  
+print(np.unique(train_csv['Diet_Class'], return_counts=True))
+# print(np.unique(train_csv['family_history_with_overweight'], return_counts=True))
+print(train_csv['Diet_Class'])
+    
 

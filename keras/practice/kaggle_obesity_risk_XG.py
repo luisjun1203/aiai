@@ -30,6 +30,43 @@ submission_csv = pd.read_csv(path + "sample_submission.csv")
 
 test_csv.loc[test_csv['CALC']=='Always', 'CALC'] = 'Sometimes'
 
+##################### 교통수단 컬럼 살짝 변경 #######################################
+train_csv.loc[train_csv['MTRANS']=='Bike', 'MTRANS'] = 'Public_Transportation'
+train_csv.loc[train_csv['MTRANS']=='Motorbike', 'MTRANS'] = 'Automobile'
+
+test_csv.loc[test_csv['MTRANS']=='Bike', 'MTRANS'] = 'Public_Transportation'
+test_csv.loc[test_csv['MTRANS']=='Motorbike', 'MTRANS'] = 'Automobile'
+
+# print(np.unique(train_csv['MTRANS'], return_counts=True))
+# print(np.unique(test_csv['MTRANS'], return_counts=True))
+
+
+################# 운동량 컬럼 추가 ###################################################################
+
+train_csv['Exercise_Score'] = train_csv['FAF'] - train_csv['TUE'] + train_csv['FCVC']
+test_csv['Exercise_Score'] = test_csv['FAF'] - test_csv['TUE'] + test_csv['FCVC']
+
+# print(train_csv['Exercise_Score'])
+#################### 식습관 가족력 컬럼 추가 ##############################################
+
+def classify_diet(caec, calc, favc, family_history):
+    if family_history == 'yes':
+        return 'Moderate'
+    elif caec == 'Always' and calc == 'Frequently' and favc == 'yes':
+        return 'Unhealthy'
+    elif caec == 'Frequently' and calc == 'Always' and favc == 'yes':
+        return 'Unhealthy'
+    elif caec == 'Sometimes' and calc == 'Frequently'and favc == 'yes':
+        return 'Moderate'
+    elif caec == 'Sometimes' and calc == 'Always'and favc == 'yes':
+        return 'Moderate'
+    else:
+        return 'Healthy'
+    
+train_csv['Diet_Class'] = train_csv.apply(lambda row: classify_diet(row['CAEC'], row['CALC'], row['FAVC'], row['family_history_with_overweight']), axis=1)  
+test_csv['Diet_Class'] = test_csv.apply(lambda row: classify_diet(row['CAEC'], row['CALC'], row['FAVC'], row['family_history_with_overweight']), axis=1)  
+
+
 
 lae = LabelEncoder()
 lae.fit(train_csv['Gender'])
@@ -69,6 +106,10 @@ lae.fit(train_csv['MTRANS'])
 train_csv['MTRANS'] = lae.transform(train_csv['MTRANS'])
 test_csv['MTRANS'] = lae.transform(test_csv['MTRANS'])
 
+lae.fit(train_csv['Diet_Class'])
+train_csv['Diet_Class'] = lae.transform(train_csv['Diet_Class'])
+test_csv['Diet_Class'] = lae.transform(test_csv['Diet_Class'])
+
 # print(train_csv['MTRANS'])
 # # print(train_csv['CALC'])
 # print(train_csv['SCC'])
@@ -92,7 +133,7 @@ y = train_csv['NObeyesdad']
 lae.fit(y)
 y = lae.transform(y)
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.15, shuffle=True, random_state=698423134, stratify=y)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.1, shuffle=True, random_state=698423134,stratify=y)
 
 splits = 3
 kfold = StratifiedKFold(n_splits=splits, shuffle=True, random_state=2928297790)
@@ -106,7 +147,7 @@ parameters = {
     'XGB__subsample': [0.6, 0.8, 1.0],  # 각 트리마다의 관측 데이터 샘플링 비율
     'XGB__colsample_bytree': [0.6, 0.8, 1.0],  # 각 트리 구성에 필요한 컬럼(특성) 샘플링 비율
     'XGB__objective': ['multi:softmax'],  # 학습 태스크 파라미터
-    'XGB__num_class': [18],  # 분류해야 할 전체 클래스 수, 멀티클래스 분류인 경우 설정
+    'XGB__num_class': [20],  # 분류해야 할 전체 클래스 수, 멀티클래스 분류인 경우 설정
     'XGB__verbosity' : [1] 
 }
 
@@ -127,7 +168,7 @@ parameters = {
 
 
 
-pipe = Pipeline([('MM', MinMaxScaler()),
+pipe = Pipeline([('SS', StandardScaler()),
                  ('XGB', XGBClassifier(random_state=3608501786))])
 
 model = HalvingGridSearchCV(pipe, parameters,
@@ -162,7 +203,7 @@ y_submit = pd.DataFrame(y_submit)
 submission_csv['NObeyesdad'] = y_submit
 print(y_submit)
 
-submission_csv.to_csv(path + "submisson_02_16_5_xgb.csv", index=False)
+submission_csv.to_csv(path + "submisson_02_17_3_xgb.csv", index=False)
 
 
 
@@ -203,3 +244,9 @@ submission_csv.to_csv(path + "submisson_02_16_5_xgb.csv", index=False)
 
 
 # 3439645700#########!!!!!!!
+
+
+# best_score: 0.8963765992772732
+# model.score: 0.9330443159922929
+# acc.score: 0.9330443159922929
+# best_acc.score: 0.9330443159922929
