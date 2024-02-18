@@ -133,7 +133,7 @@ y = train_csv['NObeyesdad']
 lae.fit(y)
 y = lae.transform(y)
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.1, shuffle=True, random_state=698423134,stratify=y)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.095, shuffle=True, random_state=698423134,stratify=y)
 
 splits = 3
 kfold = StratifiedKFold(n_splits=splits, shuffle=True, random_state=2928297790)
@@ -203,9 +203,13 @@ y_submit = pd.DataFrame(y_submit)
 submission_csv['NObeyesdad'] = y_submit
 print(y_submit)
 
-submission_csv.to_csv(path + "submisson_02_17_3_xgb.csv", index=False)
+submission_csv.to_csv(path + "submisson_02_18_5_xgb.csv", index=False)
 
 
+
+
+#Maxabs X
+#Robust X
 
 
 # submisson_02_16_2_xgb.csv
