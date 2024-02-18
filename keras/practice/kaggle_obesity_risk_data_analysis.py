@@ -77,8 +77,20 @@ def classify_diet(caec, calc, favc, family_history):
         return 'Healthy'
     
 train_csv['Diet_Class'] = train_csv.apply(lambda row: classify_diet(row['CAEC'], row['CALC'], row['FAVC'], row['family_history_with_overweight']), axis=1)  
-print(np.unique(train_csv['Diet_Class'], return_counts=True))
+# print(np.unique(train_csv['Diet_Class'], return_counts=True))
 # print(np.unique(train_csv['family_history_with_overweight'], return_counts=True))
-print(train_csv['Diet_Class'])
+# print(train_csv['Diet_Class'])
     
+def classify_Walk(mtrans, faf):
+    if mtrans == 'Walk' and faf > '2' :
+        return 'good'
+    elif mtrans == 'Walk' and faf > '1' :
+        return 'normal'
+    elif faf < '1' :
+        return 'bad'
+    else:
+        return 'normal'
+    
+train_csv['Walk_Health'] = train_csv.apply(lambda row: classify_Walk(row['MTRANS'], row['FAF']), axis=1)    
+print(train_csv['Walk_Health'])    
 

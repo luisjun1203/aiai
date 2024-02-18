@@ -137,26 +137,29 @@ y = train_csv['NObeyesdad']
 # lae.fit(y)
 # y = lae.transform(y)
 # def auto(a):
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.15, shuffle=True, random_state=3439645700, stratify=y)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.1, shuffle=True, random_state=3439645700, stratify=y)
 
 # splits = 3
 # kfold = StratifiedKFold(n_splits=splits, shuffle=True, random_state=4125478883)
 
-xgb_model = xgb.XGBClassifier(n_estimators=300, learning_rate = 0.05, max_depth = 9, gamma = 0.5, colsample_bytree = 0.6, verbosity = 1 )
+xgb_model = xgb.XGBClassifier(n_estimators=300, learning_rate = 0.1, max_depth = 9, gamma = 0.5, colsample_bytree = 0.6, verbosity = 1 )
 # {'XGB__verbosity': 1, 'XGB__subsample': 0.6, 'XGB__objective': 'multi:softmax',
 # #            'XGB__num_class': 16, 'XGB__n_estimators': 200, 'XGB__min_child_weight': 1,
 # #            'XGB__max_depth': 9, 'XGB__learning_rate': 0.05, 'XGB__gamma': 0.5, 'XGB__colsample_bytree': 0.6}
 
-lgb_model = lgb.LGBMClassifier(n_estimators=300, learning_rate=0.05, max_depth=0, num_leaves=31, colsample_bytree=0.6, verbose=0)
+lgb_model = lgb.LGBMClassifier(n_estimators=300, learning_rate=0.1, max_depth=0, num_leaves=31, colsample_bytree=0.6, verbose=0)
 # {'LG__verbosity': 2, 'LG__subsample': 0.8, 'LG__reg_lambda': 0.1,
 #  'LG__reg_alpha': 0.1, 'LG__num_leaves': 31, 'LG__n_estimators': 200,
 #  'LG__min_child_weight': 0.001, 'LG__min_child_samples': 20, 'LG__max_depth': 0,
 #  'LG__learning_rate': 0.05, 'LG__colsample_bytree': 0.6, 'LG__boosting_type': 'gbdt'}
 
-cat_model = CatBoostClassifier(iterations=300, learning_rate=0.05, max_depth=0)
+# cat_model = CatBoostClassifier(iterations=300, learning_rate=0.05, max_depth=0)
 
 
-voting_model = VotingClassifier(estimators=[('xgb', xgb_model), ('lgb', lgb_model), ('cat', cat_model)], voting='soft')
+voting_model = VotingClassifier(estimators=[('xgb', xgb_model),
+                                            ('lgb', lgb_model)],
+                                            # ('cat', cat_model)],
+                                voting='soft')
 
 
 voting_model.fit(X_train, y_train)
@@ -174,7 +177,7 @@ submission_csv['NObeyesdad'] = y_submit
 print(y_submit)
 print("Voting Ensemble Accuracy:", accuracy)
 
-submission_csv.to_csv(path + "submisson_02_17_2_voting.csv", index=False)
+submission_csv.to_csv(path + "submisson_02_18_2_voting.csv", index=False)
 # return acc
 # print(voting_model.feature_importances_)
 # import random
