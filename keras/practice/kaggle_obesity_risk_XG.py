@@ -31,12 +31,14 @@ submission_csv = pd.read_csv(path + "sample_submission.csv")
 test_csv.loc[test_csv['CALC']=='Always', 'CALC'] = 'Sometimes'
 
 ##################### 교통수단 컬럼 살짝 변경 #######################################
-train_csv.loc[train_csv['MTRANS']=='Bike', 'MTRANS'] = 'Public_Transportation'
+train_csv.loc[train_csv['MTRANS']=='Bike', 'MTRANS'] = 'Walking'
 train_csv.loc[train_csv['MTRANS']=='Motorbike', 'MTRANS'] = 'Automobile'
 
-test_csv.loc[test_csv['MTRANS']=='Bike', 'MTRANS'] = 'Public_Transportation'
+test_csv.loc[test_csv['MTRANS']=='Bike', 'MTRANS'] = 'Walking'
 test_csv.loc[test_csv['MTRANS']=='Motorbike', 'MTRANS'] = 'Automobile'
 
+
+# Bike를 대중교통에 포함시켰다가 Walking으로 바꿈
 # print(np.unique(train_csv['MTRANS'], return_counts=True))
 # print(np.unique(test_csv['MTRANS'], return_counts=True))
 

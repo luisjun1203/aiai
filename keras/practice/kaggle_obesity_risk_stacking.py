@@ -148,7 +148,7 @@ y = train_csv['NObeyesdad']
 # lae.fit(y)
 # y = lae.transform(y)
 # def auto(a):
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.150, shuffle=True, random_state=3439645700, stratify=y)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.13, shuffle=True, random_state=3439645700, stratify=y)
 
 # splits = 3
 # kfold = StratifiedKFold(n_splits=splits, shuffle=True, random_state=4125478883)
@@ -183,6 +183,6 @@ print(y_submit)
 print("Stacking Model Accuracy:", stacking_accuracy) 
 
 
-submission_csv.to_csv(path + "submisson_02_18_1_stacking.csv", index=False)
+submission_csv.to_csv(path + "submisson_02_19_1_stacking.csv", index=False)
 
 
