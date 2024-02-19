@@ -100,33 +100,33 @@ start = time.time()
 model.fit(X_train, y_train, 
           eval_set = [(X_train, y_train),(X_test, y_test)],
           verbose = 1,  # true 디폴트 1 / false 디폴트 0 / verbose = n (과정을 n의배수로 보여줌)
-        #   eval_metric = 'rmse',     # 디폴트
-        #   eval_metric = 'mae',     # 가능
-        #   eval_metric = 'mse',     # X
-          # eval_metric = 'mape'    #  가능
-          # eval_metric = 'rmsle'     #  가능
-          #  eval_metric = 'gamma-deviance' # 가능
+        #   eval_metric = 'rmse',     # 회귀 디폴트
+        #   eval_metric = 'mae',     # rmsle, mape, mphe....등등
+        #   eval_metric = 'logloss',     # 이진분류 디폴트, ACC
+          # eval_metric = 'error'    #  이진분류
+          # eval_metric = 'mlogloss'     #  다중분류 디폴트, ACC
+          #  eval_metric = 'auc'       # 이진, 다중 둘다 가능
           )
 
 ############################ 이진 분류(Binary Classification) #########################################
 # error: 이진 분류 오류율 (1 - accuracy)
-# logloss: Negative log-likelihood
+# logloss: Negative log-likelihood / 이진 분류의 로그 손실
 # auc: Area under the curve
 # aucpr: Area under the PR curve
 # binary:logistic: 로지스틱 회귀의 로그 손실
 
 ##################### 다중 분류(Multi-Class Classification)################################
-# mlogloss: Multiclass logloss
-# merror: Multiclass classification error rate
+# mlogloss: Multiclass logloss / 다중 클래스 분류의 로그 손실
+# merror: Multiclass classification error rate / 다중 클래스 분류 에러율
 
 ################################ 회귀(Regression) #############################################
-# rmse: Root Mean Square Error
-# mae: Mean Absolute Error
-# rmsle: Root Mean Square Logarithmic Error
-# mape: Mean Absolute Percentage Error
+# rmse: 평균 제곱근 오차
+# mae: 평균 절대 오차
+# mape: 평균 절대 백분율 오차
+# rmsle: 평균 제곱근 로그 오차
 
 ################################## 랭킹(Ranking) ######################################
-# map: Mean average precision/ 이중분류 가능
+# map: Mean average precision / 평균 정밀도 평균 / 이중분류 가능
 
 ###################################### 기타 ################################################################
 # gamma-deviance: 사용자가 정의한 손실 함수를 평가하는 데 사용될 수 있습니다./ 회귀 가능

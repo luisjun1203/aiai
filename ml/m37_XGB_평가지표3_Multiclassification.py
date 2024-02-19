@@ -8,7 +8,7 @@ from sklearn.model_selection import HalvingGridSearchCV, HalvingRandomSearchCV, 
 from sklearn.pipeline import Pipeline
 from sklearn.model_selection import train_test_split, KFold, StratifiedKFold
 from sklearn.preprocessing import StandardScaler, MinMaxScaler
-from sklearn.metrics import accuracy_score, r2_score
+from sklearn.metrics import accuracy_score, r2_score,f1_score, roc_auc_score
 import time
 
 #1.데이터
@@ -100,15 +100,12 @@ start = time.time()
 model.fit(X_train, y_train, 
           eval_set = [(X_train, y_train),(X_test, y_test)],
           verbose = 1,  # true 디폴트 1 / false 디폴트 0 / verbose = n (과정을 n의배수로 보여줌)
-        #   eval_metric = 'mlogloss'     #  다중분류, 디폴트
-        #   eval_metric = 'merror'      #  다중분류
-        #   eval_metric = 'aucpr'             # 가능 이진분류
-        # eval_metric = 'error'       # 이진분류
-        # eval_metric = 'logloss'       # 이진분류
-        # eval_metric = 'auc'             #가능 이진분류
-        # eval_metric = 'binary:logistic'
-        # eval_metric = 'map'
-        # eval_metric = 'gamma-deviance'
+       #   eval_metric = 'rmse',     # 회귀 디폴트
+        #   eval_metric = 'mae',     # rmsle, mape, mphe....등등
+        #   eval_metric = 'logloss',     # 이진분류 디폴트, ACC
+          # eval_metric = 'error'    #  이진분류
+          # eval_metric = 'mlogloss'     #  다중분류 디폴트, ACC
+          #  eval_metric = 'auc'       # 이진, 다중 둘다 가능
         
           )
 
@@ -144,3 +141,10 @@ model.fit(X_train, y_train,
 # print("파라미터 : ", model.get_params())
 results = model.score(X_test, y_test)
 print("최종점수 : ", results)
+y_predict = model.predict(X_test)
+# print("auc : ", roc_auc_score(y_test, y_predict))
+# print("acc : ", accuracy_score(y_test, y_predict))
+# print("f1 : ", f1_score(y_test, y_predict))
+# print("r2 : ", r2_score(y_test, y_predict))
+
+

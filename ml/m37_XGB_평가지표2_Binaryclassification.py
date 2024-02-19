@@ -100,13 +100,12 @@ start = time.time()
 model.fit(X_train, y_train, 
           eval_set = [(X_train, y_train),(X_test, y_test)],
           verbose = 1,  # true 디폴트 1 / false 디폴트 0 / verbose = n (과정을 n의배수로 보여줌)
-        #   eval_metric = 'logloss',     # 디폴트, 이중분류
-        #   eval_metric = 'error',     # 가능 이진분류
-        #   eval_metric = 'auc',     # 가능
-        #   eval_metric = 'merror'    #  다중분류
-        #   eval_metric = 'mlogloss'     #  다중분류
-          # eval_metric = 'aucpr'             # 가능 이진분류
-          eval_metric = 'map'         # 이진분류
+       #   eval_metric = 'rmse',     # 회귀 디폴트
+        #   eval_metric = 'mae',     # rmsle, mape, mphe....등등
+        #   eval_metric = 'logloss',     # 이진분류 디폴트, ACC
+          # eval_metric = 'error'    #  이진분류
+          # eval_metric = 'mlogloss'     #  다중분류 디폴트, ACC
+          #  eval_metric = 'auc'       # 이진, 다중 둘다 가능
           )
 
 ############################ 이진 분류(Binary Classification) #########################################
