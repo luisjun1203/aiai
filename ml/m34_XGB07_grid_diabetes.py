@@ -16,6 +16,7 @@ from sklearn.ensemble import RandomForestClassifier
 import warnings
 from xgboost import XGBClassifier, XGBRFRegressor, XGBRegressor
 
+
 import numpy as np
 import time
 warnings.filterwarnings ('ignore')
@@ -85,3 +86,6 @@ print("걸린시간 : ", round(end_time - start_time, 2), "초")
 # r2_score :  0.36153810590096747
 # 최적튠 ACC :  0.36153810590096747
 # 걸린시간 :  2.09 초
+
+# import sklearn as sk
+# print(sk.__version__)

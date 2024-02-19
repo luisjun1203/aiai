@@ -159,10 +159,13 @@ lgb_model = lgb.LGBMClassifier(n_estimators=300, learning_rate=0.05, max_depth=9
 voting_model = VotingClassifier(estimators=[('xgb', xgb_model),
                                             ('lgb', lgb_model)],
                                             # ('cat', cat_model)],
+                                            # EarlyStopping= 100,
                                 voting='soft')
 
 
-voting_model.fit(X_train, y_train)
+voting_model.fit(X_train, y_train,
+                #  eval_set = [(X_test, y_test)]
+                 )
 
 
 accuracy = voting_model.score(X_test, y_test)
@@ -177,7 +180,7 @@ submission_csv['NObeyesdad'] = y_submit
 print(y_submit)
 print("Voting Ensemble Accuracy:", accuracy)
 
-submission_csv.to_csv(path + "submisson_02_18_5_voting.csv", index=False)
+submission_csv.to_csv(path + "submisson_02_19_3333_voting.csv", index=False)
 # return acc
 # print(voting_model.feature_importances_)
 # import random

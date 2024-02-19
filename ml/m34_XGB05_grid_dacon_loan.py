@@ -137,23 +137,21 @@ start_time = time.time()
 model.fit(X_train, y_train)
 end_time = time.time()
 print("최적의 매개변수 : ", model.best_estimator_)
-# 최적의 매개변수 :  SVC(C=1, kernel='linear')
+
 
 print("최적의 파라미터 : ", model.best_params_)
-# 최적의 파라미터 :  {'C': 1, 'degree': 3, 'kernel': 'linear'}
+
 
 print('best_score : ', model.best_score_)
 print('model.score : ', model.score(X_test, y_test))
-# results = model.score(X_test, y_test)
-# print(results)
+
 y_predict = model.predict(X_test)
 acc = accuracy_score(y_test, y_predict)
 print("accuracy_score : ", acc)
 
 y_pred_best = model.best_estimator_.predict(X_test)
 print("최적튠 ACC : " , accuracy_score(y_test, y_pred_best))
-# best_score :  0.975 
-# model.score :  0.9333333333333333
+
 print("걸린시간 : ", round(end_time - start_time, 2), "초")
 
 # 최적의 파라미터 :  {'colsample_bylevel': 0.6, 'colsample_bynode': 0.6, 'colsample_bytree': 0.6, 'gamma': 1, 'learning_rate': 1, 'max_depth': 3, 'min_child_weight': 5, 'n_estimators': 1000, 'num_class': 30, 'objective': 'multi:softmax', 'reg_alpha': 0, 'reg_lambda': 1, 'subsample': 0.6, 'verbosity': 1}

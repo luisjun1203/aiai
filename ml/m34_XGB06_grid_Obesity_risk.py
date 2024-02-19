@@ -19,7 +19,7 @@ from sklearn.experimental import enable_halving_search_cv
 from sklearn.model_selection import  HalvingGridSearchCV,HalvingRandomSearchCV
 from sklearn.pipeline import Pipeline
 from sklearn.model_selection import StratifiedKFold
-
+from imblearn.over_sampling import SMOTE
 
 path = "c:\\_data\\kaggle\\obesity_risk\\"
 
@@ -135,23 +135,30 @@ y = train_csv['NObeyesdad']
 lae.fit(y)
 y = lae.transform(y)
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.1, shuffle=True, random_state=698423134,stratify=y)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.1, shuffle=True, random_state=698423134, stratify=y)
+
+# smote = SMOTE(random_state=3)
+# X_train, y_train = smote.fit_resample(X_train, y_train) 
 
 splits = 5
 kfold = StratifiedKFold(n_splits=splits, shuffle=True, random_state=2928297790)
 
-parameters = {
-    'XGB__n_estimators': [30, 50 ,300],  # 부스팅 라운드의 수
-    'XGB__learning_rate': [0.05, 0.1],  # 학습률
-    'XGB__max_depth': [3, 6, 9],  # 트리의 최대 깊이
-    'XGB__min_child_weight': [1, 5, 10],  # 자식에 필요한 모든 관측치에 대한 가중치 합의 최소
-    'XGB__gamma': [0.5, 1, 1.5, 2],  # 리프 노드를 추가적으로 나눌지 결정하기 위한 최소 손실 감소
-    'XGB__subsample': [0.6, 0.8, 1.0],  # 각 트리마다의 관측 데이터 샘플링 비율
-    'XGB__colsample_bytree': [0.6, 0.8, 1.0],  # 각 트리 구성에 필요한 컬럼(특성) 샘플링 비율
-    'XGB__objective': ['multi:softmax'],  # 학습 태스크 파라미터
-    'XGB__num_class': [20],  # 분류해야 할 전체 클래스 수, 멀티클래스 분류인 경우 설정
-    'XGB__verbosity' : [1] 
-}
+# parameters = {
+#     'XGB__n_estimators': [300],  # 부스팅 라운드의 수
+#     'XGB__learning_rate': [0.05],  # 학습률
+#     'XGB__max_depth': [9],  # 트리의 최대 깊이
+#     'XGB__min_child_weight': [5],  # 자식에 필요한 모든 관측치에 대한 가중치 합의 최소
+#     'XGB__gamma': [1],  # 리프 노드를 추가적으로 나눌지 결정하기 위한 최소 손실 감소
+#     'XGB__subsample': [0.8],  # 각 트리마다의 관측 데이터 샘플링 비율
+#     'XGB__colsample_bytree': [0.4],  # 각 트리 구성에 필요한 컬럼(특성) 샘플링 비율
+#     'XGB__colsample_bylevel': [0.8], #  디폴트 1 / 0 ~ 1
+#     'XGB__colsample_bynode': [0.8], #  디폴트 1 / 0 ~ 1
+#     'XGB__reg_alpha' : [0],   # 디폴트 0 / 0 ~ inf / L1 절대값 가중치 규제 / alpha
+#     'XGB__reg_lambda' :   [0.001],   # 디폴트 1 / 0 ~ inf / L2 제곱 가중치 규제 / lambda
+#     'XGB__objective': ['multi:softmax'],  # 학습 태스크 파라미터
+#     'XGB__num_class': [20],  # 분류해야 할 전체 클래스 수, 멀티클래스 분류인 경우 설정
+#     'XGB__verbosity' : [1] 
+# }
 
 # parameters = {
 #     'XGB__n_estimators': [300],  # 부스팅 라운드의 수
@@ -165,9 +172,22 @@ parameters = {
 #     'XGB__num_class': [16],  # 분류해야 할 전체 클래스 수, 멀티클래스 분류인 경우 설정
 #     'XGB__verbosity' : [1] 
 # }
-
-
-
+parameters = {
+   'XGB__n_estimators': [100, 200, 300, 400, 500, 1000],  # 부스팅 라운드의 수 / 디폴트 100 / 1 ~ inf/ 정수
+    'XGB__learning_rate': [0.05],  # 학습률 / 디폴트 0.3 / 0 ~ 1 / eta / 통상적으로 작으면 작을수록 좋다
+    'XGB__max_depth': [6,9],  # 트리의 최대 깊이 / 디폴트 6 / 0 ~ inf/ 정수
+    'XGB__min_child_weight': [5],  # 자식에 필요한 모든 관측치에 대한 가중치 합의 최소/ 디폴트 1 / 0~inf
+    'XGB__gamma': [1],  # 리프 노드를 추가적으로 나눌지 결정하기 위한 최소 손실 감소/ 디폴트 0 / 0~ inf
+    'XGB__subsample': [0.8],  # 각 트리마다의 관측 데이터 샘플링 비율 / 디폴트 1 / 0 ~ 1
+    'XGB__colsample_bytree': [0, 0.6, 0.8, 1.0],  # 각 트리 구성에 필요한 컬럼(특성) 샘플링 비율 / 디폴트 1 / 0 ~ 1
+    'XGB__colsample_bylevel': [0, 0.6, 0.8, 1.0], #  디폴트 1 / 0 ~ 1
+    'XGB__colsample_bynode': [0, 0.6, 0.8, 1.0], #  디폴트 1 / 0 ~ 1
+    'XGB__reg_alpha' : [0],   # 디폴트 0 / 0 ~ inf / L1 절대값 가중치 규제 / alpha
+    'XGB__reg_lambda' :   [0.01],   # 디폴트 1 / 0 ~ inf / L2 제곱 가중치 규제 / lambda
+    'XGB__objective': ['multi:softmax'],  # 학습 태스크 파라미터
+    'XGB__num_class': [30],
+    'XGB__verbosity' : [1] 
+}
 
 
 pipe = Pipeline([('SS',StandardScaler()),
@@ -205,7 +225,7 @@ y_submit = pd.DataFrame(y_submit)
 submission_csv['NObeyesdad'] = y_submit
 print(y_submit)
 
-submission_csv.to_csv(path + "submisson_02_19_88_xgb.csv", index=False)
+submission_csv.to_csv(path + "submisson_02_19_2222_xgb.csv", index=False)
 
 
 # best_score: 0.895682805794959

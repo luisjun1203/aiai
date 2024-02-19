@@ -17,7 +17,7 @@ from sklearn.model_selection import StratifiedKFold, cross_val_predict, GridSear
 from sklearn.ensemble import RandomForestClassifier
 import time
 from sklearn.ensemble import RandomForestRegressor
-from xgboost import XGBClassifier, XGBRFRegressor
+from xgboost import XGBClassifier, XGBRegressor
 
 import warnings
 warnings.filterwarnings ('ignore')
@@ -54,7 +54,7 @@ parameters = {
 }
 
  #2. 모델 구성
-model = GridSearchCV(XGBRFRegressor(), parameters, cv=kfold, verbose=1,
+model = GridSearchCV(XGBRegressor(), parameters, cv=kfold, verbose=1,
                     # refit = True,     # default
                      n_jobs=-1)
 
@@ -78,5 +78,23 @@ y_pred_best = model.best_estimator_.predict(X_test)
 print("최적튠 r2 : " , r2_score(y_test, y_pred_best))
 
 print("걸린시간 : ", round(end_time - start_time, 2), "초")
+y_submit = model.predict(test_csv)
+
+submission_csv['count'] = y_submit
+
+submission_csv.to_csv(path + "submission_0219_1.csv", index=False)
+def RMSE(y_test, y_predict):
+    np.sqrt(mean_squared_error(y_test, y_predict))
+    return np.sqrt(mean_squared_error(y_test, y_predict))
+rmse = RMSE(y_test, y_predict)
+print("RMSE : ", rmse)
+
+print("음수 : ", submission_csv[submission_csv['count']<0].count())
+
+def RMSLE(y_test, y_predict):
+    return np.sqrt(mean_squared_log_error(y_test, y_predict))
+rmsle = RMSLE(y_test, y_predict)
+
+print("RMSLE : ", rmsle)
 
 
