@@ -14,7 +14,7 @@ from sklearn.utils import all_estimators
 from sklearn.model_selection import train_test_split, KFold, cross_val_score
 from sklearn.model_selection import StratifiedKFold, cross_val_predict, GridSearchCV
 from sklearn.metrics import accuracy_score
-from sklearn.preprocessing import MinMaxScaler, RobustScaler,StandardScaler,MaxAbsScaler
+from sklearn.preprocessing import MinMaxScaler, RobustScaler,StandardScaler,MaxAbsScaler, LabelEncoder
 from sklearn.utils import all_estimators
 import warnings
 import time
@@ -28,6 +28,8 @@ datasets = fetch_covtype()
 X = datasets.data
 y = datasets.target
 
+lae = LabelEncoder()
+y= lae.fit_transform(y)
 
 n_splits= 5
 kfold = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=123)
