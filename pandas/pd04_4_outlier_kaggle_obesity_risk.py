@@ -35,6 +35,44 @@ submission_csv = pd.read_csv(path + "sample_submission.csv")
 
 test_csv.loc[test_csv['CALC']=='Always', 'CALC'] = 'Frequently'
 
+##################### 교통수단 컬럼 살짝 변경 #######################################
+train_csv.loc[train_csv['MTRANS']=='Bike', 'MTRANS'] = 'Public_Transportation'
+train_csv.loc[train_csv['MTRANS']=='Motorbike', 'MTRANS'] = 'Automobile'
+
+test_csv.loc[test_csv['MTRANS']=='Bike', 'MTRANS'] = 'Public_Transportation'
+test_csv.loc[test_csv['MTRANS']=='Motorbike', 'MTRANS'] = 'Automobile'
+
+
+# Bike를 대중교통에 포함시켰다가 Walking으로 바꿈
+# print(np.unique(train_csv['MTRANS'], return_counts=True))
+# print(np.unique(test_csv['MTRANS'], return_counts=True))
+
+
+################# 운동량 컬럼 추가 ###################################################################
+
+train_csv['Exercise_Score'] = train_csv['FAF'] - train_csv['TUE'] + train_csv['FCVC']
+test_csv['Exercise_Score'] = test_csv['FAF'] - test_csv['TUE'] + test_csv['FCVC']
+
+# print(train_csv['Exercise_Score'])
+#################### 식습관 가족력 컬럼 추가 ##############################################
+
+def classify_diet(caec, calc, favc, family_history):
+    if family_history == 'yes':
+        return 'Moderate'
+    elif caec == 'Always' and calc == 'Frequently' and favc == 'yes':
+        return 'Unhealthy'
+    elif caec == 'Frequently' and calc == 'Always' and favc == 'yes':
+        return 'Unhealthy'
+    elif caec == 'Sometimes' and calc == 'Frequently'and favc == 'yes':
+        return 'Moderate'
+    elif caec == 'Sometimes' and calc == 'Always'and favc == 'yes':
+        return 'Moderate'
+    else:
+        return 'Healthy'
+    
+train_csv['Diet_Class'] = train_csv.apply(lambda row: classify_diet(row['CAEC'], row['CALC'], row['FAVC'], row['family_history_with_overweight']), axis=1)  
+test_csv['Diet_Class'] = test_csv.apply(lambda row: classify_diet(row['CAEC'], row['CALC'], row['FAVC'], row['family_history_with_overweight']), axis=1)
+
 
 lae = LabelEncoder()
 lae.fit(train_csv['Gender'])
@@ -74,6 +112,11 @@ lae.fit(train_csv['MTRANS'])
 train_csv['MTRANS'] = lae.transform(train_csv['MTRANS'])
 test_csv['MTRANS'] = lae.transform(test_csv['MTRANS'])
 
+lae.fit(train_csv['Diet_Class'])
+train_csv['Diet_Class'] = lae.transform(train_csv['Diet_Class'])
+test_csv['Diet_Class'] = lae.transform(test_csv['Diet_Class'])
+
+
 # print(train_csv['MTRANS'])
 # # print(train_csv['CALC'])
 # print(train_csv['SCC'])
@@ -91,8 +134,8 @@ test_csv['BMI'] = (test_csv['Weight'] / (test_csv['Height'] * test_csv['Height']
 numeric_cols = train_csv.select_dtypes(include=[np.number])
 
 
-q1 = numeric_cols.quantile(0.25)
-q3 = numeric_cols.quantile(0.75)
+q1 = numeric_cols.quantile(0.05)
+q3 = numeric_cols.quantile(0.95)
 iqr = q3 - q1
 
 lower_limit = q1 - 1.5*iqr
@@ -129,10 +172,10 @@ lgb_model = lgb.LGBMClassifier(n_estimators=300, learning_rate=0.05, max_depth=0
 #  'LG__min_child_weight': 0.001, 'LG__min_child_samples': 20, 'LG__max_depth': 0,
 #  'LG__learning_rate': 0.05, 'LG__colsample_bytree': 0.6, 'LG__boosting_type': 'gbdt'}
 
-cat_model = CatBoostClassifier(iterations=300, learning_rate=0.05, max_depth=0)
+# cat_model = CatBoostClassifier(iterations=300, learning_rate=0.05, max_depth=0)
 
 
-voting_model = VotingClassifier(estimators=[('xgb', xgb_model), ('lgb', lgb_model), ('cat', cat_model)], voting='soft')
+voting_model = VotingClassifier(estimators=[('xgb', xgb_model), ('lgb', lgb_model), ], voting='soft')
 
 
 voting_model.fit(X_train, y_train)

@@ -31,10 +31,10 @@ submission_csv = pd.read_csv(path + "sample_submission.csv")
 test_csv.loc[test_csv['CALC']=='Always', 'CALC'] = 'Sometimes'
 
 ##################### 교통수단 컬럼 살짝 변경 #######################################
-train_csv.loc[train_csv['MTRANS']=='Bike', 'MTRANS'] = 'Walking'
+train_csv.loc[train_csv['MTRANS']=='Bike', 'MTRANS'] = 'Public_Transportation'
 train_csv.loc[train_csv['MTRANS']=='Motorbike', 'MTRANS'] = 'Automobile'
 
-test_csv.loc[test_csv['MTRANS']=='Bike', 'MTRANS'] = 'Walking'
+test_csv.loc[test_csv['MTRANS']=='Bike', 'MTRANS'] = 'Public_Transportation'
 test_csv.loc[test_csv['MTRANS']=='Motorbike', 'MTRANS'] = 'Automobile'
 
 
@@ -135,9 +135,9 @@ y = train_csv['NObeyesdad']
 lae.fit(y)
 y = lae.transform(y)
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.095, shuffle=True, random_state=698423134,stratify=y)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.1, shuffle=True, random_state=698423134,stratify=y)
 
-splits = 3
+splits = 5
 kfold = StratifiedKFold(n_splits=splits, shuffle=True, random_state=2928297790)
 
 parameters = {
@@ -170,7 +170,7 @@ parameters = {
 
 
 
-pipe = Pipeline([('SS', StandardScaler()),
+pipe = Pipeline([('SS',StandardScaler()),
                  ('XGB', XGBClassifier(random_state=3608501786))])
 
 model = HalvingGridSearchCV(pipe, parameters,
@@ -205,10 +205,13 @@ y_submit = pd.DataFrame(y_submit)
 submission_csv['NObeyesdad'] = y_submit
 print(y_submit)
 
-submission_csv.to_csv(path + "submisson_02_18_5_xgb.csv", index=False)
+submission_csv.to_csv(path + "submisson_02_19_6_xgb.csv", index=False)
 
 
-
+# best_score: 0.895682805794959
+# model.score: 0.9325899645210339
+# acc.score: 0.9325899645210339
+# best_acc.score: 0.9325899645210339
 
 #Maxabs X
 #Robust X
