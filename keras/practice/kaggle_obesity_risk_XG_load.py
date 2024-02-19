@@ -19,7 +19,7 @@ from sklearn.experimental import enable_halving_search_cv
 from sklearn.model_selection import  HalvingGridSearchCV,HalvingRandomSearchCV
 from sklearn.pipeline import Pipeline
 from sklearn.model_selection import StratifiedKFold
-
+import pickle
 
 path = "c:\\_data\\kaggle\\obesity_risk\\"
 
@@ -137,55 +137,8 @@ y = lae.transform(y)
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.1, shuffle=True, random_state=698423134,stratify=y)
 
-splits = 5
-kfold = StratifiedKFold(n_splits=splits, shuffle=True, random_state=2928297790)
-
-parameters = {
-    'XGB__n_estimators': [30, 50 ,300],  # 부스팅 라운드의 수
-    'XGB__learning_rate': [0.05, 0.1],  # 학습률
-    'XGB__max_depth': [3, 6, 9],  # 트리의 최대 깊이
-    'XGB__min_child_weight': [1, 5, 10],  # 자식에 필요한 모든 관측치에 대한 가중치 합의 최소
-    'XGB__gamma': [0.5, 1, 1.5, 2],  # 리프 노드를 추가적으로 나눌지 결정하기 위한 최소 손실 감소
-    'XGB__subsample': [0.6, 0.8, 1.0],  # 각 트리마다의 관측 데이터 샘플링 비율
-    'XGB__colsample_bytree': [0.6, 0.8, 1.0],  # 각 트리 구성에 필요한 컬럼(특성) 샘플링 비율
-    'XGB__objective': ['multi:softmax'],  # 학습 태스크 파라미터
-    'XGB__num_class': [20],  # 분류해야 할 전체 클래스 수, 멀티클래스 분류인 경우 설정
-    'XGB__verbosity' : [1] 
-}
-
-# parameters = {
-#     'XGB__n_estimators': [300],  # 부스팅 라운드의 수
-#     'XGB__learning_rate': [0.05],  # 학습률
-#     'XGB__max_depth': [9],  # 트리의 최대 깊이
-#     'XGB__min_child_weight': [5, 10],  # 자식에 필요한 모든 관측치에 대한 가중치 합의 최소
-#     'XGB__gamma': [1, 1.5],  # 리프 노드를 추가적으로 나눌지 결정하기 위한 최소 손실 감소
-#     'XGB__subsample': [0.6, 0.8],  # 각 트리마다의 관측 데이터 샘플링 비율
-#     'XGB__colsample_bytree': [0.6],  # 각 트리 구성에 필요한 컬럼(특성) 샘플링 비율
-#     'XGB__objective': ['multi:softmax'],  # 학습 태스크 파라미터
-#     'XGB__num_class': [16],  # 분류해야 할 전체 클래스 수, 멀티클래스 분류인 경우 설정
-#     'XGB__verbosity' : [1] 
-# }
-
-
-
-
-
-pipe = Pipeline([('SS',StandardScaler()),
-                 ('XGB', XGBClassifier(random_state=3608501786))])
-
-model = HalvingGridSearchCV(pipe, parameters,
-                     cv = kfold,
-                     verbose=1,
-                     refit=True,
-                     n_jobs=-1,   
-                    # n_iter=10 # 디폴트 10
-                    factor=2,
-                    min_resources=40)
-
-
-model.fit(X_train,y_train)
-
-
+path = "c://_data//_save//_pickle_test//kaggle_obesity_risk\\"
+model = pickle.load(open(path + "kaggle_obesity_risk_save.dat", 'rb'))
 
 print("최적의 매개변수:",model.best_estimator_)
 print("최적의 파라미터:",model.best_params_)
@@ -205,57 +158,4 @@ y_submit = pd.DataFrame(y_submit)
 submission_csv['NObeyesdad'] = y_submit
 print(y_submit)
 
-submission_csv.to_csv(path + "submisson_02_19_88_xgb.csv", index=False)
-
-
-# best_score: 0.895682805794959
-# model.score: 0.9325899645210339
-# acc.score: 0.9325899645210339
-# best_acc.score: 0.9325899645210339
-
-#Maxabs X
-#Robust X
-
-
-# submisson_02_16_2_xgb.csv
-# 최적의 파라미터: {'XGB__verbosity': 1, 'XGB__subsample': 0.6, 'XGB__objective': 'multi:softmax',
-#            'XGB__num_class': 16, 'XGB__n_estimators': 200, 'XGB__min_child_weight': 1,
-#            'XGB__max_depth': 9, 'XGB__learning_rate': 0.05, 'XGB__gamma': 0.5, 'XGB__colsample_bytree': 0.6}
-# best_score: 0.9010283087624776
-# model.score: 0.9233230571612074
-# acc.score: 0.9233230571612074
-# best_acc.score: 0.9233230571612074
-
-
-##### random_state :  698423134
-##### random_state :  2928297790
-##### random_state :  3608501786
-
-
-# random_state :  2726041495
-# random_state :  4125478883
-# random_state :  3856098980
-
-
-# 최적의 파라미터: {'XGB__colsample_bytree': 0.8, 'XGB__gamma': 1, 'XGB__learning_rate': 0.1, 'XGB__max_depth': 6, 'XGB__min_child_weight': 1, 'XGB__n_estimators': 300, 'XGB__num_class': 16, 'XGB__objective': 'multi:softmax', 'XGB__subsample': 0.6, 'XGB__verbosity': 1}
-# best_score: 0.9044786705159397
-# model.score: 0.9251766217084136
-# acc.score: 0.9251766217084136
-# best_acc.score: 0.9251766217084136
-
-
-
-# 최적의 파라미터: {'XGB__colsample_bytree': 0.6, 'XGB__gamma': 1, 'XGB__learning_rate': 0.05, 'XGB__max_depth': 9, 'XGB__min_child_weight': 1, 'XGB__n_estimators': 400, 'XGB__num_class': 17, 'XGB__objective': 'multi:softmax', 'XGB__subsample': 0.6, 'XGB__verbosity': 1}
-# best_score: 0.9050869974352823
-# model.score: 0.926461143224149
-# acc.score: 0.926461143224149
-# best_acc.score: 0.926461143224149
-
-
-# 3439645700#########!!!!!!!
-
-
-# best_score: 0.8963765992772732
-# model.score: 0.9330443159922929
-# acc.score: 0.9330443159922929
-# best_acc.score: 0.9330443159922929
+submission_csv.to_csv(path + "submisson_02_19_5555_xgb.csv", index=False)
