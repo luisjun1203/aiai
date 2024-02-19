@@ -24,7 +24,9 @@ from sklearn.model_selection import StratifiedKFold, cross_val_predict, GridSear
 from sklearn.ensemble import RandomForestClassifier
 import time
 from xgboost import XGBClassifier, XGBRFRegressor
-
+from sklearn.experimental import enable_halving_search_cv
+from sklearn.model_selection import  HalvingGridSearchCV,HalvingRandomSearchCV
+from sklearn.pipeline import Pipeline
 warnings.filterwarnings ('ignore')
 
 
@@ -103,26 +105,31 @@ test_csv = mms.transform(test_csv)
 
 
 parameters = {
-    'n_estimators': [10, 30, 50, 100, 200, 300, 500, 1000],  # 부스팅 라운드의 수/ 디폴트 100/ 1 ~ inf/ 정수
-    'learning_rate': [0.001, 0.01, 0.05, 0.1, 0.5, 1],  # 학습률/ 디폴트 0.3/0~1/
-    'max_depth': [3],  # 트리의 최대 깊이/ 디폴트 6/ 0 ~ inf/ 정수
-    'min_child_weight': [5],  # 자식에 필요한 모든 관측치에 대한 가중치 합의 최소/ 디폴트 1 / 0~inf
-    'gamma': [1],  # 리프 노드를 추가적으로 나눌지 결정하기 위한 최소 손실 감소/ 디폴트 0/ 0~ inf
-    'subsample': [0.6],  # 각 트리마다의 관측 데이터 샘플링 비율/ 디폴트 1 / 0~1
-    'colsample_bytree': [0.6],  # 각 트리 구성에 필요한 컬럼(특성) 샘플링 비율/ 디폴트 1 / 0~1
-    'colsample_bylevel': [0.6], #  디폴트 1 / 0~1
-    'colsample_bynode': [0.6], #  디폴트 1 / 0~1
-    'reg_alpha' : [0],   # 디폴트 0 / 0 ~ inf / L1 절대값 가중치 규제(제한) / alpha
-    'reg_lambda' :   [1],   # 디폴트 1 / 0 ~ inf / L2 제곱 가중치 규제(제한) / lambda
-    'objective': ['multi:softmax'],  # 학습 태스크 파라미터
-    'num_class': [15],
-    'verbosity' : [1] 
+    'XGB__n_estimators': [100, 200 ,300],  # 부스팅 라운드의 수
+    'XGB__learning_rate': [0.05, 0.1],  # 학습률
+    'XGB__max_depth': [3, 6, 9],  # 트리의 최대 깊이
+    'XGB__min_child_weight': [1, 5, 10],  # 자식에 필요한 모든 관측치에 대한 가중치 합의 최소
+    'XGB__gamma': [0.5, 1, 1.5, 2],  # 리프 노드를 추가적으로 나눌지 결정하기 위한 최소 손실 감소
+    'XGB__subsample': [0.6, 0.8, 1.0],  # 각 트리마다의 관측 데이터 샘플링 비율
+    'XGB__colsample_bytree': [0.6, 0.8, 1.0],  # 각 트리 구성에 필요한 컬럼(특성) 샘플링 비율
+    'XGB__objective': ['multi:softmax'],  # 학습 태스크 파라미터
+    'XGB__num_class': [20],  # 분류해야 할 전체 클래스 수, 멀티클래스 분류인 경우 설정
+    'XGB__verbosity' : [1] 
 }
 
  #2. 모델 구성
-model = GridSearchCV(XGBClassifier(), parameters, cv=kfold, verbose=1,
-                    # refit = True,     # default
-                     n_jobs=-1)
+pipe = Pipeline([('SS',StandardScaler()),
+                 ('XGB', XGBClassifier(random_state=3608501786))])
+
+model = HalvingGridSearchCV(pipe, parameters,
+                     cv = kfold,
+                     verbose=1,
+                     refit=True,
+                     n_jobs=-1,   
+                    # n_iter=10 # 디폴트 10
+                    factor=2,
+                    min_resources=40,
+                    random_state=3)
 
 
 
@@ -155,3 +162,5 @@ print("걸린시간 : ", round(end_time - start_time, 2), "초")
 # accuracy_score :  0.8026306680512288
 # 최적튠 ACC :  0.8026306680512288
 # 걸린시간 :  222.97 초
+
+

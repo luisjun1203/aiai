@@ -84,7 +84,12 @@ print("걸린시간 : ", round(end_time - start_time, 2), "초")
 
 
 
-
+# 최적의 파라미터 :  {'colsample_bylevel': 0.6, 'colsample_bynode': 0.6, 'colsample_bytree': 0.6, 'gamma': 1, 'learning_rate': 1, 'max_depth': 3, 'min_child_weight': 5, 'n_estimators': 1000, 'num_class': 30, 'objective': 'multi:softmax', 'reg_alpha': 0, 'reg_lambda': 1, 'subsample': 0.6, 'verbosity': 1}
+# best_score :  0.8789466638618499
+# model.score :  0.8838938418643076
+# accuracy_score :  0.8838938418643076
+# 최적튠 ACC :  0.8838938418643076
+# 걸린시간 :  2476.08 초
 
 
 

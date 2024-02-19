@@ -14,7 +14,7 @@ from sklearn.preprocessing import MinMaxScaler, RobustScaler,StandardScaler,MaxA
 from sklearn.utils import all_estimators
 from sklearn.ensemble import RandomForestClassifier
 import warnings
-from xgboost import XGBClassifier, XGBRFRegressor
+from xgboost import XGBClassifier, XGBRFRegressor, XGBRegressor
 
 import numpy as np
 import time
@@ -35,9 +35,9 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=3, test_s
 parameters = {
     'n_estimators': [30, 50, 100, 200, 300],  # 부스팅 라운드의 수/ 디폴트 100/ 1 ~ inf/ 정수
     'learning_rate': [0.001, 0.01, 0.05, 0.1],  # 학습률/ 디폴트 0.3/0~1/
-    'max_depth': [0, 3, 6, 9],  # 트리의 최대 깊이/ 디폴트 6/ 0 ~ inf/ 정수
-    'min_child_weight':  [0.001, 0.1, 0.5, 1, 5],  # 자식에 필요한 모든 관측치에 대한 가중치 합의 최소/ 디폴트 1 / 0~inf
-    'gamma': [0, 0.5, 1, 1.5, 2],  # 리프 노드를 추가적으로 나눌지 결정하기 위한 최소 손실 감소/ 디폴트 0/ 0~ inf
+    'max_depth': [3, 6],  # 트리의 최대 깊이/ 디폴트 6/ 0 ~ inf/ 정수
+    'min_child_weight':  [5],  # 자식에 필요한 모든 관측치에 대한 가중치 합의 최소/ 디폴트 1 / 0~inf
+    'gamma': [1],  # 리프 노드를 추가적으로 나눌지 결정하기 위한 최소 손실 감소/ 디폴트 0/ 0~ inf
     'subsample': [0.6],  # 각 트리마다의 관측 데이터 샘플링 비율/ 디폴트 1 / 0~1
     'colsample_bytree': [0.6],  # 각 트리 구성에 필요한 컬럼(특성) 샘플링 비율/ 디폴트 1 / 0~1
     'colsample_bylevel': [0.6], #  디폴트 1 / 0~1
@@ -49,7 +49,7 @@ parameters = {
     'verbosity' : [1] 
 }
  #2. 모델 구성
-model = GridSearchCV(XGBRFRegressor(), param_grid=parameters, cv=kfold, verbose=1,
+model = GridSearchCV(XGBRegressor(), param_grid=parameters, cv=kfold, verbose=1,
                     # refit = True,     # default
                      n_jobs=-1)
 
@@ -79,9 +79,9 @@ print("걸린시간 : ", round(end_time - start_time, 2), "초")
 
 
 
-# 최적의 파라미터 :  {'colsample_bylevel': 0.6, 'colsample_bynode': 0.6, 'colsample_bytree': 0.6, 'gamma': 1, 'learning_rate': 1, 'max_depth': 3, 'min_child_weight': 5, 'n_estimators': 30, 'objective': 'reg:squarederror', 'reg_alpha': 0, 'reg_lambda': 1, 'subsample': 0.6, 'verbosity': 1}
-# best_score :  0.38011647430322426
-# model.score :  0.29599796808769485
-# r2_score :  0.29599796808769485
-# 최적튠 ACC :  0.29599796808769485
-# 걸린시간 :  2.06 초
+# 최적의 파라미터 :  {'colsample_bylevel': 0.6, 'colsample_bynode': 0.6, 'colsample_bytree': 0.6, 'gamma': 1, 'learning_rate': 0.05, 'max_depth': 3, 'min_child_weight': 5, 'n_estimators': 200, 'objective': 'reg:squarederror', 'reg_alpha': 0, 'reg_lambda': 1, 'subsample': 0.6, 'verbosity': 1}
+# best_score :  0.4830826251999419
+# model.score :  0.36153810590096747
+# r2_score :  0.36153810590096747
+# 최적튠 ACC :  0.36153810590096747
+# 걸린시간 :  2.09 초
