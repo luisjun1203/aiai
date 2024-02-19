@@ -156,11 +156,11 @@ lgb_model = lgb.LGBMClassifier(n_estimators=300, learning_rate=0.05, max_depth=9
 # cat_model = CatBoostClassifier(iterations=300, learning_rate=0.05, max_depth=0)
 
 
-voting_model = VotingClassifier(estimators=[('xgb', xgb_model),
+voting_model = HalvingGridSearchCV(VotingClassifier(estimators=[('xgb', xgb_model),
                                             ('lgb', lgb_model)],
                                             # ('cat', cat_model)],
                                             # EarlyStopping= 100,
-                                voting='soft')
+                                voting='soft'))
 
 
 voting_model.fit(X_train, y_train,
