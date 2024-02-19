@@ -88,6 +88,23 @@ train_csv['BMI'] = (train_csv['Weight'] / (train_csv['Height'] * train_csv['Heig
 test_csv['BMI'] = (test_csv['Weight'] / (test_csv['Height'] * test_csv['Height']))
 
 
+numeric_cols = train_csv.select_dtypes(include=[np.number])
+
+
+q1 = numeric_cols.quantile(0.25)
+q3 = numeric_cols.quantile(0.75)
+iqr = q3 - q1
+
+lower_limit = q1 - 1.5*iqr
+upper_limit = q3 + 1.5*iqr
+
+
+for label in numeric_cols:
+    lower = lower_limit[label]
+    upper = upper_limit[label]
+    
+    train_csv[label] = np.where(train_csv[label] < lower, lower, train_csv[label])
+    train_csv[label] = np.where(train_csv[label] > upper, upper, train_csv[label])
 
 X = train_csv.drop(['NObeyesdad'], axis=1)
 y = train_csv['NObeyesdad']
@@ -133,9 +150,9 @@ submission_csv['NObeyesdad'] = y_submit
 print(y_submit)
 print("Voting Ensemble Accuracy:", accuracy)
 
-submission_csv.to_csv(path + "submisson_02_16_88_voting.csv", index=False)
+submission_csv.to_csv(path + "submisson_02_19_99_voting.csv", index=False)
 # return acc
-print(voting_model.feature_importances_)
+# print(voting_model.feature_importances_)
 # import random
 # for i in range(100000):
 #     a = random.randrange(1,4200000000)

@@ -228,7 +228,7 @@ y = lae.fit_transform(y)
 
 
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.4, shuffle=True, random_state=3)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.15, shuffle=True, random_state=3)
 
 
 splits = 3
@@ -251,8 +251,8 @@ kfold = StratifiedKFold(n_splits=splits, shuffle=True, random_state=3)
 
 start = time.time()
 parameters = {
-    'XGB__n_estimators': [100],  # 부스팅 라운드의 수
-    'XGB__learning_rate': [0.1],  # 학습률
+    'XGB__n_estimators': [300],  # 부스팅 라운드의 수
+    'XGB__learning_rate': [0.05],  # 학습률
     'XGB__max_depth': [9],  # 트리의 최대 깊이
     'XGB__min_child_weight': [1],  # 자식에 필요한 모든 관측치에 대한 가중치 합의 최소
     'XGB__gamma': [1],  # 리프 노드를 추가적으로 나눌지 결정하기 위한 최소 손실 감소
@@ -284,3 +284,22 @@ print("최적의 매개변수:",model.best_estimator_)
 print("최적의 파라미터:",model.best_params_)
 print("best_score:",model.best_score_) 
 print("model.score:", model.score(X_test,y_test)) 
+
+
+y_predict = model.predict(X_test) 
+
+y_submit = model.predict(test_csv)  
+
+y_submit = pd.DataFrame(y_submit)
+submission_csv['대출등급'] = y_submit
+# print(y_submit)
+
+fs = f1_score(y_test, y_predict, average='macro')
+print("f1_score : ", fs)
+
+submission_csv.to_csv(path + "submisson_02_18_3_.csv", index=False)
+
+
+
+# model.score: 0.8452059536171685
+# f1_score :  0.7570197423119941

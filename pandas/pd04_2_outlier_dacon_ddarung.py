@@ -59,6 +59,26 @@ print(train_csv)
 test_csv = test_csv.fillna(test_csv.mean())     # 널값에 평균을 넣은거
 print(test_csv.info())
 
+numeric_cols = train_csv.select_dtypes(include=[np.number])
+
+
+q1 = numeric_cols.quantile(0.25)
+q3 = numeric_cols.quantile(0.75)
+iqr = q3 - q1
+
+lower_limit = q1 - 1.5*iqr
+upper_limit = q3 + 1.5*iqr
+
+
+for label in numeric_cols:
+    lower = lower_limit[label]
+    upper = upper_limit[label]
+    
+    train_csv[label] = np.where(train_csv[label] < lower, lower, train_csv[label])
+    train_csv[label] = np.where(train_csv[label] > upper, upper, train_csv[label])
+
+
+
 
 ######### x 와 y 를 분리 #########
 x = train_csv.drop(['count'], axis = 1)     # count를 삭제하는데 count가 열이면 액시스 1, 행이면 0
@@ -178,3 +198,9 @@ print('걸린신간 : ', round(end_time - start_time, 2), '초')
 # model_score :  0.7683070702250216
 # 걸린신간 :  11.23 초
 # PS C:\Study> 
+
+
+
+# best_score :  0.7435469255574378
+# model_score :  0.7679638614616796
+# 걸린신간 :  13.32 초

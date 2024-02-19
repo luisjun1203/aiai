@@ -57,6 +57,23 @@ train_csv = train_csv.dropna()      # 결측치가 한 행에 하나라도 있�
 test_csv = test_csv.fillna(0)                       # 널값에 0 을 넣은거
 # print(test_csv.info())
 
+numeric_cols = train_csv.select_dtypes(include=[np.number])
+
+
+q1 = numeric_cols.quantile(0.25)
+q3 = numeric_cols.quantile(0.75)
+iqr = q3 - q1
+
+lower_limit = q1 - 1.5*iqr
+upper_limit = q3 + 1.5*iqr
+
+
+for label in numeric_cols:
+    lower = lower_limit[label]
+    upper = upper_limit[label]
+    
+    train_csv[label] = np.where(train_csv[label] < lower, lower, train_csv[label])
+    train_csv[label] = np.where(train_csv[label] > upper, upper, train_csv[label])
 
 ######### x 와 y 를 분리 #########
 x = train_csv.drop(['count','casual','registered'], axis = 1)     # count를 삭제하는데 count가 열이면 액시스 1, 행이면 0
@@ -147,3 +164,7 @@ print('걸린신간 : ', round(end_time - start_time, 2), '초')
 
 # import pandas as pd
 # print(pd.DataFrame(model.cv_results_).T)
+
+# best_score :  0.29659485969695504
+# model_score :  0.362086591396537
+# 걸린신간 :  14.24 초
