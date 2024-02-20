@@ -28,7 +28,7 @@ train_csv = pd.read_csv(path + "train.csv", index_col=0)
 test_csv = pd.read_csv(path + "test.csv", index_col=0)
 submission_csv = pd.read_csv(path + "sample_submission.csv")
 
-test_csv.loc[test_csv['CALC']=='Always', 'CALC'] = 'Sometimes'
+test_csv.loc[test_csv['CALC']=='Always', 'CALC'] = 'Frequently'
 
 ##################### 교통수단 컬럼 살짝 변경 #######################################
 train_csv.loc[train_csv['MTRANS']=='Bike', 'MTRANS'] = 'Public_Transportation'
@@ -137,20 +137,23 @@ y = lae.transform(y)
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.1, shuffle=True, random_state=698423134,stratify=y)
 
-splits = 5
+splits = 3
 kfold = StratifiedKFold(n_splits=splits, shuffle=True, random_state=2928297790)
 
 parameters = {
-    'XGB__n_estimators': [30, 50 ,300],  # 부스팅 라운드의 수
+    'XGB__n_estimators': [300],  # 부스팅 라운드의 수
     'XGB__learning_rate': [0.05, 0.1],  # 학습률
-    'XGB__max_depth': [3, 6, 9],  # 트리의 최대 깊이
-    'XGB__min_child_weight': [1, 5, 10],  # 자식에 필요한 모든 관측치에 대한 가중치 합의 최소
-    'XGB__gamma': [0.5, 1, 1.5, 2],  # 리프 노드를 추가적으로 나눌지 결정하기 위한 최소 손실 감소
-    'XGB__subsample': [0.6, 0.8, 1.0],  # 각 트리마다의 관측 데이터 샘플링 비율
-    'XGB__colsample_bytree': [0.6, 0.8, 1.0],  # 각 트리 구성에 필요한 컬럼(특성) 샘플링 비율
+    'XGB__max_depth': [5, 6, 7],  # 트리의 최대 깊이
+    'XGB__min_child_weight': [1],  # 자식에 필요한 모든 관측치에 대한 가중치 합의 최소
+    'XGB__gamma': [0.5, 1],  # 리프 노드를 추가적으로 나눌지 결정하기 위한 최소 손실 감소
+    'XGB__subsample': [0.6, 0.8],  # 각 트리마다의 관측 데이터 샘플링 비율
+    'XGB__colsample_bytree': [0.6, 0.8],  # 각 트리 구성에 필요한 컬럼(특성) 샘플링 비율
     'XGB__objective': ['multi:softmax'],  # 학습 태스크 파라미터
     'XGB__num_class': [20],  # 분류해야 할 전체 클래스 수, 멀티클래스 분류인 경우 설정
-    'XGB__verbosity' : [1] 
+    'XGB__verbosity' : [1],
+    'XGB__reg_alpha' : [0, 0.1, 0.5, 0.7, 1],   # 디폴트 0 / 0 ~ inf / L1 절대값 가중치 규제(제한) / alpha
+    'XGB__reg_lambda' : [0, 0.1, 0.5, 0.7, 1],
+     
 }
 
 # parameters = {
@@ -171,19 +174,24 @@ parameters = {
 
 
 pipe = Pipeline([('SS',StandardScaler()),
-                 ('XGB', XGBClassifier(random_state=3608501786))])
+                 ('XGB', XGBClassifier(random_state=3608501786,
+                                    #    early_stopping_rounds = 50
+                                       ))])
 
 model = HalvingGridSearchCV(pipe, parameters,
                      cv = kfold,
                      verbose=1,
                      refit=True,
-                     n_jobs=-1,   
+                     n_jobs=-2,   
                     # n_iter=10 # 디폴트 10
                     factor=2,
-                    min_resources=40)
+                    min_resources=40,
+                    )
 
 
-model.fit(X_train,y_train)
+model.fit(X_train,y_train, 
+        #   eval_test = [(X_test, y_test)]
+          )
 
 
 
