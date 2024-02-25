@@ -153,7 +153,7 @@ X = train_csv.drop(['NObeyesdad'], axis=1)
 y = train_csv['NObeyesdad']
 
 
-# lae.fit(y)
+# lae.fit(y)    
 # y = lae.transform(y)
 # def auto(a):
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.1, shuffle=True, random_state=3439645700, stratify=y)
