@@ -215,7 +215,7 @@ model.fit([X_train_dnn, X_train_dnn2], y_train, epochs=20000, batch_size=502, va
 
 
 
-# model= load_model("c:\\_data\\_save\\dacon_loan_2\\dacon_loan_1_auto_rs_3721905478_bs_502_f1_0.9334.h5")
+model= load_model("c:\\_data\\_save\\dacon_loan_2\\dacon_loan_1_auto_rs_3721905478_bs_502_f1_0.9334.h5")
 
 
 results = model.evaluate([X_test_dnn, X_test_dnn2], y_test)

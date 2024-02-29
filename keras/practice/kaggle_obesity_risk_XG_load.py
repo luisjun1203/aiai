@@ -28,7 +28,7 @@ train_csv = pd.read_csv(path + "train.csv", index_col=0)
 test_csv = pd.read_csv(path + "test.csv", index_col=0)
 submission_csv = pd.read_csv(path + "sample_submission.csv")
 
-test_csv.loc[test_csv['CALC']=='Always', 'CALC'] = 'Sometimes'
+test_csv.loc[test_csv['CALC']=='Always', 'CALC'] = 'Frequently'
 
 ##################### 교통수단 컬럼 살짝 변경 #######################################
 train_csv.loc[train_csv['MTRANS']=='Bike', 'MTRANS'] = 'Public_Transportation'
@@ -137,8 +137,8 @@ y = lae.transform(y)
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.1, shuffle=True, random_state=698423134,stratify=y)
 
-path = "c://_data//_save//_pickle_test//kaggle_obesity_risk\\"
-model = pickle.load(open(path + "kaggle_obesity_risk_save.dat", 'rb'))
+path2 = "c://_data//_save//_pickle_test//kaggle_obesity_risk//"
+model = pickle.load(open(path2 + "kaggle_obesity_risk_save_2.dat", 'rb'))
 
 print("최적의 매개변수:",model.best_estimator_)
 print("최적의 파라미터:",model.best_params_)
@@ -158,4 +158,7 @@ y_submit = pd.DataFrame(y_submit)
 submission_csv['NObeyesdad'] = y_submit
 print(y_submit)
 
-submission_csv.to_csv(path + "submisson_02_19_5555_xgb.csv", index=False)
+
+
+
+submission_csv.to_csv(path + "submisson_02_29_33_xgb.csv", index=False)

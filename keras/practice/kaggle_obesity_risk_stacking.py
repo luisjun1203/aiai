@@ -154,12 +154,12 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.13, shuffl
 # kfold = StratifiedKFold(n_splits=splits, shuffle=True, random_state=4125478883)
 base_models = [
     ('xgb', XGBClassifier(n_estimators=300, learning_rate=0.05, max_depth=9, gamma=0.5, colsample_bytree=0.6)),
-    ('lgb', LGBMClassifier(colsample_bytree=0.4097712934687264,
-               lambda_l1=0.009667446568254372, lambda_l2=0.040186414373018,
-               learning_rate=0.03096221154683276, max_depth=10,
+    ('lgb', LGBMClassifier(colsample_bytree=0.6,
+               lambda_l1=0.01, lambda_l2=0.04,
+               learning_rate=0.03, max_depth=9,
                metric='multi_logloss', min_child_samples=26, n_estimators=500,
                num_class=7, objective='multiclass', random_state=42,
-               subsample=0.9535797422450176, verbosity=-1)),
+               subsample=0.95,verbosity=-1)),
     ('cat', CatBoostClassifier(iterations=300, learning_rate=0.05, depth=10))
 ]
 
@@ -183,6 +183,6 @@ print(y_submit)
 print("Stacking Model Accuracy:", stacking_accuracy) 
 
 
-submission_csv.to_csv(path + "submisson_02_19_1_stacking.csv", index=False)
+submission_csv.to_csv(path + "submisson_02_29_4_stacking.csv", index=False)
 
 
