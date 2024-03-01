@@ -119,8 +119,8 @@ test_csv['Diet_Class'] = lae.transform(test_csv['Diet_Class'])
 # print(train_csv['SMOKE'])
 
 # BMI 컬럼추가
-train_csv['BMI'] = 1.3 * (train_csv['Weight'] / (train_csv['Height']*2.5))
-test_csv['BMI'] = 1.3 * (test_csv['Weight'] / (test_csv['Height']*2.5))
+train_csv['BMI'] = 1.3 * (train_csv['Weight'] / (train_csv['Height']**2.5))
+test_csv['BMI'] = 1.3 * (test_csv['Weight'] / (test_csv['Height']**2.5))
 
 
 # print(train_csv.info())
@@ -135,24 +135,24 @@ y = train_csv['NObeyesdad']
 lae.fit(y)
 y = lae.transform(y)
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.1, shuffle=True, random_state=698423134,stratify=y)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.105, shuffle=True, random_state=698423134,stratify=y)
 
 splits = 3
 kfold = StratifiedKFold(n_splits=splits, shuffle=True, random_state=2928297790)
 
 parameters = {
     'XGB__n_estimators': [300],  # 부스팅 라운드의 수
-    'XGB__learning_rate': [0.05, 0.1],  # 학습률
-    'XGB__max_depth': [5, 6, 7],  # 트리의 최대 깊이
+    'XGB__learning_rate': [0.05],  # 학습률
+    'XGB__max_depth': [6, 9],  # 트리의 최대 깊이
     'XGB__min_child_weight': [1],  # 자식에 필요한 모든 관측치에 대한 가중치 합의 최소
-    'XGB__gamma': [0.5, 1],  # 리프 노드를 추가적으로 나눌지 결정하기 위한 최소 손실 감소
-    'XGB__subsample': [0.6, 0.8],  # 각 트리마다의 관측 데이터 샘플링 비율
-    'XGB__colsample_bytree': [0.6, 0.8],  # 각 트리 구성에 필요한 컬럼(특성) 샘플링 비율
+    'XGB__gamma': [0.3, 0.4, 0.5, 0.6],  # 리프 노드를 추가적으로 나눌지 결정하기 위한 최소 손실 감소
+    'XGB__subsample': [0.6, 0.8, 1],  # 각 트리마다의 관측 데이터 샘플링 비율
+    'XGB__colsample_bytree': [0.6, 0.8, 1],  # 각 트리 구성에 필요한 컬럼(특성) 샘플링 비율
     'XGB__objective': ['multi:softmax'],  # 학습 태스크 파라미터
     'XGB__num_class': [20],  # 분류해야 할 전체 클래스 수, 멀티클래스 분류인 경우 설정
     'XGB__verbosity' : [1],
-    'XGB__reg_alpha' : [0, 0.1, 0.5, 0.7, 1],   # 디폴트 0 / 0 ~ inf / L1 절대값 가중치 규제(제한) / alpha
-    'XGB__reg_lambda' : [0, 0.1, 0.5, 0.7, 1],
+    'XGB__reg_alpha' : [0.7],   # 디폴트 0 / 0 ~ inf / L1 절대값 가중치 규제(제한) / alpha
+    'XGB__reg_lambda' : [0],
      
 }
 
@@ -173,7 +173,7 @@ parameters = {
 
 
 
-pipe = Pipeline([('SS',StandardScaler()),
+pipe = Pipeline([('MM',MinMaxScaler()),
                  ('XGB', XGBClassifier(random_state=3608501786,
                                     #    early_stopping_rounds = 50
                                        ))])
@@ -182,7 +182,7 @@ model = HalvingGridSearchCV(pipe, parameters,
                      cv = kfold,
                      verbose=1,
                      refit=True,
-                     n_jobs=-2,   
+                     n_jobs=-1,   
                     # n_iter=10 # 디폴트 10
                     factor=2,
                     min_resources=40,
@@ -213,12 +213,12 @@ y_submit = pd.DataFrame(y_submit)
 submission_csv['NObeyesdad'] = y_submit
 print(y_submit)
 
-submission_csv.to_csv(path + "submisson_02_19_88_xgb.csv", index=False)
+submission_csv.to_csv(path + "submisson_02_29_555_xgb.csv", index=False)
 
 
 import pickle
-path = "c://_data//_save//_pickle_test//kaggle_obesity_risk\\"
-pickle.dump(model, open(path + "kaggle_obesity_risk_save.dat", 'wb'))
+path = "c://_data//_save//_pickle_test//kaggle_obesity_risk//"
+pickle.dump(model, open(path + "kaggle_obesity_risk_save_2.dat", 'wb'))
 
 
 

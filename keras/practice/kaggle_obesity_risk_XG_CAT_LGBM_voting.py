@@ -142,7 +142,7 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.105, shuff
 # splits = 3
 # kfold = StratifiedKFold(n_splits=splits, shuffle=True, random_state=4125478883)
 
-xgb_model = xgb.XGBClassifier(n_estimators=300, learning_rate = 0.05, max_depth = 9, gamma = 0.5, colsample_bytree = 0.6, verbosity = 1 )
+xgb_model = xgb.XGBClassifier(n_estimators=300, learning_rate = 0.05, max_depth = 9, gamma = 1, colsample_bytree = 0.6, verbosity = 1)
 # {'XGB__verbosity': 1, 'XGB__subsample': 0.6, 'XGB__objective': 'multi:softmax',
 # #            'XGB__num_class': 16, 'XGB__n_estimators': 200, 'XGB__min_child_weight': 1,
 # #            'XGB__max_depth': 9, 'XGB__learning_rate': 0.05, 'XGB__gamma': 0.5, 'XGB__colsample_bytree': 0.6}
@@ -156,12 +156,16 @@ lgb_model = lgb.LGBMClassifier(n_estimators=300, learning_rate=0.05, max_depth=9
 # cat_model = CatBoostClassifier(iterations=300, learning_rate=0.05, max_depth=0)
 
 
-voting_model = HalvingGridSearchCV(VotingClassifier(estimators=[('xgb', xgb_model),
+# voting_model = HalvingGridSearchCV(VotingClassifier(estimators=[('xgb', xgb_model),
+#                                             ('lgb', lgb_model)],
+#                                             # ('cat', cat_model)],
+#                                             # EarlyStopping= 100,
+#                                 voting='soft'))
+voting_model = VotingClassifier(estimators=[('xgb', xgb_model),
                                             ('lgb', lgb_model)],
                                             # ('cat', cat_model)],
                                             # EarlyStopping= 100,
-                                voting='soft'))
-
+                                voting='soft')
 
 voting_model.fit(X_train, y_train,
                 #  eval_set = [(X_test, y_test)]
@@ -180,7 +184,7 @@ submission_csv['NObeyesdad'] = y_submit
 print(y_submit)
 print("Voting Ensemble Accuracy:", accuracy)
 
-submission_csv.to_csv(path + "submisson_02_19_3333_voting.csv", index=False)
+submission_csv.to_csv(path + "submisson_02_29_6_voting.csv", index=False)
 # return acc
 # print(voting_model.feature_importances_)
 # import random
