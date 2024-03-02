@@ -112,7 +112,7 @@ model.fit(X_train, y_train,
 # error: 이진 분류 오류율 (1 - accuracy)
 # logloss: Negative log-likelihood / 이진 분류의 로그 손실
 # auc: Area under the curve
-# aucpr: Area under the PR curve
+# aucpr: Area under the PR curve    
 # binary:logistic: 로지스틱 회귀의 로그 손실
 
 ##################### 다중 분류(Multi-Class Classification)################################
