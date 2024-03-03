@@ -16,7 +16,7 @@ from joblib import dump, load
 from math import sqrt
 from PIL import Image
 from tqdm.auto import tqdm
-import pickle
+import pickle     
 
 
 # 기본 파일 위치
