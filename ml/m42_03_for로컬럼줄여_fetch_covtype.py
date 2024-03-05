@@ -118,7 +118,61 @@ print(f"가장 좋았던 정확도: {best_accuracy:.4f}, 해당할 때의 특성
 # 최적튠 ACC :  0.8838938418643076
 # 걸린시간 :  2476.08 초
 
-
+# 특성: 54, Accuracy: 0.9592
+# 특성: 53, Accuracy: 0.9583
+# 특성: 52, Accuracy: 0.9581
+# 특성: 51, Accuracy: 0.9594
+# 특성: 50, Accuracy: 0.9600
+# 특성: 49, Accuracy: 0.9588
+# 특성: 48, Accuracy: 0.9567
+# 특성: 47, Accuracy: 0.9570
+# 특성: 46, Accuracy: 0.9537
+# 특성: 45, Accuracy: 0.9546
+# 특성: 44, Accuracy: 0.9551
+# 특성: 43, Accuracy: 0.9490
+# 특성: 42, Accuracy: 0.9501
+# 특성: 41, Accuracy: 0.9461
+# 특성: 40, Accuracy: 0.9475
+# 특성: 39, Accuracy: 0.9414
+# 특성: 38, Accuracy: 0.9425
+# 특성: 37, Accuracy: 0.9445
+# 특성: 36, Accuracy: 0.9240
+# 특성: 35, Accuracy: 0.9256
+# 특성: 34, Accuracy: 0.8937
+# 특성: 33, Accuracy: 0.8851
+# 특성: 32, Accuracy: 0.8864
+# 특성: 31, Accuracy: 0.8877
+# 특성: 30, Accuracy: 0.8911
+# 특성: 29, Accuracy: 0.8927
+# 특성: 28, Accuracy: 0.8819
+# 특성: 27, Accuracy: 0.8842
+# 특성: 26, Accuracy: 0.8838
+# 특성: 25, Accuracy: 0.8812
+# 특성: 24, Accuracy: 0.8660
+# 특성: 23, Accuracy: 0.8659
+# 특성: 22, Accuracy: 0.8659
+# 특성: 21, Accuracy: 0.8660
+# 특성: 20, Accuracy: 0.8671
+# 특성: 19, Accuracy: 0.8419
+# 특성: 18, Accuracy: 0.7727
+# 특성: 17, Accuracy: 0.7732
+# 특성: 16, Accuracy: 0.7722
+# 특성: 15, Accuracy: 0.7145
+# 특성: 14, Accuracy: 0.7138
+# 특성: 13, Accuracy: 0.7108
+# 특성: 12, Accuracy: 0.7104
+# 특성: 11, Accuracy: 0.7027
+# 특성: 10, Accuracy: 0.7013
+# 특성: 9, Accuracy: 0.6966
+# 특성: 8, Accuracy: 0.6928
+# 특성: 7, Accuracy: 0.6864
+# 특성: 6, Accuracy: 0.6866
+# 특성: 5, Accuracy: 0.6832
+# 특성: 4, Accuracy: 0.6817
+# 특성: 3, Accuracy: 0.6792
+# 특성: 2, Accuracy: 0.5197
+# 특성: 1, Accuracy: 0.5197
+# 가장 좋았던 정확도: 0.9600, 해당할 때의 특성 수: 50
 
 
 
