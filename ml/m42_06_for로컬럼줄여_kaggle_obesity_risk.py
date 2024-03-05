@@ -195,3 +195,25 @@ for n_features, acc in importance:
 best_feature_count, best_accuracy = max(importance, key=lambda x: x[1]) # max함수가 importance 리스트 X에 대해 X[1]값인 acc를 반환
 
 print(f"가장 좋았던 정확도: {best_accuracy:.4f}, 해당할 때의 특성 수: {best_feature_count}") 
+
+
+# 특성: 19, Accuracy: 0.9092
+# 특성: 18, Accuracy: 0.9094
+# 특성: 17, Accuracy: 0.9087
+# 특성: 16, Accuracy: 0.9075
+# 특성: 15, Accuracy: 0.9078
+# 특성: 14, Accuracy: 0.9080
+# 특성: 13, Accuracy: 0.9008
+# 특성: 12, Accuracy: 0.8993
+# 특성: 11, Accuracy: 0.8943
+# 특성: 10, Accuracy: 0.8938
+# 특성: 9, Accuracy: 0.8909
+# 특성: 8, Accuracy: 0.8890
+# 특성: 7, Accuracy: 0.8895
+# 특성: 6, Accuracy: 0.8817
+# 특성: 5, Accuracy: 0.8752
+# 특성: 4, Accuracy: 0.8764
+# 특성: 3, Accuracy: 0.8350
+# 특성: 2, Accuracy: 0.4391
+# 특성: 1, Accuracy: 0.3485
+# 가장 좋았던 정확도: 0.9094, 해당할 때의 특성 수: 18

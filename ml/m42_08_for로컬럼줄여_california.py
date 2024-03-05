@@ -89,3 +89,13 @@ for n_features, acc in importance:
 best_feature_count, best_r2 = max(importance, key=lambda x: x[1]) # max함수가 importance 리스트 X에 대해 X[1]값인 acc를 반환
 
 print(f"가장 좋았던 r2: {best_r2:.4f}, 해당할 때의 특성 수: {best_feature_count}")
+
+# 특성: 8, R2_score: 0.4621
+# 특성: 7, R2_score: 0.4621
+# 특성: 6, R2_score: 0.4621
+# 특성: 5, R2_score: 0.4621
+# 특성: 4, R2_score: 0.4621
+# 특성: 3, R2_score: 0.4621
+# 특성: 2, R2_score: 0.4621
+# 특성: 1, R2_score: 0.4621
+# 가장 좋았던 r2: 0.8316, 해당할 때의 특성 수: 6

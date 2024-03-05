@@ -101,4 +101,16 @@ best_feature_count, best_accuracy = max(importance, key=lambda x: x[1]) # max함
 
 print(f"가장 좋았던 정확도: {best_accuracy:.4f}, 해당할 때의 특성 수: {best_feature_count}")    
     
-
+# 특성: 12, Accuracy: 0.6591
+# 특성: 11, Accuracy: 0.6536
+# 특성: 10, Accuracy: 0.6355
+# 특성: 9, Accuracy: 0.6545
+# 특성: 8, Accuracy: 0.6409
+# 특성: 7, Accuracy: 0.6409
+# 특성: 6, Accuracy: 0.6273
+# 특성: 5, Accuracy: 0.6145
+# 특성: 4, Accuracy: 0.6127
+# 특성: 3, Accuracy: 0.5527
+# 특성: 2, Accuracy: 0.5200
+# 특성: 1, Accuracy: 0.5455
+# 가장 좋았던 정확도: 0.6591, 해당할 때의 특성 수: 12
