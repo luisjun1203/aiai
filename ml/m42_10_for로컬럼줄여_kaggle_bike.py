@@ -69,7 +69,7 @@ for i in range(X.shape[1], 0, -1):  # X.shape[1] : 열의수(특성), (시작, �
 # 3. 훈련
     model.fit(X_train, y_train, eval_set=[(X_train, y_train), (X_test, y_test)],
             verbose=1,
-            eval_metric ='mlogloss' 
+            eval_metric ='rmse' 
           )
 
 
