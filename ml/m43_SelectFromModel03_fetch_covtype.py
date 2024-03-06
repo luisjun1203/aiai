@@ -39,7 +39,7 @@ X_train = scaler.fit_transform(X_train)
 X_test = scaler.transform(X_test)
 
 parameters = {
-    'n_estimators': 4000,  # 부스팅 라운드의 수/ 디폴트 100/ 1 ~ inf/ 정수
+    'n_estimators': 300,  # 부스팅 라운드의 수/ 디폴트 100/ 1 ~ inf/ 정수
     'learning_rate': 0.05,  # 학습률/ 디폴트 0.3/0~1/
     'max_depth': 8,  # 트리의 최대 깊이/ 디폴트 6/ 0 ~ inf/ 정수
     'min_child_weight': 1,  # 자식에 필요한 모든 관측치에 대한 가중치 합의 최소/ 디폴트 1 / 0~inf
@@ -112,3 +112,5 @@ for i in thresholds:
 select_y_predict = select_model.predict(select_X_test)
 score = accuracy_score(y_test, select_y_predict)
 print('Trech=%.3f, n=%d, ACC: %2f%%'%(i, select_X_train.shape[1], score*100))
+
+# Trech=0.106, n=1, ACC: 51.676807%

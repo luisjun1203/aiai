@@ -174,3 +174,5 @@ for i in thresholds:
 select_y_predict = select_model.predict(select_X_test)
 score = accuracy_score(y_test, select_y_predict)
 print('Trech=%.3f, n=%d, ACC: %2f%%'%(i, select_X_train.shape[1], score*100))
+
+# Trech=0.255, n=1, ACC: 34.918739%
