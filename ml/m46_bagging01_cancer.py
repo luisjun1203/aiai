@@ -4,7 +4,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler
 from xgboost import XGBClassifier
 from sklearn.metrics import accuracy_score
-from sklearn.ensemble import RandomForestClassifier, BaggingClassifier
+from sklearn.ensemble import RandomForestClassifier, BaggingClassifier          # Bootstrap Aggregating
 from sklearn.linear_model import LogisticRegression
 import warnings
 
@@ -37,12 +37,12 @@ parameters = {
 }
 
 # 2. 모델
-model = BaggingClassifier(LogisticRegression(),
-                          n_estimators=10, # 디폴트
+model = BaggingClassifier(LogisticRegression(),             # 하나의 모델을 사용하여 분산시켜 모델을 병렬로 만들어 처리
+                          n_estimators=10, # 디폴트         # 서로다른 종류의 모델은 결합 못한다...
                           n_jobs=-2,
                           random_state=777,
-                          # bootstrap=True,   # 디폴트 중복을 허용한다
-                          bootstrap=False # 중복 허용 X
+                          bootstrap=True,   # 디폴트 중복을 허용한다
+                        #   bootstrap=False # 중복 허용 X
                                                       
                           )
 

@@ -43,8 +43,8 @@ lr = LogisticRegression()
 
 model = VotingClassifier(
     estimators=[('LR', lr), ('RF', rf), ('xgb', xgb)],
-    voting='hard',
-    # voting='hard',    # 디폴트
+    voting='soft',      #           나온 값들을 클래스마다 평균내어  클래스평균이 제일 높은 놈을 최종 결과
+    # voting='hard',    # 디폴트    가장 많이 예측된 놈으로 최종 결과 ,다수결
     
 )
 
