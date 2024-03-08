@@ -3,7 +3,7 @@ from sklearn.preprocessing import PolynomialFeatures
 import matplotlib.pyplot as plt
 from sklearn.linear_model import LinearRegression
 plt.rcParams['font.family'] = 'Malgun Gothic'
-
+from sklearn.ensemble import RandomForestClassifier,RandomForestRegressor
 
 # 1. 데이터
 
@@ -18,8 +18,11 @@ X_poly = pf.fit_transform(X)
 # print(X_poly)
 
 # 2. 모델 구성
-model = LinearRegression()
+# model = LinearRegression()
 model2 = LinearRegression()
+
+model = RandomForestRegressor()         # RandomForest 적용하니까 데이터 변형을 안시켜줘도 나름 굿!
+# model2 = RandomForestRegressor()
 
 # 3. 훈련
 
