@@ -27,7 +27,8 @@ import numpy as np
 from keras import backend as K
 from sklearn.model_selection import train_test_split
 import joblib
-
+tf.random.set_seed(3)
+np.random.seed(3)
 
 MAX_PIXEL_VALUE = 65535 # 이미지 정규화를 위한 픽셀 최대값
 
@@ -300,11 +301,11 @@ save_name = 'base_line'
 
 N_FILTERS = 16 # 필터수 지정
 N_CHANNELS = 3 # channel 지정
-EPOCHS = 50 # 훈련 epoch 지정
-BATCH_SIZE = 64 # batch size 지정
+EPOCHS = 200 # 훈련 epoch 지정
+BATCH_SIZE = 32 # batch size 지정
 IMAGE_SIZE = (256, 256) # 이미지 크기 지정
 MODEL_NAME = 'unet' # 모델 이름
-RANDOM_STATE = 42 # seed 고정
+RANDOM_STATE = 3 # seed 고정
 INITIAL_EPOCH = 0 # 초기 epoch
 
 # 데이터 위치
@@ -326,7 +327,7 @@ CHECKPOINT_MODEL_NAME = 'checkpoint-{}-{}-epoch_{{epoch:02d}}.hdf5'.format(MODEL
 FINAL_WEIGHTS_OUTPUT = 'model_{}_{}_final_weights.h5'.format(MODEL_NAME, save_name)
 
 # 사용할 GPU 이름
-CUDA_DEVICE = 3
+CUDA_DEVICE = 0
 
 
 # 저장 폴더 없으면 생성
@@ -372,7 +373,7 @@ model.summary()
 
 
 # checkpoint 및 조기종료 설정
-es = EarlyStopping(monitor='val_loss', mode='min', verbose=1, patience=EARLY_STOP_PATIENCE)
+es = EarlyStopping(monitor='val_loss', mode='min', verbose=1, patience=EARLY_STOP_PATIENCE, restore_best_weights=True)
 checkpoint = ModelCheckpoint(os.path.join(OUTPUT_DIR, CHECKPOINT_MODEL_NAME), monitor='loss', verbose=1,
 save_best_only=True, mode='auto', period=CHECKPOINT_PERIOD)
 
@@ -399,17 +400,17 @@ model = get_model(MODEL_NAME, input_height=IMAGE_SIZE[0], input_width=IMAGE_SIZE
 model.compile(optimizer = Adam(), loss = 'binary_crossentropy', metrics = ['accuracy'])
 model.summary()
 
-model.load_weights('C:\\_data\\AI factory\\train_output\\train_output\\model_unet_base_line_final_weights.h5')
+model.load_weights('C:\\_data\\AI factory\\train_output\\model_unet_base_line_final_weights.h5')
 
 
 y_pred_dict = {}
 
 for i in test_meta['test_img']:
-    img = get_img_762bands(f'./test_img/{i}')
+    img = get_img_762bands(f'C:\\_data\\AI factory\\test_img\\{i}')
     y_pred = model.predict(np.array([img]), batch_size=1)
     
     y_pred = np.where(y_pred[0, :, :, 0] > 0.25, 1, 0) # 임계값 처리
     y_pred = y_pred.astype(np.uint8)
     y_pred_dict[i] = y_pred
 
-joblib.dump(y_pred_dict, 'C:\\_data\\AI factory\\train_output\\y_pred.pkl')
+joblib.dump(y_pred_dict, 'C:\\_data\\AI factory\\train_output\\y_pred1.pkl')
