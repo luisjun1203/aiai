@@ -97,3 +97,9 @@ end = time.time()
 print(bay.max)
 print(n_iter, " 번 걸린시간 : ", round(end - start, 2), "초" )
 
+# {'target': 0.9541495989811022, 'params': {'colsample_bytree': 0.8534257433516694,
+# 'learning_rate': 0.9874191819294652, 'max_bin': 236.26336767410208,
+# 'max_depth': 8.627306903083172, 'min_child_samples': 98.56796787435233,
+# 'min_child_weight': 46.43150846815228, 'num_leaves': 27.882170935567515,
+# 'reg_alpha': 4.064660287656759, 'reg_lambda': 1.0118071115635423, 'subsample': 0.9889241963456253}}
+# 100  번 걸린시간 :  1069.56 초
