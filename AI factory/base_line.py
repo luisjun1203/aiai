@@ -301,7 +301,7 @@ save_name = 'base_line'
 
 N_FILTERS = 16 # 필터수 지정
 N_CHANNELS = 3 # channel 지정
-EPOCHS = 200 # 훈련 epoch 지정
+EPOCHS = 50 # 훈련 epoch 지정
 BATCH_SIZE = 32 # batch size 지정
 IMAGE_SIZE = (256, 256) # 이미지 크기 지정
 MODEL_NAME = 'unet' # 모델 이름
@@ -317,14 +317,14 @@ OUTPUT_DIR = 'C:\_data\AI factory\\train_output\\'
 WORKERS = 4
 
 # 조기종료
-EARLY_STOP_PATIENCE = 5 
+EARLY_STOP_PATIENCE = 10 
 
 # 중간 가중치 저장 이름
 CHECKPOINT_PERIOD = 5
 CHECKPOINT_MODEL_NAME = 'checkpoint-{}-{}-epoch_{{epoch:02d}}.hdf5'.format(MODEL_NAME, save_name)
  
 # 최종 가중치 저장 이름
-FINAL_WEIGHTS_OUTPUT = 'model_{}_{}_final_weights.h5'.format(MODEL_NAME, save_name)
+FINAL_WEIGHTS_OUTPUT = 'model_{}_{}_final_weights_1.h5'.format(MODEL_NAME, save_name)
 
 # 사용할 GPU 이름
 CUDA_DEVICE = 0
@@ -413,4 +413,4 @@ for i in test_meta['test_img']:
     y_pred = y_pred.astype(np.uint8)
     y_pred_dict[i] = y_pred
 
-joblib.dump(y_pred_dict, 'C:\\_data\\AI factory\\train_output\\y_pred1.pkl')
+joblib.dump(y_pred_dict, 'C:\\_data\\AI factory\\train_output\\y_pred2.pkl')
