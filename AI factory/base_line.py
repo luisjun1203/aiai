@@ -117,17 +117,17 @@ def FCN(nClasses, input_height=128, input_width=128, n_filters = 16, dropout = 0
     img_input = Input(shape=(input_height,input_width, 3))
     
     ## Block 1
-    x = Conv2D(n_filters, (3, 3), activation='relu', padding='same', name='block1_conv1')(img_input)
-    x = Conv2D(n_filters, (3, 3), activation='relu', padding='same', name='block1_conv2')(x)
+    x = Conv2D(n_filters, (3, 3), activation='swish', padding='same', name='block1_conv1')(img_input)
+    x = Conv2D(n_filters, (3, 3), activation='swish', padding='same', name='block1_conv2')(x)
     f1 = x
     
     # Block 2
-    x = Conv2D(n_filters, (3, 3), activation='relu', padding='same', name='block2_conv1')(x)
-    x = Conv2D(n_filters, (3, 3), activation='relu', padding='same', name='block2_conv2')(x)
+    x = Conv2D(n_filters, (3, 3), activation='swish', padding='same', name='block2_conv1')(x)
+    x = Conv2D(n_filters, (3, 3), activation='swish', padding='same', name='block2_conv2')(x)
     f2 = x  
    
     # Out
-    o = (Conv2D(nClasses, (3,3), activation='relu' , padding='same', name="Out"))(x)
+    o = (Conv2D(nClasses, (3,3), activation='swish' , padding='same', name="Out"))(x)
     
     model = Model(img_input, o)
 
@@ -140,14 +140,14 @@ def conv2d_block(input_tensor, n_filters, kernel_size = 3, batchnorm = True):
                padding="same")(input_tensor)
     if batchnorm:
         x = BatchNormalization()(x)
-    x = Activation("relu")(x)
+    x = Activation("swish")(x)
     
     # second layer
     x = Conv2D(filters=n_filters, kernel_size=(kernel_size, kernel_size), kernel_initializer="he_normal",
                padding="same")(x)
     if batchnorm:
         x = BatchNormalization()(x)
-    x = Activation("relu")(x)
+    x = Activation("swish")(x)
     return x
 
 def get_unet(nClasses, input_height=256, input_width=256, n_filters = 16, dropout = 0.1, batchnorm = True, n_channels=10):
@@ -225,7 +225,7 @@ def get_unet_small1 (nClasses, input_height=128, input_width=128, n_filters = 16
     u9 = Dropout(dropout)(u9)
     c9 = conv2d_block(u9, n_filters * 1, kernel_size = 3, batchnorm = batchnorm)
 
-    outputs = Conv2D(1, (1, 1), activation='relu')(c9)
+    outputs = Conv2D(1, (1, 1), activation='swish')(c9)
     model = Model(inputs=[input_img], outputs=[outputs])
     return model
 
@@ -249,7 +249,7 @@ def get_unet_small2 (nClasses, input_height=128, input_width=128, n_filters = 16
     u3 = Dropout(dropout)(u3)
     c3 = conv2d_block(u3, n_filters * 1, kernel_size = 3, batchnorm = batchnorm)
     
-    outputs = Conv2D(1, (1, 1), activation='relu')(c3)
+    outputs = Conv2D(1, (1, 1), activation='swish')(c3)
     model = Model(inputs=[input_img], outputs=[outputs])
     return model
 
@@ -302,7 +302,7 @@ save_name = 'base_line'
 N_FILTERS = 16 # 필터수 지정
 N_CHANNELS = 3 # channel 지정
 EPOCHS = 50 # 훈련 epoch 지정
-BATCH_SIZE = 32 # batch size 지정
+BATCH_SIZE = 16  # batch size 지정
 IMAGE_SIZE = (256, 256) # 이미지 크기 지정
 MODEL_NAME = 'unet' # 모델 이름
 RANDOM_STATE = 3 # seed 고정
@@ -317,14 +317,14 @@ OUTPUT_DIR = 'C:\_data\AI factory\\train_output\\'
 WORKERS = 4
 
 # 조기종료
-EARLY_STOP_PATIENCE = 10 
+EARLY_STOP_PATIENCE = 5 
 
 # 중간 가중치 저장 이름
-CHECKPOINT_PERIOD = 5
+CHECKPOINT_PERIOD = 10
 CHECKPOINT_MODEL_NAME = 'checkpoint-{}-{}-epoch_{{epoch:02d}}.hdf5'.format(MODEL_NAME, save_name)
  
 # 최종 가중치 저장 이름
-FINAL_WEIGHTS_OUTPUT = 'model_{}_{}_final_weights_1.h5'.format(MODEL_NAME, save_name)
+FINAL_WEIGHTS_OUTPUT = 'model_{}_{}_final_weights_3.h5'.format(MODEL_NAME, save_name)
 
 # 사용할 GPU 이름
 CUDA_DEVICE = 0
@@ -352,7 +352,7 @@ except:
 
 
 # train : val = 8 : 2 나누기
-x_tr, x_val = train_test_split(train_meta, test_size=0.2, random_state=RANDOM_STATE)
+x_tr, x_val = train_test_split(train_meta, test_size=0.1, random_state=RANDOM_STATE)
 print(len(x_tr), len(x_val))
 
 # train : val 지정 및 generator
@@ -400,7 +400,7 @@ model = get_model(MODEL_NAME, input_height=IMAGE_SIZE[0], input_width=IMAGE_SIZE
 model.compile(optimizer = Adam(), loss = 'binary_crossentropy', metrics = ['accuracy'])
 model.summary()
 
-model.load_weights('C:\\_data\\AI factory\\train_output\\model_unet_base_line_final_weights.h5')
+model.load_weights('C:\\_data\\AI factory\\train_output\\model_unet_base_line_final_weights_3.h5')
 
 
 y_pred_dict = {}
@@ -413,4 +413,4 @@ for i in test_meta['test_img']:
     y_pred = y_pred.astype(np.uint8)
     y_pred_dict[i] = y_pred
 
-joblib.dump(y_pred_dict, 'C:\\_data\\AI factory\\train_output\\y_pred2.pkl')
+joblib.dump(y_pred_dict, 'C:\\_data\\AI factory\\train_output\\y_pred3.pkl')
