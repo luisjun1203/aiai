@@ -68,7 +68,8 @@ def DeepLabV3Plus(image_size, num_classes):
 
     x = Conv2D(num_classes, 1, padding="same")(x)
     x = UpSampling2D(size=(4, 4), interpolation="bilinear")(x)
-
+    x = Activation("sigmoid")(x) 
+    
     model = Model(inputs=base_model.input, outputs=x)
     return model
 

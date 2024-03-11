@@ -321,7 +321,10 @@ def DeepLabV3Plus(input_height, input_width, num_classes ):
 
     x = Conv2D(num_classes, 1, padding="same")(x)
     x = UpSampling2D(size=(4, 4), interpolation="bilinear")(x)
-
+    # x = Activation("sigmoid")(x)
+    x = Conv2D(1, (1,1), activation='sigmoid', padding='same')(x)
+    
+    
     model = Model(inputs=base_model.input, outputs=x)
     return model
 
@@ -371,7 +374,7 @@ save_name = 'base_line'
 
 N_FILTERS = 16 # 필터수 지정
 N_CHANNELS = 3 # channel 지정
-EPOCHS = 100 # 훈련 epoch 지정
+EPOCHS = 10 # 훈련 epoch 지정
 BATCH_SIZE = 16  # batch size 지정
 IMAGE_SIZE = (256, 256) # 이미지 크기 지정
 MODEL_NAME = 'deeplabv3plus' # 모델 이름
@@ -387,7 +390,7 @@ OUTPUT_DIR = 'C:\_data\AI factory\\train_output\\'
 WORKERS = 16
 
 # 조기종료
-EARLY_STOP_PATIENCE = 10 
+EARLY_STOP_PATIENCE = 5
 
 # 중간 가중치 저장 이름
 CHECKPOINT_PERIOD = 10
@@ -451,16 +454,16 @@ checkpoint = ModelCheckpoint(os.path.join(OUTPUT_DIR, CHECKPOINT_MODEL_NAME), mo
 save_best_only=True, mode='auto', period=CHECKPOINT_PERIOD)
 
 print('---model 훈련 시작---')
-# history = model.fit_generator(
-#     train_generator,
-#     steps_per_epoch=len(images_train) // BATCH_SIZE,
-#     validation_data=validation_generator,
-#     validation_steps=len(images_validation) // BATCH_SIZE,
-#     callbacks=[checkpoint, es],
-#     epochs=EPOCHS,
-#     workers=WORKERS,
-#     initial_epoch=INITIAL_EPOCH
-# )
+history = model.fit_generator(
+    train_generator,
+    steps_per_epoch=len(images_train) // BATCH_SIZE,
+    validation_data=validation_generator,
+    validation_steps=len(images_validation) // BATCH_SIZE,
+    callbacks=[checkpoint, es],
+    epochs=EPOCHS,
+    workers=WORKERS,
+    initial_epoch=INITIAL_EPOCH
+)
 print('---model 훈련 종료---')
 
 print('가중치 저장')
@@ -469,9 +472,9 @@ model.save_weights(model_weights_output)
 print("저장된 가중치 명: {}".format(model_weights_output))
 
 
-model = get_model(MODEL_NAME, input_height=IMAGE_SIZE[0], input_width=IMAGE_SIZE[1], n_filters=N_FILTERS, n_channels=N_CHANNELS)
-model.compile(optimizer = Adam(), loss = 'binary_crossentropy', metrics = ['accuracy'])
-model.summary()
+# model = get_model(MODEL_NAME, input_height=IMAGE_SIZE[0], input_width=IMAGE_SIZE[1], n_filters=N_FILTERS, n_channels=N_CHANNELS)
+# model.compile(optimizer = Adam(), loss = 'binary_crossentropy', metrics = ['accuracy'])
+# model.summary()
 
 
 
