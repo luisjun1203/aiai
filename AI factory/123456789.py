@@ -21,6 +21,9 @@ import os
 import numpy as np
 import sys
 from sklearn.utils import shuffle as shuffle_lists
+from keras.models import Model
+from keras.layers import Input, Conv2D, BatchNormalization, Activation, UpSampling2D, Concatenate, DepthwiseConv2D
+from keras.applications import MobileNetV2
 from keras.models import *
 from keras.layers import *
 import numpy as np
@@ -253,25 +256,92 @@ def get_unet_small2 (nClasses, input_height=128, input_width=128, n_filters = 16
     model = Model(inputs=[input_img], outputs=[outputs])
     return model
 
-def get_model(model_name, nClasses=1, input_height=128, input_width=128, n_filters = 16, dropout = 0.1, batchnorm = True, n_channels=10):
-    if model_name == 'fcn':
-        model = FCN
-    elif model_name == 'unet':
-        model = get_unet
-    elif model_name == 'unet_small':
-        model = get_unet_small1
-    elif model_name == 'unet_smaller':
-        model = get_unet_small2
+def ASPP(inputs, filters=256):
     
-    return model(
-            nClasses      = nClasses,  
-            input_height  = input_height, 
-            input_width   = input_width,
-            n_filters     = n_filters,
-            dropout       = dropout,
-            batchnorm     = batchnorm,
-            n_channels    = n_channels
-        )
+    shape = inputs.shape
+    
+    y1 = Conv2D(filters, 1, padding="same")(inputs)
+    y1 = BatchNormalization()(y1)
+    y1 = Activation("relu")(y1)
+    
+    y2 = DepthwiseConv2D(3, dilation_rate=(6, 6), padding="same", use_bias=False)(inputs)
+    y2 = BatchNormalization()(y2)
+    y2 = Activation("relu")(y2)
+    y2 = Conv2D(filters, 1, padding="same")(y2)
+    y2 = BatchNormalization()(y2)
+    y2 = Activation("relu")(y2)
+    
+    y3 = DepthwiseConv2D(3, dilation_rate=(12, 12), padding="same", use_bias=False)(inputs)
+    y3 = BatchNormalization()(y3)
+    y3 = Activation("relu")(y3)
+    y3 = Conv2D(filters, 1, padding="same")(y3)
+    y3 = BatchNormalization()(y3)
+    y3 = Activation("relu")(y3)
+    
+    y4 = DepthwiseConv2D(3, dilation_rate=(18, 18), padding="same", use_bias=False)(inputs)
+    y4 = BatchNormalization()(y4)
+    y4 = Activation("relu")(y4)
+    y4 = Conv2D(filters, 1, padding="same")(y4)
+    y4 = BatchNormalization()(y4)
+    y4 = Activation("relu")(y4)
+    
+    y5 = tf.keras.layers.AveragePooling2D(pool_size=(shape[1], shape[2]))(inputs)
+    y5 = Conv2D(filters, 1, padding="same")(y5)
+    y5 = BatchNormalization()(y5)
+    y5 = Activation("relu")(y5)
+    y5 = UpSampling2D(size=(shape[1], shape[2]), interpolation="bilinear")(y5)
+    
+    y = Concatenate()([y1, y2, y3, y4, y5])
+    
+    y = Conv2D(filters, 1, padding="same")(y)
+    y = BatchNormalization()(y)
+    y = Activation("relu")(y)
+    
+    return y
+
+def DeepLabV3Plus(input_height, input_width, num_classes ):
+    base_model = MobileNetV2(input_shape=(input_height, input_width, 3), include_top=False)
+    image_features = base_model.get_layer('block_13_expand_relu').output
+    x_a = ASPP(image_features)
+    x_a = UpSampling2D(size=(4, 4), interpolation="bilinear")(x_a)
+
+    x_b = base_model.get_layer('block_3_expand_relu').output
+    x_b = Conv2D(48, 1, padding="same")(x_b)
+    x_b = BatchNormalization()(x_b)
+    x_b = Activation("relu")(x_b)
+
+    x = Concatenate()([x_a, x_b])
+    x = Conv2D(256, 3, padding="same")(x)
+    x = BatchNormalization()(x)
+    x = Activation("relu")(x)
+
+    x = Conv2D(256, 3, padding="same")(x)
+    x = BatchNormalization()(x)
+    x = Activation("relu")(x)
+
+    x = Conv2D(num_classes, 1, padding="same")(x)
+    x = UpSampling2D(size=(4, 4), interpolation="bilinear")(x)
+
+    model = Model(inputs=base_model.input, outputs=x)
+    return model
+
+
+def get_model(model_name, nClasses=1, input_height=256, input_width=256, n_filters=16, dropout=0.1, batchnorm=True, n_channels=10):
+    if model_name == 'deeplabv3plus':
+        model = DeepLabV3Plus(input_height, input_width, num_classes=nClasses)
+    else:
+        raise ValueError("Unsupported model: {}".format(model_name))
+    return model
+    
+    # return model(
+    #         nClasses      = nClasses,  
+    #         input_height  = input_height, 
+    #         input_width   = input_width,
+    #         n_filters     = n_filters,
+    #         dropout       = dropout,
+    #         batchnorm     = batchnorm,
+    #         n_channels    = n_channels
+    #     )
 # 두 샘플 간의 유사성 metric
 def dice_coef(y_true, y_pred, smooth=1):
     intersection = K.sum(y_true * y_pred, axis=[1,2,3])
@@ -304,7 +374,7 @@ N_CHANNELS = 3 # channel 지정
 EPOCHS = 5 # 훈련 epoch 지정
 BATCH_SIZE = 16  # batch size 지정
 IMAGE_SIZE = (256, 256) # 이미지 크기 지정
-MODEL_NAME = 'unet' # 모델 이름
+MODEL_NAME = 'deeplabv3plus' # 모델 이름
 RANDOM_STATE = 3 # seed 고정
 INITIAL_EPOCH = 0 # 초기 epoch
 
@@ -324,7 +394,7 @@ CHECKPOINT_PERIOD = 10
 CHECKPOINT_MODEL_NAME = 'checkpoint-{}-{}-epoch_{{epoch:02d}}_03_11_01.hdf5'.format(MODEL_NAME, save_name)
  
 # 최종 가중치 저장 이름
-FINAL_WEIGHTS_OUTPUT = 'model_{}_{}_final_weights_03_11_01.h5'.format(MODEL_NAME, save_name)
+FINAL_WEIGHTS_OUTPUT = 'model_{}_{}_deeplabv3plus_03_11_01.h5'.format(MODEL_NAME, save_name)
 
 # 사용할 GPU 이름
 CUDA_DEVICE = 0
@@ -367,10 +437,13 @@ validation_generator = generator_from_lists(images_validation, masks_validation,
 
 
 # model 불러오기
-model = get_model(MODEL_NAME, input_height=IMAGE_SIZE[0], input_width=IMAGE_SIZE[1], n_filters=N_FILTERS, n_channels=N_CHANNELS)
-model.compile(optimizer = Adam(), loss = 'binary_crossentropy', metrics = ['accuracy'])
-model.summary()
+# model = get_model(MODEL_NAME, input_height=IMAGE_SIZE[0], input_width=IMAGE_SIZE[1], n_filters=N_FILTERS, n_channels=N_CHANNELS)
+# model.compile(optimizer = Adam(), loss = 'binary_crossentropy', metrics = ['accuracy'])
+# model.summary()
 
+model = get_model(MODEL_NAME, nClasses=1, input_height=IMAGE_SIZE[0], input_width=IMAGE_SIZE[1], n_filters=N_FILTERS, n_channels=N_CHANNELS)
+model.compile(optimizer=Adam(), loss='binary_crossentropy', metrics=['accuracy'])
+model.summary()
 
 # checkpoint 및 조기종료 설정
 es = EarlyStopping(monitor='val_loss', mode='min', verbose=1, patience=EARLY_STOP_PATIENCE, restore_best_weights=True)
@@ -396,11 +469,16 @@ model.save_weights(model_weights_output)
 print("저장된 가중치 명: {}".format(model_weights_output))
 
 
-model = get_model(MODEL_NAME, input_height=IMAGE_SIZE[0], input_width=IMAGE_SIZE[1], n_filters=N_FILTERS, n_channels=N_CHANNELS)
-model.compile(optimizer = Adam(), loss = 'binary_crossentropy', metrics = ['accuracy'])
-model.summary()
+# model = get_model(MODEL_NAME, input_height=IMAGE_SIZE[0], input_width=IMAGE_SIZE[1], n_filters=N_FILTERS, n_channels=N_CHANNELS)
+# model.compile(optimizer = Adam(), loss = 'binary_crossentropy', metrics = ['accuracy'])
+# model.summary()
 
-model.load_weights('C:\\_data\\AI factory\\train_output\\model_unet_base_line_final_weights_03_11_01.h5')
+
+
+
+
+
+model.load_weights('C:\\_data\\AI factory\\train_output\\model_unet_deeplabv3plus_final_weights_03_11_01.h5')
 
 
 y_pred_dict = {}
