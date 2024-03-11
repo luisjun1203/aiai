@@ -371,7 +371,7 @@ save_name = 'base_line'
 
 N_FILTERS = 16 # 필터수 지정
 N_CHANNELS = 3 # channel 지정
-EPOCHS = 5 # 훈련 epoch 지정
+EPOCHS = 100 # 훈련 epoch 지정
 BATCH_SIZE = 16  # batch size 지정
 IMAGE_SIZE = (256, 256) # 이미지 크기 지정
 MODEL_NAME = 'deeplabv3plus' # 모델 이름
@@ -387,14 +387,14 @@ OUTPUT_DIR = 'C:\_data\AI factory\\train_output\\'
 WORKERS = 16
 
 # 조기종료
-EARLY_STOP_PATIENCE = 5 
+EARLY_STOP_PATIENCE = 10 
 
 # 중간 가중치 저장 이름
 CHECKPOINT_PERIOD = 10
-CHECKPOINT_MODEL_NAME = 'checkpoint-{}-{}-epoch_{{epoch:02d}}_03_11_01.hdf5'.format(MODEL_NAME, save_name)
+CHECKPOINT_MODEL_NAME = 'checkpoint-{}-{}-epoch_{{epoch:02d}}_03_11_02.hdf5'.format(MODEL_NAME, save_name)
  
 # 최종 가중치 저장 이름
-FINAL_WEIGHTS_OUTPUT = 'model_{}_{}_deeplabv3plus_03_11_01.h5'.format(MODEL_NAME, save_name)
+FINAL_WEIGHTS_OUTPUT = 'model_{}_{}_deeplabv3plus_03_11_02.h5'.format(MODEL_NAME, save_name)
 
 # 사용할 GPU 이름
 CUDA_DEVICE = 0
@@ -422,7 +422,7 @@ except:
 
 
 # train : val = 8 : 2 나누기
-x_tr, x_val = train_test_split(train_meta, test_size=0.1, random_state=RANDOM_STATE)
+x_tr, x_val = train_test_split(train_meta, test_size=0.2, random_state=RANDOM_STATE)
 print(len(x_tr), len(x_val))
 
 # train : val 지정 및 generator
@@ -451,16 +451,16 @@ checkpoint = ModelCheckpoint(os.path.join(OUTPUT_DIR, CHECKPOINT_MODEL_NAME), mo
 save_best_only=True, mode='auto', period=CHECKPOINT_PERIOD)
 
 print('---model 훈련 시작---')
-history = model.fit_generator(
-    train_generator,
-    steps_per_epoch=len(images_train) // BATCH_SIZE,
-    validation_data=validation_generator,
-    validation_steps=len(images_validation) // BATCH_SIZE,
-    callbacks=[checkpoint, es],
-    epochs=EPOCHS,
-    workers=WORKERS,
-    initial_epoch=INITIAL_EPOCH
-)
+# history = model.fit_generator(
+#     train_generator,
+#     steps_per_epoch=len(images_train) // BATCH_SIZE,
+#     validation_data=validation_generator,
+#     validation_steps=len(images_validation) // BATCH_SIZE,
+#     callbacks=[checkpoint, es],
+#     epochs=EPOCHS,
+#     workers=WORKERS,
+#     initial_epoch=INITIAL_EPOCH
+# )
 print('---model 훈련 종료---')
 
 print('가중치 저장')
@@ -469,16 +469,16 @@ model.save_weights(model_weights_output)
 print("저장된 가중치 명: {}".format(model_weights_output))
 
 
-# model = get_model(MODEL_NAME, input_height=IMAGE_SIZE[0], input_width=IMAGE_SIZE[1], n_filters=N_FILTERS, n_channels=N_CHANNELS)
-# model.compile(optimizer = Adam(), loss = 'binary_crossentropy', metrics = ['accuracy'])
-# model.summary()
+model = get_model(MODEL_NAME, input_height=IMAGE_SIZE[0], input_width=IMAGE_SIZE[1], n_filters=N_FILTERS, n_channels=N_CHANNELS)
+model.compile(optimizer = Adam(), loss = 'binary_crossentropy', metrics = ['accuracy'])
+model.summary()
 
 
 
 
 
 
-model.load_weights('C:\\_data\\AI factory\\train_output\\model_unet_deeplabv3plus_final_weights_03_11_01.h5')
+model.load_weights('C:\\_data\\AI factory\\train_output\\model_deeplabv3plus_base_line_deeplabv3plus_03_11_02.h5')
 
 
 y_pred_dict = {}
@@ -491,4 +491,4 @@ for i in test_meta['test_img']:
     y_pred = y_pred.astype(np.uint8)
     y_pred_dict[i] = y_pred
 
-joblib.dump(y_pred_dict, 'C:\\_data\\AI factory\\train_output\\y_pred_03_11_01.pkl')
+joblib.dump(y_pred_dict, 'C:\\_data\\AI factory\\train_output\\y_pred_03_11_02.pkl')
