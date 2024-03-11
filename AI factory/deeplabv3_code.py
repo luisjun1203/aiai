@@ -262,40 +262,40 @@ def ASPP(inputs, filters=256):
     
     y1 = Conv2D(filters, 1, padding="same")(inputs)
     y1 = BatchNormalization()(y1)
-    y1 = Activation("relu")(y1)
+    y1 = Activation("swish")(y1)
     
     y2 = DepthwiseConv2D(3, dilation_rate=(6, 6), padding="same", use_bias=False)(inputs)
     y2 = BatchNormalization()(y2)
-    y2 = Activation("relu")(y2)
+    y2 = Activation("swish")(y2)
     y2 = Conv2D(filters, 1, padding="same")(y2)
     y2 = BatchNormalization()(y2)
-    y2 = Activation("relu")(y2)
+    y2 = Activation("swish")(y2)
     
     y3 = DepthwiseConv2D(3, dilation_rate=(12, 12), padding="same", use_bias=False)(inputs)
     y3 = BatchNormalization()(y3)
-    y3 = Activation("relu")(y3)
+    y3 = Activation("swish")(y3)
     y3 = Conv2D(filters, 1, padding="same")(y3)
     y3 = BatchNormalization()(y3)
-    y3 = Activation("relu")(y3)
+    y3 = Activation("swish")(y3)
     
     y4 = DepthwiseConv2D(3, dilation_rate=(18, 18), padding="same", use_bias=False)(inputs)
     y4 = BatchNormalization()(y4)
-    y4 = Activation("relu")(y4)
+    y4 = Activation("swish")(y4)
     y4 = Conv2D(filters, 1, padding="same")(y4)
     y4 = BatchNormalization()(y4)
-    y4 = Activation("relu")(y4)
+    y4 = Activation("swish")(y4)
     
     y5 = tf.keras.layers.AveragePooling2D(pool_size=(shape[1], shape[2]))(inputs)
     y5 = Conv2D(filters, 1, padding="same")(y5)
     y5 = BatchNormalization()(y5)
-    y5 = Activation("relu")(y5)
+    y5 = Activation("swish")(y5)
     y5 = UpSampling2D(size=(shape[1], shape[2]), interpolation="bilinear")(y5)
     
     y = Concatenate()([y1, y2, y3, y4, y5])
     
     y = Conv2D(filters, 1, padding="same")(y)
     y = BatchNormalization()(y)
-    y = Activation("relu")(y)
+    y = Activation("swish")(y)
     
     return y
 
@@ -308,16 +308,16 @@ def DeepLabV3Plus(input_height, input_width, num_classes ):
     x_b = base_model.get_layer('block_3_expand_relu').output
     x_b = Conv2D(48, 1, padding="same")(x_b)
     x_b = BatchNormalization()(x_b)
-    x_b = Activation("relu")(x_b)
+    x_b = Activation("swish")(x_b)
 
     x = Concatenate()([x_a, x_b])
     x = Conv2D(256, 3, padding="same")(x)
     x = BatchNormalization()(x)
-    x = Activation("relu")(x)
+    x = Activation("swish")(x)
 
     x = Conv2D(256, 3, padding="same")(x)
     x = BatchNormalization()(x)
-    x = Activation("relu")(x)
+    x = Activation("swish")(x)
 
     x = Conv2D(num_classes, 1, padding="same")(x)
     x = UpSampling2D(size=(4, 4), interpolation="bilinear")(x)
@@ -369,17 +369,36 @@ train_meta = pd.read_csv('C:\\_data\\AI factory\\train_meta.csv')
 test_meta = pd.read_csv('C:\\_data\\AI factory\\test_meta.csv')
 
 
+
+
+
 # 저장 이름
 save_name = 'base_line'
 
 N_FILTERS = 16 # 필터수 지정
 N_CHANNELS = 3 # channel 지정
-EPOCHS = 10 # 훈련 epoch 지정
-BATCH_SIZE = 16  # batch size 지정
+EPOCHS = 100 # 훈련 epoch 지정
+BATCH_SIZE = 32  # batch size 지정
 IMAGE_SIZE = (256, 256) # 이미지 크기 지정
 MODEL_NAME = 'deeplabv3plus' # 모델 이름
 RANDOM_STATE = 3 # seed 고정
 INITIAL_EPOCH = 0 # 초기 epoch
+THESHOLDS = 0.25
+
+
+#miou metric
+def miou(y_true, y_pred, smooth=1e-6):
+    # 임계치 기준으로 이진화
+    y_pred = tf.cast(y_pred > THESHOLDS, tf.float32)
+    
+    intersection = tf.reduce_sum(y_true * y_pred, axis=[1, 2, 3])
+    union = tf.reduce_sum(y_true, axis=[1, 2, 3]) + tf.reduce_sum(y_pred, axis=[1, 2, 3]) - intersection
+    
+    # mIoU 계산
+    iou = (intersection + smooth) / (union + smooth)
+    miou = tf.reduce_mean(iou)
+    return miou
+
 
 # 데이터 위치
 IMAGES_PATH = 'C:\\_data\\AI factory\\train_img\\'
@@ -390,14 +409,14 @@ OUTPUT_DIR = 'C:\_data\AI factory\\train_output\\'
 WORKERS = 16
 
 # 조기종료
-EARLY_STOP_PATIENCE = 5
+EARLY_STOP_PATIENCE = 15
 
 # 중간 가중치 저장 이름
 CHECKPOINT_PERIOD = 10
-CHECKPOINT_MODEL_NAME = 'checkpoint-{}-{}-epoch_{{epoch:02d}}_03_11_02.hdf5'.format(MODEL_NAME, save_name)
+CHECKPOINT_MODEL_NAME = 'checkpoint-{}-{}-epoch_{{epoch:02d}}_03_11_03.hdf5'.format(MODEL_NAME, save_name)
  
 # 최종 가중치 저장 이름
-FINAL_WEIGHTS_OUTPUT = 'model_{}_{}_deeplabv3plus_03_11_02.h5'.format(MODEL_NAME, save_name)
+FINAL_WEIGHTS_OUTPUT = 'model_{}_{}_deeplabv3plus_03_11_03.h5'.format(MODEL_NAME, save_name)
 
 # 사용할 GPU 이름
 CUDA_DEVICE = 0
@@ -445,13 +464,18 @@ validation_generator = generator_from_lists(images_validation, masks_validation,
 # model.summary()
 
 model = get_model(MODEL_NAME, nClasses=1, input_height=IMAGE_SIZE[0], input_width=IMAGE_SIZE[1], n_filters=N_FILTERS, n_channels=N_CHANNELS)
-model.compile(optimizer=Adam(), loss='binary_crossentropy', metrics=['accuracy'])
+model.compile(optimizer = Adam(), loss = 'binary_crossentropy', metrics = ['accuracy', miou])
 model.summary()
 
 # checkpoint 및 조기종료 설정
-es = EarlyStopping(monitor='val_loss', mode='min', verbose=1, patience=EARLY_STOP_PATIENCE, restore_best_weights=True)
-checkpoint = ModelCheckpoint(os.path.join(OUTPUT_DIR, CHECKPOINT_MODEL_NAME), monitor='loss', verbose=1,
-save_best_only=True, mode='auto', period=CHECKPOINT_PERIOD)
+# es = EarlyStopping(monitor='val_loss', mode='min', verbose=1, patience=EARLY_STOP_PATIENCE, restore_best_weights=True)
+# checkpoint = ModelCheckpoint(os.path.join(OUTPUT_DIR, CHECKPOINT_MODEL_NAME), monitor='loss', verbose=1,
+# save_best_only=True, mode='auto', period=CHECKPOINT_PERIOD)
+
+
+es = EarlyStopping(monitor='val_miou', mode='max', verbose=1, patience=EARLY_STOP_PATIENCE, restore_best_weights=True)
+checkpoint = ModelCheckpoint(os.path.join(OUTPUT_DIR, CHECKPOINT_MODEL_NAME), monitor='val_miou', verbose=1,
+save_best_only=True, mode='max', period=CHECKPOINT_PERIOD)
 
 print('---model 훈련 시작---')
 history = model.fit_generator(
@@ -481,7 +505,7 @@ print("저장된 가중치 명: {}".format(model_weights_output))
 
 
 
-model.load_weights('C:\\_data\\AI factory\\train_output\\model_deeplabv3plus_base_line_deeplabv3plus_03_11_02.h5')
+model.load_weights('C:\\_data\\AI factory\\train_output\\model_deeplabv3plus_base_line_deeplabv3plus_03_11_03.h5')
 
 
 y_pred_dict = {}
@@ -494,4 +518,6 @@ for i in test_meta['test_img']:
     y_pred = y_pred.astype(np.uint8)
     y_pred_dict[i] = y_pred
 
-joblib.dump(y_pred_dict, 'C:\\_data\\AI factory\\train_output\\y_pred_03_11_02.pkl')
+joblib.dump(y_pred_dict, 'C:\\_data\\AI factory\\train_output\\y_pred_03_11_03.pkl')
+
+print(y_pred_dict)

@@ -4,46 +4,40 @@ from keras.layers import Input, Conv2D, BatchNormalization, Activation, UpSampli
 from keras.applications import MobileNetV2
 
 def ASPP(inputs, filters=256):
-    
-    shape = inputs.shape
-    
+    """Atrous Spatial Pyramid Pooling"""
+    shape = tf.shape(inputs)
     y1 = Conv2D(filters, 1, padding="same")(inputs)
     y1 = BatchNormalization()(y1)
     y1 = Activation("relu")(y1)
-    
-    y2 = DepthwiseConv2D(3, dilation_rate=(6, 6), padding="same", use_bias=False)(inputs)
-    y2 = BatchNormalization()(y2)
-    y2 = Activation("relu")(y2)
-    y2 = Conv2D(filters, 1, padding="same")(y2)
-    y2 = BatchNormalization()(y2)
-    y2 = Activation("relu")(y2)
-    
-    y3 = DepthwiseConv2D(3, dilation_rate=(12, 12), padding="same", use_bias=False)(inputs)
-    y3 = BatchNormalization()(y3)
-    y3 = Activation("relu")(y3)
-    y3 = Conv2D(filters, 1, padding="same")(y3)
-    y3 = BatchNormalization()(y3)
-    y3 = Activation("relu")(y3)
-    
-    y4 = DepthwiseConv2D(3, dilation_rate=(18, 18), padding="same", use_bias=False)(inputs)
-    y4 = BatchNormalization()(y4)
-    y4 = Activation("relu")(y4)
-    y4 = Conv2D(filters, 1, padding="same")(y4)
-    y4 = BatchNormalization()(y4)
-    y4 = Activation("relu")(y4)
-    
+
+    atrous_rates = [6, 12, 18]
+    y2, y3, y4 = [y1] * 3
+    for i, rate in enumerate(atrous_rates, 2):
+        y = DepthwiseConv2D(3, dilation_rate=(rate, rate), padding="same", use_bias=False)(inputs)
+        y = BatchNormalization()(y)
+        y = Activation("relu")(y)
+        y = Conv2D(filters, 1, padding="same")(y)
+        y = BatchNormalization()(y)
+        y = Activation("relu")(y)
+        if i == 2:
+            y2 = y
+        elif i == 3:
+            y3 = y
+        else:
+            y4 = y
+
     y5 = tf.keras.layers.AveragePooling2D(pool_size=(shape[1], shape[2]))(inputs)
     y5 = Conv2D(filters, 1, padding="same")(y5)
     y5 = BatchNormalization()(y5)
     y5 = Activation("relu")(y5)
     y5 = UpSampling2D(size=(shape[1], shape[2]), interpolation="bilinear")(y5)
-    
+
     y = Concatenate()([y1, y2, y3, y4, y5])
-    
+
     y = Conv2D(filters, 1, padding="same")(y)
     y = BatchNormalization()(y)
     y = Activation("relu")(y)
-    
+
     return y
 
 def DeepLabV3Plus(image_size, num_classes):
