@@ -20,7 +20,8 @@ import rasterio
 import os
 import numpy as np
 import sys
-from keras.layers import Input, Conv2D, MaxPooling2D, UpSampling2D, concatenate, Conv2DTranspose, Activation, multiply, add, BatchNormalization, Dropout
+from keras.layers import Input, Conv2D, MaxPooling2D, UpSampling2D, concatenate, Conv2DTranspose
+from keras.layers import Activation, BatchNormalization, Dropout, Lambda, Multiply, Add
 from keras.models import Model
 from keras import backend as K
 from sklearn.utils import shuffle as shuffle_lists
@@ -117,80 +118,79 @@ def generator_from_lists(images_path, masks_path, batch_size=32, shuffle = True,
                 
                 
 
+
 def conv2d_block(input_tensor, n_filters, kernel_size=3, batchnorm=True):
-   
-    # first layer
-    x = Conv2D(filters=n_filters, kernel_size=(kernel_size, kernel_size), padding="same")(input_tensor)
+    """Function to add 2 convolutional layers with the parameters passed to it"""
+    x = Conv2D(filters=n_filters, kernel_size=(kernel_size, kernel_size), kernel_initializer="he_normal", padding="same")(input_tensor)
     if batchnorm:
         x = BatchNormalization()(x)
     x = Activation("relu")(x)
 
-    # second layer
-    x = Conv2D(filters=n_filters, kernel_size=(kernel_size, kernel_size), padding="same")(x)
+    x = Conv2D(filters=n_filters, kernel_size=(kernel_size, kernel_size), kernel_initializer="he_normal", padding="same")(x)
     if batchnorm:
         x = BatchNormalization()(x)
     x = Activation("relu")(x)
     return x
 
-def attention_block(g, x, n_filters):
-   
-    Fg = Conv2D(n_filters, kernel_size=1, strides=1, padding='same')(g)  # gating signal
-    Fx = Conv2D(n_filters, kernel_size=1, strides=1, padding='same')(x)  # image signal
-    F = Activation('relu')(add([Fg, Fx]))
-    psi = Conv2D(1, kernel_size=1, strides=1, padding='same', activation='sigmoid')(F)
-    return multiply([x, psi])
+def attention_gate(input_tensor, gating_signal, n_filters, kernel_size=1, batchnorm=True):
+    theta_x = Conv2D(n_filters, (kernel_size, kernel_size), strides=(2, 2), padding='same')(input_tensor)
+    phi_g = Conv2D(n_filters, (kernel_size, kernel_size), padding='same')(gating_signal)
 
-def AttentionUNet(input_size=(256, 256, 3), n_filters=16, dropout=0.1, batchnorm=True):
-    inputs = Input(input_size)
-    n_filters = [n_filters, n_filters*2, n_filters*4, n_filters*8, n_filters*16]
+    concat = Add()([theta_x, phi_g])
+    if batchnorm:
+        concat = BatchNormalization()(concat)
+    concat = Activation('relu')(concat)
 
-    # Contracting Path
-    c1 = conv2d_block(inputs, n_filters=n_filters[0], kernel_size=3, batchnorm=batchnorm)
-    p1 = MaxPooling2D((2, 2))(c1)
-    p1 = Dropout(dropout)(p1)
+    psi = Conv2D(1, (kernel_size, kernel_size), padding='same')(concat)
+    psi = BatchNormalization()(psi)
+    psi = Activation('sigmoid')(psi)
 
-    c2 = conv2d_block(p1, n_filters=n_filters[1], kernel_size=3, batchnorm=batchnorm)
-    p2 = MaxPooling2D((2, 2))(c2)
-    p2 = Dropout(dropout)(p2)
+    upsample_psi = UpSampling2D(size=(2, 2))(psi)
+    output = Multiply()([input_tensor, upsample_psi])
+    return output
 
-    c3 = conv2d_block(p2, n_filters=n_filters[2], kernel_size=3, batchnorm=batchnorm)
-    p3 = MaxPooling2D((2, 2))(c3)
-    p3 = Dropout(dropout)(p3)
+def encoder_block(input_tensor, n_filters, pool_size=(2,2), dropout=0.3, batchnorm=True):
+    c = conv2d_block(input_tensor, n_filters, kernel_size=3, batchnorm=batchnorm)
+    p = MaxPooling2D(pool_size)(c)
+    p = Dropout(dropout)(p)
+    return c, p
 
-    c4 = conv2d_block(p3, n_filters=n_filters[3], kernel_size=3, batchnorm=batchnorm)
-    p4 = MaxPooling2D(pool_size=(2, 2))(c4)
-    p4 = Dropout(dropout)(p4)
+def decoder_block(input_tensor, concat_tensor, n_filters, dropout=0.3, batchnorm=True):
+    u = Conv2DTranspose(n_filters, (3, 3), strides=(2, 2), padding='same')(input_tensor)
+    c = concatenate([u, concat_tensor])
+    c = Dropout(dropout)(c)
+    c = conv2d_block(c, n_filters, kernel_size=3, batchnorm=batchnorm)
+    return c
 
-    c5 = conv2d_block(p4, n_filters=n_filters[4], kernel_size=3, batchnorm=batchnorm)
+def AttentionUNet(input_shape=(256, 256, 1), n_filters=16, dropout=0.1, batchnorm=True):
+    inputs = Input(input_shape)
+    
+    # Encoder pathway
+    c1, p1 = encoder_block(inputs, n_filters * 1, batchnorm=batchnorm)
+    c2, p2 = encoder_block(p1, n_filters * 2, batchnorm=batchnorm)
+    c3, p3 = encoder_block(p2, n_filters * 4, batchnorm=batchnorm)
+    c4, p4 = encoder_block(p3, n_filters * 8, batchnorm=batchnorm)
+    
+    # Bridge
+    b = conv2d_block(p4, n_filters * 16, kernel_size=3, batchnorm=batchnorm)
+    
+    # Decoder pathway
+    a1 = attention_gate(c4, b, n_filters * 8)
+    d1 = decoder_block(b, a1, n_filters * 8, dropout=dropout, batchnorm=batchnorm)
 
-    # Expansive Path
-    u6 = Conv2DTranspose(n_filters[3], (3, 3), strides=(2, 2), padding='same')(c5)
-    u6 = concatenate([u6, c4])
-    u6 = Dropout(dropout)(u6)
-    c6 = conv2d_block(u6, n_filters=n_filters[3], kernel_size=3, batchnorm=batchnorm)
-    c6 = attention_block(g=c6, x=c4, n_filters=n_filters[3])
+    a2 = attention_gate(c3, d1, n_filters * 4)
+    d2 = decoder_block(d1, a2, n_filters * 4, dropout=dropout, batchnorm=batchnorm)
 
-    u7 = Conv2DTranspose(n_filters[2], (3, 3), strides=(2, 2), padding='same')(c6)
-    u7 = concatenate([u7, c3])
-    u7 = Dropout(dropout)(u7)
-    c7 = conv2d_block(u7, n_filters=n_filters[2], kernel_size=3, batchnorm=batchnorm)
-    c7 = attention_block(g=c7, x=c3, n_filters=n_filters[2])
+    a3 = attention_gate(c2, d2, n_filters * 2)
+    d3 = decoder_block(d2, a3, n_filters * 2, dropout=dropout, batchnorm=batchnorm)
 
-    u8 = Conv2DTranspose(n_filters[1], (3, 3), strides=(2, 2), padding='same')(c7)
-    u8 = concatenate([u8, c2])
-    u8 = Dropout(dropout)(u8)
-    c8 = conv2d_block(u8, n_filters=n_filters[1], kernel_size=3, batchnorm=batchnorm)
-    c8 = attention_block(g=c8, x=c2, n_filters=n_filters[1])
+    a4 = attention_gate(c1, d3, n_filters)
+    d4 = decoder_block(d3, a4, n_filters, dropout=dropout, batchnorm=batchnorm)
 
-    u9 = Conv2DTranspose(n_filters[0], (3, 3), strides=(2, 2), padding='same')(c8)
-    u9 = concatenate([u9, c1], axis=3)
-    u9 = Dropout(dropout)(u9)
-    c9 = conv2d_block(u9, n_filters=n_filters[0], kernel_size=3, batchnorm=batchnorm)
-    c9 = attention_block(g=c9, x=c1, n_filters=n_filters[0])
+    # Output
+    outputs = Conv2D(1, (1, 1), activation='sigmoid')(d4)
 
-    outputs = Conv2D(1, (1, 1), activation='sigmoid')(c9)
     model = Model(inputs=[inputs], outputs=[outputs])
-
     return model
 
 # Attention U-Net 모델 생성
