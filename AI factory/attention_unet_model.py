@@ -1,8 +1,8 @@
 import tensorflow as tf
-from tensorflow.keras.layers import Input, Conv2D, MaxPooling2D, UpSampling2D, concatenate, Conv2DTranspose
-from tensorflow.keras.layers import Activation, BatchNormalization, Dropout, Lambda, Multiply, Add
-from tensorflow.keras.models import Model
-from tensorflow.keras import backend as K
+from keras.layers import Input, Conv2D, MaxPooling2D, UpSampling2D, concatenate, Conv2DTranspose
+from keras.layers import Activation, BatchNormalization, Dropout, Lambda, Multiply, Add
+from keras.models import Model
+from keras import backend as K
 
 def conv2d_block(input_tensor, n_filters, kernel_size=3, batchnorm=True):
     """Function to add 2 convolutional layers with the parameters passed to it"""

@@ -194,13 +194,13 @@ def AttentionUNet(input_shape=(256, 256, 1), n_filters=16, dropout=0.1, batchnor
     return model
 
 # Attention U-Net 모델 생성
-model = AttentionUNet()
-model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
+# model = AttentionUNet()
+# model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
 # model.summary()                
 
 def get_model(model_name, nClasses=1, input_height=128, input_width=128, n_filters=16, dropout=0.1, batchnorm=True, n_channels=10):
     if model_name == 'AttentionUNet':
-        return AttentionUNet(input_size=(input_height, input_width, n_channels), n_filters=n_filters, dropout=dropout, batchnorm=batchnorm)
+        return AttentionUNet()
     # 여기에 다른 모델 조건을 추가할 수 있습니다.
     else:
         raise ValueError("Model name not recognized.")
@@ -243,7 +243,7 @@ save_name = 'base_line'
 
 N_FILTERS = 16 # 필터수 지정
 N_CHANNELS = 3 # channel 지정
-EPOCHS = 30 # 훈련 epoch 지정
+EPOCHS = 15 # 훈련 epoch 지정
 BATCH_SIZE = 16  # batch size 지정
 IMAGE_SIZE = (256, 256) # 이미지 크기 지정
 MODEL_NAME = 'AttentionUNet' # 모델 이름
@@ -278,10 +278,10 @@ EARLY_STOP_PATIENCE = 10
 
 # 중간 가중치 저장 이름
 CHECKPOINT_PERIOD = 10
-CHECKPOINT_MODEL_NAME = 'checkpoint-{}-{}-epoch_{{epoch:02d}}_03_11_04.hdf5'.format(MODEL_NAME, save_name)
+CHECKPOINT_MODEL_NAME = 'checkpoint-{}-{}-epoch_{{epoch:02d}}_03_11_05.hdf5'.format(MODEL_NAME, save_name)
  
 # 최종 가중치 저장 이름
-FINAL_WEIGHTS_OUTPUT = 'model_{}_{}_final_weights_03_11_04.h5'.format(MODEL_NAME, save_name)
+FINAL_WEIGHTS_OUTPUT = 'model_{}_{}_final_weights_03_11_05.h5'.format(MODEL_NAME, save_name)
 
 # 사용할 GPU 이름
 CUDA_DEVICE = 0
@@ -357,7 +357,7 @@ model = get_model(MODEL_NAME, input_height=IMAGE_SIZE[0], input_width=IMAGE_SIZE
 model.compile(optimizer = Adam(), loss = 'binary_crossentropy', metrics = ['accuracy', miou])
 model.summary()
 
-model.load_weights('C:\\_data\\AI factory\\train_output\\model_attention_unet_final_weights_03_11_04.h5')
+model.load_weights('C:\\_data\\AI factory\\train_output\\model_attention_unet_final_weights_03_11_05.h5')
 
 
 y_pred_dict = {}
@@ -370,7 +370,7 @@ for i in test_meta['test_img']:
     y_pred = y_pred.astype(np.uint8)
     y_pred_dict[i] = y_pred
 
-joblib.dump(y_pred_dict, 'C:\\_data\\AI factory\\train_output\\y_pred_03_11_04.pkl')
+joblib.dump(y_pred_dict, 'C:\\_data\\AI factory\\train_output\\y_pred_03_11_05.pkl')
 
 
 
