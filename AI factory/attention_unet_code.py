@@ -335,16 +335,16 @@ checkpoint = ModelCheckpoint(os.path.join(OUTPUT_DIR, CHECKPOINT_MODEL_NAME), mo
 save_best_only=True, mode='max', period=CHECKPOINT_PERIOD)
 
 print('---model 훈련 시작---')
-history = model.fit_generator(
-    train_generator,
-    steps_per_epoch=len(images_train) // BATCH_SIZE,
-    validation_data=validation_generator,
-    validation_steps=len(images_validation) // BATCH_SIZE,
-    callbacks=[checkpoint, es],
-    epochs=EPOCHS,
-    workers=WORKERS,
-    initial_epoch=INITIAL_EPOCH
-)
+# history = model.fit_generator(
+#     train_generator,
+#     steps_per_epoch=len(images_train) // BATCH_SIZE,
+#     validation_data=validation_generator,
+#     validation_steps=len(images_validation) // BATCH_SIZE,
+#     callbacks=[checkpoint, es],
+#     epochs=EPOCHS,
+#     workers=WORKERS,
+#     initial_epoch=INITIAL_EPOCH
+# )
 print('---model 훈련 종료---')
 
 print('가중치 저장')
@@ -357,7 +357,7 @@ model = get_model(MODEL_NAME, input_height=IMAGE_SIZE[0], input_width=IMAGE_SIZE
 model.compile(optimizer = Adam(), loss = 'binary_crossentropy', metrics = ['accuracy', miou])
 model.summary()
 
-model.load_weights('C:\\_data\\AI factory\\train_output\\model_attention_unet_final_weights_03_11_05.h5')
+model.load_weights('C:\\_data\\AI factory\\train_output\\model_AttentionUNet_base_line_final_weights_03_11_04.h5')
 
 
 y_pred_dict = {}
