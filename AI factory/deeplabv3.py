@@ -4,6 +4,7 @@ from keras.models import Model
 from keras.layers import Input, Conv2D, BatchNormalization, Activation, UpSampling2D, Concatenate, DepthwiseConv2D
 from keras.applications import ResNet50
 import keras
+from keras import layers
 
 def convolution_block(
     block_input,
@@ -67,3 +68,6 @@ def get_deeplab_v3_plus(nClasses, input_height=256, input_width=256, n_filters =
     )(x)
     model_output = layers.Conv2D(nClasses, kernel_size=(1, 1), padding="same", activation='sigmoid')(x)
     return keras.Model(inputs=model_input, outputs=model_output)
+
+model = get_deeplab_v3_plus(nClasses=20 , input_height=256, input_width=256, n_filters = 16, dropout = 0.1, batchnorm = True, n_channels=10)
+model.summary()

@@ -101,7 +101,7 @@ model.add(Dense(8, activation='relu'))
 model.add(Dense(1))
 
 from keras.optimizers import Adam
-learning_rate = 1.0
+learning_rate = 0.01
 epochs = 300
 rlr = ReduceLROnPlateau(monitor='val_loss', patience=10, mode='accuracy', verbose=1, factor=0.5)
 
@@ -151,5 +151,5 @@ print("lr : {0}, epochs : {1}, RMSE : {2}, 로스 : {3} ".format(learning_rate, 
 # lr : 1.0, epochs : 300, RMSE : 86.26883490588047, 로스 : [7442.3125, 0.0]
 
 # rlr  적용
-# lr : 1.0, epochs : 300, RMSE : 89.64004993227874, 로스 : [8035.33837890625, 0.0]
+# lr : 0.01, epochs : 300, RMSE : 40.48552135015347, 로스 : [1639.077392578125, 0.0]
 

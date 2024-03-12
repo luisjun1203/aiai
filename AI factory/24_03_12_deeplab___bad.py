@@ -119,87 +119,85 @@ def generator_from_lists(images_path, masks_path, batch_size=32, shuffle = True,
                 
 
 
-def conv2d_block(input_tensor, n_filters, kernel_size=3, batchnorm=True):
-    x = Conv2D(filters=n_filters, kernel_size=(kernel_size, kernel_size), kernel_initializer="he_normal", padding="same")(input_tensor)
-    if batchnorm:
-        x = BatchNormalization()(x)
-    x = Activation("relu")(x)
+#DeepLabv3+
+import tensorflow as tf
+from keras.models import Model
+from keras.layers import Input, Conv2D, BatchNormalization, Activation, UpSampling2D, Concatenate, DepthwiseConv2D
+from keras.applications import ResNet50
+import keras
+from keras import layers
 
-    x = Conv2D(filters=n_filters, kernel_size=(kernel_size, kernel_size), kernel_initializer="he_normal", padding="same")(x)
-    if batchnorm:
-        x = BatchNormalization()(x)
-    x = Activation("relu")(x)
-    return x
+def convolution_block(
+    block_input,
+    num_filters=256,
+    kernel_size=3,
+    dilation_rate=1,
+    use_bias=False,
+):
+    x = layers.Conv2D(
+        num_filters,
+        kernel_size=kernel_size,
+        dilation_rate=dilation_rate,
+        padding="same",
+        use_bias=use_bias,
+        kernel_initializer=keras.initializers.HeNormal(),
+    )(block_input)
+    x = layers.BatchNormalization()(x)
+    return tf.keras.activations.relu(x)
 
-def attention_gate(input_tensor, gating_signal, n_filters, kernel_size=1, batchnorm=True):
-    theta_x = Conv2D(n_filters, (kernel_size, kernel_size), strides=(2, 2), padding='same')(input_tensor)
-    phi_g = Conv2D(n_filters, (kernel_size, kernel_size), padding='same')(gating_signal)
+def dilated_spatial_pyramid_pooling(dspp_input):
+    dims = dspp_input.shape
+    x = layers.AveragePooling2D(pool_size=(dims[-3], dims[-2]))(dspp_input)
+    x = convolution_block(x, kernel_size=1, use_bias=True)
+    out_pool = layers.UpSampling2D(
+        size=(dims[-3] // x.shape[1], dims[-2] // x.shape[2]),
+        interpolation="bilinear",
+    )(x)
 
-    concat = Add()([theta_x, phi_g])
-    if batchnorm:
-        concat = BatchNormalization()(concat)
-    concat = Activation('relu')(concat)
+    out_1 = convolution_block(dspp_input, kernel_size=1, dilation_rate=1)
+    out_6 = convolution_block(dspp_input, kernel_size=3, dilation_rate=6)
+    out_12 = convolution_block(dspp_input, kernel_size=3, dilation_rate=12)
+    out_18 = convolution_block(dspp_input, kernel_size=3, dilation_rate=18)
 
-    psi = Conv2D(1, (kernel_size, kernel_size), padding='same')(concat)
-    psi = BatchNormalization()(psi)
-    psi = Activation('sigmoid')(psi)
-
-    upsample_psi = UpSampling2D(size=(2, 2))(psi)
-    output = Multiply()([input_tensor, upsample_psi])
+    x = layers.Concatenate(axis=-1)([out_pool, out_1, out_6, out_12, out_18])
+    output = convolution_block(x, kernel_size=1)
     return output
 
-def encoder_block(input_tensor, n_filters, pool_size=(2,2), dropout=0.3, batchnorm=True):
-    c = conv2d_block(input_tensor, n_filters, kernel_size=3, batchnorm=batchnorm)
-    p = MaxPooling2D(pool_size)(c)
-    p = Dropout(dropout)(p)
-    return c, p
+def get_deeplab_v3_plus(nClasses, input_height=256, input_width=256, n_filters = 16, dropout = 0.1, batchnorm = True, n_channels=10):
+    input_shape=(input_height,input_width, n_channels)
+    model_input = keras.Input(shape=(input_shape[0], input_shape[1], 3))
+    preprocessed = tf.keras.applications.resnet50.preprocess_input(model_input)
+    resnet50 = tf.keras.applications.ResNet50(
+        weights="imagenet", include_top=False, input_tensor=preprocessed
+    )
+    x = resnet50.get_layer("conv4_block6_2_relu").output
+    x = dilated_spatial_pyramid_pooling(x)
 
-def decoder_block(input_tensor, concat_tensor, n_filters, dropout=0.3, batchnorm=True):
-    u = Conv2DTranspose(n_filters, (3, 3), strides=(2, 2), padding='same')(input_tensor)
-    c = concatenate([u, concat_tensor])
-    c = Dropout(dropout)(c)
-    c = conv2d_block(c, n_filters, kernel_size=3, batchnorm=batchnorm)
-    return c
+    input_a = layers.UpSampling2D(
+        size=(input_shape[0] // 4 // x.shape[1], input_shape[1] // 4 // x.shape[2]),
+        interpolation="bilinear",
+    )(x)
+    input_b = resnet50.get_layer("conv2_block3_2_relu").output
+    input_b = convolution_block(input_b, num_filters=48, kernel_size=1)
 
-def AttentionUNet(input_shape=(256, 256, 1), n_filters=16, dropout=0.1, batchnorm=True):
-    inputs = Input(input_shape)
-    
-    # Encoder pathway
-    c1, p1 = encoder_block(inputs, n_filters * 1, batchnorm=batchnorm)
-    c2, p2 = encoder_block(p1, n_filters * 2, batchnorm=batchnorm)
-    c3, p3 = encoder_block(p2, n_filters * 4, batchnorm=batchnorm)
-    c4, p4 = encoder_block(p3, n_filters * 8, batchnorm=batchnorm)
-    
-    # Bridge
-    b = conv2d_block(p4, n_filters * 16, kernel_size=3, batchnorm=batchnorm)
-    
-    # Decoder pathway
-    a1 = attention_gate(c4, b, n_filters * 8)
-    d1 = decoder_block(b, a1, n_filters * 8, dropout=dropout, batchnorm=batchnorm)
+    x = layers.Concatenate(axis=-1)([input_a, input_b])
+    x = convolution_block(x)
+    x = convolution_block(x)
+    x = layers.UpSampling2D(
+        size=(input_shape[0] // x.shape[1], input_shape[1] // x.shape[2]),
+        interpolation="bilinear",
+    )(x)
+    model_output = layers.Conv2D(nClasses, kernel_size=(1, 1), padding="same", activation='sigmoid')(x)
+    return keras.Model(inputs=model_input, outputs=model_output)
 
-    a2 = attention_gate(c3, d1, n_filters * 4)
-    d2 = decoder_block(d1, a2, n_filters * 4, dropout=dropout, batchnorm=batchnorm)
+model = get_deeplab_v3_plus(nClasses=20 , input_height=256, input_width=256, n_filters = 16, dropout = 0.1, batchnorm = True, n_channels=10)
+# model.summary()
 
-    a3 = attention_gate(c2, d2, n_filters * 2)
-    d3 = decoder_block(d2, a3, n_filters * 2, dropout=dropout, batchnorm=batchnorm)
-
-    a4 = attention_gate(c1, d3, n_filters)
-    d4 = decoder_block(d3, a4, n_filters, dropout=dropout, batchnorm=batchnorm)
-
-    # Output
-    outputs = Conv2D(1, (1, 1), activation='sigmoid')(d4)
-
-    model = Model(inputs=[inputs], outputs=[outputs])
-    return model
-
-# Attention U-Net 모델 생성
-model = AttentionUNet()
-model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
-# model.summary()                
+              
 
 def get_model(model_name, nClasses=1, input_height=128, input_width=128, n_filters=16, dropout=0.1, batchnorm=True, n_channels=10):
-    if model_name == 'AttentionUNet':
-        return AttentionUNet(input_shape=(256,256, n_channels), n_filters=n_filters, dropout=dropout, batchnorm=batchnorm)
+    if model_name == 'Deeplabv3plus':
+        return get_deeplab_v3_plus(nClasses=20, input_height=256, input_width=256, n_filters=n_filters, dropout=dropout, batchnorm=batchnorm)
     # 여기에 다른 모델 조건을 추가할 수 있습니다.
     else:
         raise ValueError("Model name not recognized.")
@@ -243,9 +241,9 @@ save_name = 'base_line'
 N_FILTERS = 16 # 필터수 지정
 N_CHANNELS = 3 # channel 지정
 EPOCHS = 10 # 훈련 epoch 지정
-BATCH_SIZE = 16  # batch size 지정
+BATCH_SIZE = 8  # batch size 지정
 IMAGE_SIZE = (256, 256) # 이미지 크기 지정
-MODEL_NAME = 'AttentionUNet' # 모델 이름
+MODEL_NAME = 'Deeplabv3plus' # 모델 이름
 RANDOM_STATE = 3 # seed 고정
 INITIAL_EPOCH = 0 # 초기 epoch
 THESHOLDS = 0.25
@@ -277,10 +275,10 @@ EARLY_STOP_PATIENCE = 3
 
 # 중간 가중치 저장 이름
 CHECKPOINT_PERIOD = 10
-CHECKPOINT_MODEL_NAME = 'checkpoint-{}-{}-epoch_{{epoch:02d}}_03_12_01.hdf5'.format(MODEL_NAME, save_name)
+CHECKPOINT_MODEL_NAME = 'checkpoint-{}-{}-epoch_{{epoch:02d}}_03_12_02.hdf5'.format(MODEL_NAME, save_name)
  
 # 최종 가중치 저장 이름
-FINAL_WEIGHTS_OUTPUT = 'model_{}_{}_final_weights_03_12_01.h5'.format(MODEL_NAME, save_name)
+FINAL_WEIGHTS_OUTPUT = 'model_{}_{}_final_weights_03_12_02.h5'.format(MODEL_NAME, save_name)
 
 # 사용할 GPU 이름
 CUDA_DEVICE = 0
@@ -308,7 +306,7 @@ except:
 
 
 # train : val = 8 : 2 나누기
-x_tr, x_val = train_test_split(train_meta, test_size=0.1, random_state=RANDOM_STATE)
+x_tr, x_val = train_test_split(train_meta, test_size=0.2, random_state=RANDOM_STATE)
 print(len(x_tr), len(x_val))
 
 # train : val 지정 및 generator
@@ -334,16 +332,16 @@ checkpoint = ModelCheckpoint(os.path.join(OUTPUT_DIR, CHECKPOINT_MODEL_NAME), mo
 save_best_only=True, mode='max', period=CHECKPOINT_PERIOD)
 
 print('---model 훈련 시작---')
-# history = model.fit_generator(
-#     train_generator,
-#     steps_per_epoch=len(images_train) // BATCH_SIZE,
-#     validation_data=validation_generator,
-#     validation_steps=len(images_validation) // BATCH_SIZE,
-#     callbacks=[checkpoint, es],
-#     epochs=EPOCHS,
-#     workers=WORKERS,
-#     initial_epoch=INITIAL_EPOCH
-# )
+history = model.fit_generator(
+    train_generator,
+    steps_per_epoch=len(images_train) // BATCH_SIZE,
+    validation_data=validation_generator,
+    validation_steps=len(images_validation) // BATCH_SIZE,
+    callbacks=[checkpoint, es],
+    epochs=EPOCHS,
+    workers=WORKERS,
+    initial_epoch=INITIAL_EPOCH
+)
 print('---model 훈련 종료---')
 
 print('가중치 저장')
@@ -356,14 +354,14 @@ print("저장된 가중치 명: {}".format(model_weights_output))
 # model.compile(optimizer = Adam(), loss = 'binary_crossentropy', metrics = ['accuracy', miou])
 # model.summary()
 
-model.load_weights('C:\\_data\\AI factory\\train_output\\checkpoint-AttentionUNet-base_line-epoch_40_03_12_01.hdf5')
+model.load_weights('C:\\_data\\AI factory\\train_output\\model_AttentionUNet_base_line_final_weights_03_12_03.h5')
 
 
 y_pred_dict = {}
 
 for i in test_meta['test_img']:
     img = get_img_762bands(f'C:\\_data\\AI factory\\test_img\\{i}')
-    y_pred = model.predict(np.array([img]), batch_size=1, verbose=1)
+    y_pred = model.predict(np.array([img]), batch_size=1)
     
     y_pred = np.where(y_pred[0, :, :, 0] > 0.25, 1, 0) # 임계값 처리
     y_pred = y_pred.astype(np.uint8)
