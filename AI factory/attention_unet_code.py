@@ -8,7 +8,7 @@ from sklearn.model_selection import train_test_split
 import tensorflow as tf
 import keras
 from keras.optimizers import *
-from keras.callbacks import ModelCheckpoint, EarlyStopping
+from keras.callbacks import ModelCheckpoint, EarlyStopping, ReduceLROnPlateau
 from tensorflow.python.keras import backend as K
 import sys
 import pandas as pd
@@ -120,7 +120,6 @@ def generator_from_lists(images_path, masks_path, batch_size=32, shuffle = True,
 
 
 def conv2d_block(input_tensor, n_filters, kernel_size=3, batchnorm=True):
-    """Function to add 2 convolutional layers with the parameters passed to it"""
     x = Conv2D(filters=n_filters, kernel_size=(kernel_size, kernel_size), kernel_initializer="he_normal", padding="same")(input_tensor)
     if batchnorm:
         x = BatchNormalization()(x)
@@ -194,13 +193,13 @@ def AttentionUNet(input_shape=(256, 256, 1), n_filters=16, dropout=0.1, batchnor
     return model
 
 # Attention U-Net 모델 생성
-# model = AttentionUNet()
-# model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
+model = AttentionUNet()
+model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
 # model.summary()                
 
 def get_model(model_name, nClasses=1, input_height=128, input_width=128, n_filters=16, dropout=0.1, batchnorm=True, n_channels=10):
     if model_name == 'AttentionUNet':
-        return AttentionUNet()
+        return AttentionUNet(input_shape=(256,256, n_channels), n_filters=n_filters, dropout=dropout, batchnorm=batchnorm)
     # 여기에 다른 모델 조건을 추가할 수 있습니다.
     else:
         raise ValueError("Model name not recognized.")
@@ -243,14 +242,16 @@ save_name = 'base_line'
 
 N_FILTERS = 16 # 필터수 지정
 N_CHANNELS = 3 # channel 지정
-EPOCHS = 15 # 훈련 epoch 지정
-BATCH_SIZE = 16  # batch size 지정
+EPOCHS = 150 # 훈련 epoch 지정
+BATCH_SIZE = 24  # batch size 지정
 IMAGE_SIZE = (256, 256) # 이미지 크기 지정
 MODEL_NAME = 'AttentionUNet' # 모델 이름
 RANDOM_STATE = 3 # seed 고정
 INITIAL_EPOCH = 0 # 초기 epoch
 THESHOLDS = 0.25
+lr = 0.01
 
+rlr = ReduceLROnPlateau(monitor='val_miou', patience=10, mode='accuracy', verbose=1, factor=0.5)
 
 
 def miou(y_true, y_pred, smooth=1e-6):
@@ -274,14 +275,14 @@ OUTPUT_DIR = 'C:\_data\AI factory\\train_output\\'
 WORKERS = 16
 
 # 조기종료
-EARLY_STOP_PATIENCE = 10
+EARLY_STOP_PATIENCE = 20
 
 # 중간 가중치 저장 이름
 CHECKPOINT_PERIOD = 10
-CHECKPOINT_MODEL_NAME = 'checkpoint-{}-{}-epoch_{{epoch:02d}}_03_11_05.hdf5'.format(MODEL_NAME, save_name)
+CHECKPOINT_MODEL_NAME = 'checkpoint-{}-{}-epoch_{{epoch:02d}}_03_12_01.hdf5'.format(MODEL_NAME, save_name)
  
 # 최종 가중치 저장 이름
-FINAL_WEIGHTS_OUTPUT = 'model_{}_{}_final_weights_03_11_05.h5'.format(MODEL_NAME, save_name)
+FINAL_WEIGHTS_OUTPUT = 'model_{}_{}_final_weights_03_12_01.h5'.format(MODEL_NAME, save_name)
 
 # 사용할 GPU 이름
 CUDA_DEVICE = 0
@@ -325,7 +326,7 @@ validation_generator = generator_from_lists(images_validation, masks_validation,
 
 # model 불러오기
 model = get_model(MODEL_NAME, input_height=IMAGE_SIZE[0], input_width=IMAGE_SIZE[1], n_filters=N_FILTERS, n_channels=N_CHANNELS)
-model.compile(optimizer = Adam(), loss = 'binary_crossentropy', metrics = ['accuracy', miou])
+model.compile(optimizer = Adam(learning_rate=lr), loss = 'binary_crossentropy', metrics = ['accuracy', miou])
 model.summary()
 
 
@@ -335,16 +336,17 @@ checkpoint = ModelCheckpoint(os.path.join(OUTPUT_DIR, CHECKPOINT_MODEL_NAME), mo
 save_best_only=True, mode='max', period=CHECKPOINT_PERIOD)
 
 print('---model 훈련 시작---')
-# history = model.fit_generator(
-#     train_generator,
-#     steps_per_epoch=len(images_train) // BATCH_SIZE,
-#     validation_data=validation_generator,
-#     validation_steps=len(images_validation) // BATCH_SIZE,
-#     callbacks=[checkpoint, es],
-#     epochs=EPOCHS,
-#     workers=WORKERS,
-#     initial_epoch=INITIAL_EPOCH
-# )
+history = model.fit_generator(
+    train_generator,
+    steps_per_epoch=len(images_train) // BATCH_SIZE,
+    validation_data=validation_generator,
+    validation_steps=len(images_validation) // BATCH_SIZE,
+    callbacks=[checkpoint, es, rlr],
+    epochs=EPOCHS,
+    workers=WORKERS,
+    initial_epoch=INITIAL_EPOCH,
+    
+)
 print('---model 훈련 종료---')
 
 print('가중치 저장')
@@ -353,24 +355,24 @@ model.save_weights(model_weights_output)
 print("저장된 가중치 명: {}".format(model_weights_output))
 
 
-model = get_model(MODEL_NAME, input_height=IMAGE_SIZE[0], input_width=IMAGE_SIZE[1], n_filters=N_FILTERS, n_channels=N_CHANNELS)
-model.compile(optimizer = Adam(), loss = 'binary_crossentropy', metrics = ['accuracy', miou])
-model.summary()
+# model = get_model(MODEL_NAME, input_height=IMAGE_SIZE[0], input_width=IMAGE_SIZE[1], n_filters=N_FILTERS, n_channels=N_CHANNELS)
+# model.compile(optimizer = Adam(), loss = 'binary_crossentropy', metrics = ['accuracy', miou])
+# model.summary()
 
-model.load_weights('C:\\_data\\AI factory\\train_output\\model_AttentionUNet_base_line_final_weights_03_11_04.h5')
+model.load_weights('C:\\_data\\AI factory\\train_output\\checkpoint-AttentionUNet-base_line-epoch_40_03_12_01.hdf5')
 
 
 y_pred_dict = {}
 
 for i in test_meta['test_img']:
     img = get_img_762bands(f'C:\\_data\\AI factory\\test_img\\{i}')
-    y_pred = model.predict(np.array([img]), batch_size=1)
+    y_pred = model.predict(np.array([img]), batch_size=1, verbose=1)
     
     y_pred = np.where(y_pred[0, :, :, 0] > 0.25, 1, 0) # 임계값 처리
     y_pred = y_pred.astype(np.uint8)
     y_pred_dict[i] = y_pred
 
-joblib.dump(y_pred_dict, 'C:\\_data\\AI factory\\train_output\\y_pred_03_11_05.pkl')
+joblib.dump(y_pred_dict, 'C:\\_data\\AI factory\\train_output\\y_pred_03_12_02.pkl')
 
 
 
