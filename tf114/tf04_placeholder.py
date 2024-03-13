@@ -18,4 +18,25 @@ print(sess.run(add_node, feed_dict={a:3, b:4})) # 7.0           # feed_dict : ë”
 print(sess.run(add_node, feed_dict={a:30, b:4.5})) # 34.5
 
 
+add_and_triple = add_node * 3
+print(add_and_triple)
+
+print(sess.run(add_and_triple, feed_dict={a:30, b:4.5}))    # 103.5
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
