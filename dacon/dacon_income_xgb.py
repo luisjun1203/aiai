@@ -241,62 +241,34 @@ y = train_csv['Income']
 
 
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, shuffle=True, random_state=3)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.1, shuffle=True, random_state=3)
 
 
-splits = 5
-kfold = StratifiedKFold(n_splits=splits, shuffle=True, random_state=3)
+xgb_params = {'learning_rate': 0.2218036245351803,
+            'n_estimators': 199,
+            'max_depth': 3,
+            'min_child_weight': 0.07709868781803283,
+            'subsample': 0.80309973945344,
+            'colsample_bytree': 0.9254025887963853,
+            'gamma': 6.628562492458777e-08,
+            'reg_alpha': 0.012998871754325427,
+            'reg_lambda': 0.10637051171111844}
 
-parameters = {
-    'XGB__n_estimators': [300],  # 부스팅 라운드의 수
-    'XGB__learning_rate': [0.01],  # 학습률
-    'XGB__max_depth': [9],  # 트리의 최대 깊이
-    'XGB__min_child_weight': [1],  # 자식에 필요한 모든 관측치에 대한 가중치 합의 최소
-    'XGB__gamma': [0.6],  # 리프 노드를 추가적으로 나눌지 결정하기 위한 최소 손실 감소
-    'XGB__subsample': [0.6],  # 각 트리마다의 관측 데이터 샘플링 비율
-    'XGB__colsample_bytree': [0.8],  # 각 트리 구성에 필요한 컬럼(특성) 샘플링 비율
-    # 'XGB__objective': ['multi:softmax'],  # 학습 태스크 파라미터
-    # 'XGB__num_class': [26],  # 분류해야 할 전체 클래스 수, 멀티클래스 분류인 경우 설정
-    'XGB__verbosity' : [1],
-    'XGB__reg_alpha' : [0.7],   # 디폴트 0 / 0 ~ inf / L1 절대값 가중치 규제(제한) / alpha
-    'XGB__reg_lambda' : [1],
-     
-}
-
-pipe = Pipeline([('RBS',RobustScaler()),
-                 ('XGB', XGBRegressor(random_state=3,
-                                    #    early_stopping_rounds = 50
-                                       ))])
-
-model = HalvingGridSearchCV(pipe, parameters,
-                     cv = kfold,
-                     verbose=1,
-                     refit=True,
-                     n_jobs=-1,   
-                    # n_iter=10 # 디폴트 10
-                    factor=2,
-                    min_resources=10,
-                    )
-
-
-model.fit(X_train,y_train, 
-        #   eval_test = [(X_test, y_test)]
-          )
+model = XGBRegressor(**xgb_params)
+model.fit(X_train, y_train, eval_set=[(X_test, y_test)], early_stopping_rounds=50, verbose=100)
 
 
 
-print("최적의 매개변수:",model.best_estimator_)
-print("최적의 파라미터:",model.best_params_)
-print("best_score:",model.best_score_) 
+
+
+
 print("model.score:", model.score(X_test,y_test)) 
 
 y_predict=model.predict(X_test)
 # y_predict = lae.inverse_transform(y_predict)
 
 print("r2.score:", r2_score(y_test,y_predict))
-y_pred_best=model.best_estimator_.predict(X_test)
 
-print("best_acc.score:",r2_score(y_test,y_pred_best))
 
 y_submit = model.predict(test_csv)  
 # y_submit = lae.inverse_transform(y_submit)
@@ -305,7 +277,7 @@ y_submit = pd.DataFrame(y_submit)
 submission_csv['Income'] = y_submit
 print(y_submit)
 
-submission_csv.to_csv(path + "submisson_03_13_1_xgb.csv", index=False)
+submission_csv.to_csv(path + "submisson_03_14_1_xgb.csv", index=False)
 
 
 def RMSE(y_test, y_predict):

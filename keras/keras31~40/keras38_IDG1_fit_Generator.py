@@ -44,7 +44,7 @@ xy_train = train_datagen.flow_from_directory(
 xy_test = test_datagen.flow_from_directory(
     path_test, 
     target_size=(150,150),              # 사이즈 조절
-    batch_size=10,  cdsfdsa yfvk.bfdsak
+    batch_size=10,)  
 # start_time = time.time()
 # X = []
 # y = []
@@ -90,7 +90,7 @@ xy_test = test_datagen.flow_from_directory(
 # y_test = xy_test[0][1]
 
 # 1. 데이터
-dsfdsamflkdsa/f
+
 
 # 2. 모델구성
 model = Sequential()
