@@ -1,37 +1,89 @@
-from keras.layers import Input, Conv2D, Reshape, Dense, Flatten
-from keras.models import Model
+import numpy as np
 import tensorflow as tf
+from tensorflow import keras
+from keras import layers
 
-def create_vit_segmenter(input_shape=(256, 256, 3), num_patches=256, projection_dim=64, num_heads=4, transformer_layers=4, num_classes=1):
-    inputs = Input(shape=input_shape)
-    # 이미지를 패치로 분할
-    patches = Reshape((num_patches, input_shape[2] * (input_shape[0] // int(num_patches**0.5)) * (input_shape[1] // int(num_patches**0.5))))(inputs)
-    # 패치 임베딩
-    patch_embeddings = Dense(units=projection_dim)(patches)
+class Patches(layers.Layer):
+    def __init__(self, patch_size):
+        super(Patches, self).__init__()
+        self.patch_size = patch_size
 
-    # 위치 임베딩 추가
-    position_embeddings = tf.Variable(tf.zeros(shape=(1, num_patches, projection_dim)))
-    embeddings = patch_embeddings + position_embeddings
+    def call(self, images):
+        batch_size = tf.shape(images)[0]
+        patches = tf.image.extract_patches(
+            images=images,
+            sizes=[1, self.patch_size, self.patch_size, 1],
+            strides=[1, self.patch_size, self.patch_size, 1],
+            rates=[1, 1, 1, 1],
+            padding='VALID',
+        )
+        patch_dims = patches.shape[-1]
+        patches = tf.reshape(patches, [batch_size, -1, patch_dims])
+        return patches
+
+class PatchEncoder(layers.Layer):
+    def __init__(self, num_patches, projection_dim):
+        super(PatchEncoder, self).__init__()
+        self.num_patches = num_patches
+        self.projection = layers.Dense(units=projection_dim)
+        self.position_embedding = layers.Embedding(
+            input_dim=num_patches, output_dim=projection_dim)
+
+    def call(self, patch):
+        positions = tf.range(start=0, limit=self.num_patches, delta=1)
+        encoded = self.projection(patch) + self.position_embedding(positions)
+        return encoded
     
-    # Transformer 레이어
-    for _ in range(transformer_layers):
-        # Multi-head Self-Attention (MSA) / LayerNorm (LN) / MLP
-        attention_output = tf.keras.layers.MultiHeadAttention(num_heads=num_heads, key_dim=projection_dim)(embeddings, embeddings)
-        x = tf.keras.layers.LayerNormalization(epsilon=1e-6)(embeddings + attention_output)
-        x = tf.keras.layers.Dense(units=projection_dim, activation=tf.nn.gelu)(x)
-        embeddings = tf.keras.layers.LayerNormalization(epsilon=1e-6)(x + embeddings)
+def mlp(x, hidden_units, dropout_rate):
+    for units in hidden_units:
+        x = layers.Dense(units, activation=tf.nn.gelu)(x)
+        x = layers.Dropout(dropout_rate)(x)
+    return x
+
+class TransformerBlock(layers.Layer):
+    def __init__(self, embed_dim, num_heads, ff_dim, rate=0.1):
+        super(TransformerBlock, self).__init__()
+        self.att = layers.MultiHeadAttention(num_heads=num_heads, key_dim=embed_dim)
+        self.ffn = keras.Sequential(
+            [layers.Dense(ff_dim, activation="relu"), layers.Dense(embed_dim),]
+        )
+        self.layernorm1 = layers.LayerNormalization(epsilon=1e-6)
+        self.layernorm2 = layers.LayerNormalization(epsilon=1e-6)
+        self.dropout1 = layers.Dropout(rate)
+        self.dropout2 = layers.Dropout(rate)
+
+    def call(self, inputs, training):
+        attn_output = self.att(inputs, inputs)
+        attn_output = self.dropout1(attn_output, training=training)
+        out1 = self.layernorm1(inputs + attn_output)
+        ffn_output = self.ffn(out1)
+        ffn_output = self.dropout2(ffn_output, training=training)
+        return self.layernorm2(out1 + ffn_output)    
+   
+
     
-    # 패치 기반 분할 마스크 생성
-    patch_outputs = Dense(units=(input_shape[0] * input_shape[1] // num_patches) * num_classes, activation='sigmoid')(embeddings)
-    # 분할 마스크로 재구성
-    segmentation_mask = Reshape((input_shape[0], input_shape[1], num_classes))(patch_outputs)
-    
-    model = Model(inputs=inputs, outputs=segmentation_mask)
+def create_vit_classifier():
+    inputs = layers.Input(shape=(32, 32, 3))
+    # 이미지를 패치로 나눔
+    patches = Patches(patch_size=4)(inputs)
+    # 패치를 인코딩
+    encoded_patches = PatchEncoder(num_patches=64, projection_dim=64)(patches)
+
+    # Transformer 블록 추가
+    for _ in range(4):  # 여기서는 레이어를 4개 추가합니다.
+        encoded_patches = TransformerBlock(64, 4, 128)(encoded_patches)
+
+    # 분류를 위한 레이어
+    representation = layers.LayerNormalization(epsilon=1e-6)(encoded_patches)
+    representation = layers.Flatten()(representation)
+    representation = layers.Dropout(0.5)(representation)
+    features = mlp(representation, hidden_units=[2048, 1024], dropout_rate=0.5)
+    outputs = layers.Dense(10)(features)
+
+    model = keras.Model(inputs=inputs, outputs=outputs)
     return model
 
-# 모델 생성 및 컴파일
-vit_segmenter = create_vit_segmenter()
-vit_segmenter.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
-
-# 모델 요약 출력
-vit_segmenter.summary()
+model = create_vit_classifier()
+model.summary()
+    
+    
