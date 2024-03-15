@@ -30,7 +30,7 @@ def objective(trial):
     
     # 하이퍼파라미터 탐색 공간 정의
     n_estimators = trial.suggest_int('n_estimators', 10, 1000)
-    max_depth = trial.suggest_int('max_depth', 3, 30)
+    max_depth = trial.suggest_int('max_depth', 3, 15)
     min_samples_split = trial.suggest_int('min_samples_split', 2, 20)
     min_samples_leaf = trial.suggest_int('min_samples_leaf', 1, 20)
     max_features = trial.suggest_categorical('max_features', ['sqrt', 'log2', None])
@@ -46,7 +46,7 @@ def objective(trial):
         max_features=max_features, 
         bootstrap=bootstrap,
         ccp_alpha=ccp_alpha,
-        random_state=8
+        random_state=3
     )
 
     # 모델 학습
@@ -78,7 +78,7 @@ for param, value in best_params.items():
     if param in submission_csv.columns:
         submission_csv[param] = value
 
-submission_csv.to_csv(path + "sample_submission_03_14_3_.csv", index=False)
+submission_csv.to_csv(path + "sample_submission_03_15_1_.csv", index=False)
 
 # Best parameters: {'n_estimators': 604, 'max_depth': 16, 'min_samples_split': 16, 'min_samples_leaf': 7, 'max_features': 'log2', 'bootstrap': True, 'ccp_alpha': 0.01946773755724655}
 # Best AUC: 0.851037851037851
