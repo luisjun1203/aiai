@@ -286,13 +286,13 @@ save_name = 'base_line'
 N_FILTERS = 16 # 필터수 지정
 N_CHANNELS = 3 # channel 지정
 EPOCHS = 100 # 훈련 epoch 지정
-BATCH_SIZE = 8   # batch size 지정
+BATCH_SIZE = 4   # batch size 지정
 IMAGE_SIZE = (256, 256) # 이미지 크기 지정
 MODEL_NAME = 'VIT' # 모델 이름
 RANDOM_STATE = 3 # seed 고정
 INITIAL_EPOCH = 0 # 초기 epoch
 THESHOLDS = 0.25
-lr = 0.1
+lr = 0.07
 
 rlr = ReduceLROnPlateau(monitor='val_miou', patience=10, mode='accuracy', verbose=1, factor=0.5)
 
@@ -405,7 +405,7 @@ print("저장된 가중치 명: {}".format(model_weights_output))
 # model.compile(optimizer = Adam(), loss=loss, metrics = ['accuracy', miou])
 # model.summary()
 
-model.load_weights('C:\\_data\\AI factory\\train_output\\model_AttentionUNet_base_line_final_weights_03_15_01.h5')
+model.load_weights('C:\\_data\\AI factory\\train_output\\model_VIT_base_line_final_weights_03_15_01.h5')
 
 
 y_pred_dict = {}
