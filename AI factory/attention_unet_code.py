@@ -242,8 +242,8 @@ save_name = 'base_line'
 
 N_FILTERS = 16 # 필터수 지정
 N_CHANNELS = 3 # channel 지정
-EPOCHS = 150 # 훈련 epoch 지정
-BATCH_SIZE = 128   # batch size 지정
+EPOCHS = 100 # 훈련 epoch 지정
+BATCH_SIZE = 16   # batch size 지정
 IMAGE_SIZE = (256, 256) # 이미지 크기 지정
 MODEL_NAME = 'AttentionUNet' # 모델 이름
 RANDOM_STATE = 3 # seed 고정
