@@ -249,7 +249,7 @@ MODEL_NAME = 'AttentionUNet' # 모델 이름
 RANDOM_STATE = 3 # seed 고정
 INITIAL_EPOCH = 0 # 초기 epoch
 THESHOLDS = 0.25
-lr = 0.01
+lr = 0.001
 
 rlr = ReduceLROnPlateau(monitor='val_miou', patience=10, mode='accuracy', verbose=1, factor=0.5)
 
@@ -275,14 +275,14 @@ OUTPUT_DIR = 'C:\_data\AI factory\\train_output\\'
 WORKERS = 20
 
 # 조기종료
-EARLY_STOP_PATIENCE = 20
+EARLY_STOP_PATIENCE = 17
 
 # 중간 가중치 저장 이름
-CHECKPOINT_PERIOD = 10
-CHECKPOINT_MODEL_NAME = 'checkpoint-{}-{}-epoch_{{epoch:02d}}_03_15_01.hdf5'.format(MODEL_NAME, save_name)
+CHECKPOINT_PERIOD = 5
+CHECKPOINT_MODEL_NAME = 'checkpoint-{}-{}-epoch_{{epoch:02d}}_03_17_01.hdf5'.format(MODEL_NAME, save_name)
  
 # 최종 가중치 저장 이름
-FINAL_WEIGHTS_OUTPUT = 'model_{}_{}_final_weights_03_15_01.h5'.format(MODEL_NAME, save_name)
+FINAL_WEIGHTS_OUTPUT = 'model_{}_{}_final_weights_03_17_01.h5'.format(MODEL_NAME, save_name)
 
 # 사용할 GPU 이름
 CUDA_DEVICE = 0
@@ -324,10 +324,10 @@ train_generator = generator_from_lists(images_train, masks_train, batch_size=BAT
 validation_generator = generator_from_lists(images_validation, masks_validation, batch_size=BATCH_SIZE, random_state=RANDOM_STATE, image_mode="762")
 
 import segmentation_models as sm
-
+#  loss = sm.losses.binary_focal_jaccard_loss
 # model 불러오기
 model = get_model(MODEL_NAME, input_height=IMAGE_SIZE[0], input_width=IMAGE_SIZE[1], n_filters=N_FILTERS, n_channels=N_CHANNELS)
-model.compile(optimizer = Adam(learning_rate=lr), loss = sm.losses.binary_focal_jaccard_loss, metrics = ['accuracy', miou])
+model.compile(optimizer = Adam(learning_rate=lr), loss = 'binary_crossentropy', metrics = ['accuracy', miou])
 model.summary()
 
 
@@ -360,7 +360,7 @@ print("저장된 가중치 명: {}".format(model_weights_output))
 # model.compile(optimizer = Adam(), loss = 'binary_crossentropy', metrics = ['accuracy', miou])
 # model.summary()
 
-model.load_weights('C:\\_data\\AI factory\\train_output\\model_AttentionUNet_base_line_final_weights_03_15_01.h5')
+model.load_weights('C:\\_data\\AI factory\\train_output\\model_AttentionUNet_base_line_final_weights_03_17_01.h5')
 
 
 y_pred_dict = {}
@@ -373,7 +373,7 @@ for i in test_meta['test_img']:
     y_pred = y_pred.astype(np.uint8)
     y_pred_dict[i] = y_pred
 
-joblib.dump(y_pred_dict, 'C:\\_data\\AI factory\\train_output\\y_pred_03_15_01.pkl')
+joblib.dump(y_pred_dict, 'C:\\_data\\AI factory\\train_output\\y_pred_03_17_01.pkl')
 
 
 
