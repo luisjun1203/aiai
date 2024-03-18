@@ -247,7 +247,7 @@ save_name = 'indian2'
 N_FILTERS = 16 # 필터수 지정
 N_CHANNELS = 3 # channel 지정
 EPOCHS = 120 # 훈련 epoch 지정
-BATCH_SIZE = 8  # batch size 지정
+BATCH_SIZE = 2  # batch size 지정
 IMAGE_SIZE = (256, 256) # 이미지 크기 지정
 MODEL_NAME = 'concat' # 모델 이름
 RANDOM_STATE = 3 # seed 고정
@@ -262,7 +262,7 @@ OUTPUT_DIR = 'C:\_data\AI factory\\train_output\\'
 WORKERS = 20
 
 # 조기종료
-EARLY_STOP_PATIENCE = 20
+EARLY_STOP_PATIENCE = 17
 
 
 # 중간 가중치 저장 이름
