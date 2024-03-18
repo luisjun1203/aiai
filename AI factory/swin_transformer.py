@@ -3,7 +3,7 @@ import tensorflow as tf
 from keras.layers import Dense, Dropout, Conv2D, LayerNormalization, GlobalAveragePooling1D
 
 CFGS = {
-    'swin_tiny_224': dict(input_size=(224, 224), window_size=7, embed_dim=96, depths=[2, 2, 6, 2], num_heads=[3, 6, 12, 24]),
+    'swin_tiny_224': dict(input_size=(256, 256), window_size=7, embed_dim=96, depths=[2, 2, 6, 2], num_heads=[3, 6, 12, 24]),
     'swin_small_224': dict(input_size=(224, 224), window_size=7, embed_dim=96, depths=[2, 2, 18, 2], num_heads=[3, 6, 12, 24]),
     'swin_base_224': dict(input_size=(224, 224), window_size=7, embed_dim=128, depths=[2, 2, 18, 2], num_heads=[4, 8, 16, 32]),
     'swin_base_384': dict(input_size=(384, 384), window_size=12, embed_dim=128, depths=[2, 2, 18, 2], num_heads=[4, 8, 16, 32]),
@@ -312,7 +312,7 @@ class BasicLayer(tf.keras.layers.Layer):
 
 
 class PatchEmbed(tf.keras.layers.Layer):
-    def __init__(self, img_size=(224, 224), patch_size=(4, 4), in_chans=3, embed_dim=96, norm_layer=None):
+    def __init__(self, img_size=(256, 256), patch_size=(4, 4), in_chans=3, embed_dim=96, norm_layer=None):
         super().__init__(name='patch_embed')
         patches_resolution = [img_size[0] //
                               patch_size[0], img_size[1] // patch_size[1]]
@@ -345,7 +345,7 @@ class PatchEmbed(tf.keras.layers.Layer):
 
 class SwinTransformerModel(tf.keras.Model):
     def __init__(self, model_name='swin_tiny_patch4_window7_224', include_top=False,
-                 img_size=(224, 224), patch_size=(4, 4), in_chans=3, num_classes=1000,
+                 img_size=(256, 256), patch_size=(4, 4), in_chans=3, num_classes=1000,
                  embed_dim=96, depths=[2, 2, 6, 2], num_heads=[3, 6, 12, 24],
                  window_size=7, mlp_ratio=4., qkv_bias=True, qk_scale=None,
                  drop_rate=0., attn_drop_rate=0., drop_path_rate=0.1,
@@ -455,14 +455,17 @@ def SwinTransformer(model_name='swin_tiny_224', num_classes=1000, include_top=Tr
 from swin_transformer import SwinTransformer
 import tensorflow as tf
 from keras.models import Model
-from keras.layers import Dense, GlobalAveragePooling2D
+from keras.layers import Dense, GlobalAveragePooling1D, Input
 
-base_model = SwinTransformer(include_top=False)
+base_model = SwinTransformer(model_name='swin_tiny_224', include_top=False, pretrained=True)
 
-x = GlobalAveragePooling2D()(base_model.output)
+# 모델의 입력과 출력 설정
+inputs = Input(shape=(256, 256, 3))
+x = base_model(inputs)  # SwinTransformer 모델을 통해 입력 처리
+outputs = Dense(1, activation='sigmoid')(x)  # 최종 출력 층
 
-output = Dense(1, activation='sigmoid')(x)
-
-model = Model(inputs=base_model.input, outputs=output)
+# 전체 모델 정의
+model = Model(inputs=inputs, outputs=outputs)
 
 model.summary()
+
