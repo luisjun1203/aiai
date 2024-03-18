@@ -43,7 +43,7 @@ import random
 r = random.randint(1,500)
 
 # 훈련 데이터와 검증 데이터 분리
-X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.1, random_state=38)
+X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.1, random_state=8456)
 
 # XGBoost 모델 학습
 xgb_params = {'learning_rate': 0.05,
@@ -61,10 +61,10 @@ model.fit(X_train, y_train, eval_set=[(X_val, y_val)], early_stopping_rounds=50,
 import joblib
 
 # 모델 저장
-joblib.dump(model, "c://_data//dacon//income//weights//money_xgb_03_15_1.pkl")
+joblib.dump(model, "c://_data//dacon//income//weights//money_xgb_03_18_1.pkl")
 
 # 저장된 모델 불러오기
-loaded_model = joblib.load("c://_data//dacon//income//weights//money_xgb_03_15_1.pkl")
+loaded_model = joblib.load("c://_data//dacon//income//weights//money_xgb_03_18_1.pkl")
 # 검증 데이터 예측
 y_pred_val = model.predict(X_val)
 
@@ -78,4 +78,4 @@ y_submit = model.predict(test_csv)
 submission_csv['Income'] = y_submit
 print(y_submit)
 
-submission_csv.to_csv(path + "submisson_03_15_1_xgb.csv", index=False)
+submission_csv.to_csv(path + "submisson_03_18_4_xgb.csv", index=False)

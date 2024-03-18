@@ -15,7 +15,7 @@ from sklearn.model_selection import train_test_split
 import tensorflow as tf
 import keras
 from keras.optimizers import *
-from keras.callbacks import ModelCheckpoint, EarlyStopping
+from keras.callbacks import ModelCheckpoint, EarlyStopping, ReduceLROnPlateau
 from tensorflow.python.keras import backend as K
 import sys
 import pandas as pd
@@ -37,6 +37,7 @@ import joblib
 tf.random.set_seed(3)
 np.random.seed(3)
 
+THESHOLDS = 0.25 
 MAX_PIXEL_VALUE = 65535 # 이미지 정규화를 위한 픽셀 최대값
 
 class threadsafe_iter:
@@ -62,9 +63,8 @@ def threadsafe_generator(f):
     return g
 
 def get_img_arr(path):
-    img = rasterio.open(path).read().transpose((1, 2, 0))    
-    img = np.float32(img)/MAX_PIXEL_VALUE
-    
+    img = rasterio.open(path).read().transpose((1, 2, 0))
+    img = np.float32(img) / 65535
     return img
 
 def get_img_762bands(path):
@@ -74,11 +74,22 @@ def get_img_762bands(path):
     return img
     
 def get_mask_arr(path):
-    img = rasterio.open(path).read().transpose((1, 2, 0))
-    seg = np.float32(img)
-    return seg
+    img = rasterio.open(path).read(1)
+    img = np.float32(img) / 65535
+    img = np.expand_dims(img, axis=-1)  # 마스크에 채널 차원 추가
+    return img
 
-
+def miou(y_true, y_pred, smooth=1e-6):
+    # 임계치 기준으로 이진화
+    y_pred = tf.cast(y_pred > THESHOLDS, tf.float32)
+    
+    intersection = tf.reduce_sum(y_true * y_pred, axis=[1, 2, 3])
+    union = tf.reduce_sum(y_true, axis=[1, 2, 3]) + tf.reduce_sum(y_pred, axis=[1, 2, 3]) - intersection
+    
+    # mIoU 계산
+    iou = (intersection + smooth) / (union + smooth)
+    miou = tf.reduce_mean(iou)
+    return miou
 
 @threadsafe_generator
 def generator_from_lists(images_path, masks_path, batch_size=32, shuffle = True, random_state=None, image_mode='10bands'):
@@ -115,6 +126,7 @@ def generator_from_lists(images_path, masks_path, batch_size=32, shuffle = True,
                 yield (np.array(images), np.array(masks))
                 images = []
                 masks = []
+
                 
 
 input_shape = (256, 256, 3)
@@ -381,36 +393,38 @@ class SwinTransformer(layers.Layer):
         x = self.drop_path(x)
         x = x_skip + x
         return x
-class PatchExtract(layers.Layer):
+class PatchExtract(Layer):
     def __init__(self, patch_size, **kwargs):
         super(PatchExtract, self).__init__(**kwargs)
-        self.patch_size_x = patch_size[0]
-        self.patch_size_y = patch_size[0]
+        self.patch_size_x, self.patch_size_y = patch_size
 
     def call(self, images):
         batch_size = tf.shape(images)[0]
         patches = tf.image.extract_patches(
             images=images,
-            sizes=(1, self.patch_size_x, self.patch_size_y, 1),
-            strides=(1, self.patch_size_x, self.patch_size_y, 1),
-            rates=(1, 1, 1, 1),
-            padding="VALID",
+            sizes=[1, self.patch_size_x, self.patch_size_y, 1],
+            strides=[1, self.patch_size_x, self.patch_size_y, 1],
+            rates=[1, 1, 1, 1],
+            padding='VALID',
         )
         patch_dim = patches.shape[-1]
-        patch_num = patches.shape[1]
-        return tf.reshape(patches, (batch_size, patch_num * patch_num, patch_dim))
+        patches = tf.reshape(patches, [batch_size, -1, patch_dim])
+        return patches
 
 
-class PatchEmbedding(layers.Layer):
+
+class PatchEmbedding(Layer):
     def __init__(self, num_patch, embed_dim, **kwargs):
         super(PatchEmbedding, self).__init__(**kwargs)
         self.num_patch = num_patch
-        self.proj = layers.Dense(embed_dim)
-        self.pos_embed = layers.Embedding(input_dim=num_patch, output_dim=embed_dim)
+        self.embed_dim = embed_dim
+        self.proj = Dense(embed_dim)
+        self.pos_embed = self.add_weight("pos_embed", shape=(1, num_patch, embed_dim))  # 수정됨
 
     def call(self, patch):
-        pos = tf.range(start=0, limit=self.num_patch, delta=1)
-        return self.proj(patch) + self.pos_embed(pos)
+        patch = self.proj(patch)  # 패치를 임베딩 차원으로 프로젝션
+        patch += self.pos_embed  # 포지셔널 임베딩 추가
+        return patch
 
 
 class PatchMerging(tf.keras.layers.Layer):
@@ -431,10 +445,17 @@ class PatchMerging(tf.keras.layers.Layer):
         x = tf.concat((x0, x1, x2, x3), axis=-1)
         x = tf.reshape(x, shape=(-1, (height // 2) * (width // 2), 4 * C))
         return self.linear_trans(x)
-def swin_transformer_with_mlp_model():
-    # Images Swin Transformer
-    input_1 = layers.Input(input_shape, name='img')
-    x = PatchExtract(patch_size)(input_1)
+    
+def swin_transformer_with_mlp_model(input_shape=(256, 256, 3), num_patch=(64, 64), embed_dim=64, 
+                                    num_heads=8, window_size=7, shift_size=0, num_mlp=256, 
+                                    qkv_bias=True, dropout_rate=0.1):
+    patch_size = (4, 4)
+    num_patch_x, num_patch_y = num_patch
+    height, width, channels = input_shape
+    
+    inputs = Input(shape=input_shape)
+    # 패치 추출 및 임베딩 부분은 이전에 정의된 클래스를 사용합니다.
+    x = PatchExtract(patch_size)(inputs)
     x = PatchEmbedding(num_patch_x * num_patch_y, embed_dim)(x)
     x = SwinTransformer(
         dim=embed_dim,
@@ -457,31 +478,238 @@ def swin_transformer_with_mlp_model():
         dropout_rate=dropout_rate,
     )(x)
     x = PatchMerging((num_patch_x, num_patch_y), embed_dim=embed_dim)(x)
-    x = layers.GlobalAveragePooling1D()(x)
-    x_1 = tf.keras.layers.LeakyReLU()(x)
+    x = Flatten()(inputs)  # 임시로 입력을 Flatten 레이어에 연결합니다.
+    x = Dense(embed_dim)(x) 
     
     # Metadata MLP
-    input_2 = Input(shape=(12,), name='table')
-    x = Dense(256)(input_2)
-    x = tf.keras.layers.LeakyReLU()(x)
-    x = Dense(128)(x)
-    x = tf.keras.layers.LeakyReLU()(x)
-    x = Dense(128)(x)
-    x_2 = tf.keras.layers.LeakyReLU()(x)
+    # input_2 = Input(shape=(12,), name='table')
+    # x = Dense(256)(input_2)
+    # x = tf.keras.layers.LeakyReLU()(x)
+    # x = Dense(128)(x)
+    # x = tf.keras.layers.LeakyReLU()(x)
+    # x = Dense(128)(x)
+    # x_2 = tf.keras.layers.LeakyReLU()(x)
 
-    concat = Concatenate()([x_1, x_2])
+    # concat = Concatenate()([x_1, x_2])
 
-    x = Dense(64)(concat)
-    x = tf.keras.layers.LeakyReLU()(x)
-    output = layers.Dense(256 * 256 * 1, activation='sigmoid')(x)
-    output = Reshape((256, 256, 1))(output)  # Reshape 레이어 추가
+    num_output_units = height * width * channels  # 출력 유닛 수 계산
+    x = Dense(num_output_units)(x)
+    x = Reshape((height, width, channels))(x)  # 벡터를 이미지 형태로 재조정합니다.
 
-    model = Model(inputs=[input_1, input_2], outputs=output)
+    # 세그멘테이션 출력을 위한 1x1 컨볼루션 적용
+    x = Conv2D(filters=1, kernel_size=(1, 1), padding="same", activation="sigmoid")(x)
+    
+    model = Model(inputs=inputs, outputs=x)
     return model
+
 
 # 모델 생성
 model = swin_transformer_with_mlp_model()
 # 모델 summary 출력
+# model.summary()
+
+N_FILTERS = 16 # 필터수 지정
+N_CHANNELS = 3 # channel 지정
+EPOCHS = 150 # 훈련 epoch 지정
+BATCH_SIZE = 16  # batch size 지정
+IMAGE_SIZE = (256, 256) # 이미지 크기 지정
+MODEL_NAME = 'swin_transformer' # 모델 이름
+RANDOM_STATE = 3 # seed 고정
+INITIAL_EPOCH = 0 # 초기 epoch
+lr = 0.001
+num_patches = (input_shape[0] // patch_size[0]) * (input_shape[1] // patch_size[1])
+
+
+def get_model(model_name, input_height=256, input_width=256, n_filters=16, n_channels=3, dropout_rate=0.1):
+    input_shape = (input_height, input_width, n_channels)
+    # 예제에서는 num_patch, embed_dim 등의 값을 하드코딩 했으나, 필요에 따라 인자를 통해 전달 받을 수 있습니다.
+    num_patch = (input_height // 4, input_width // 4)  # 
+    embed_dim = 64  
+    num_heads = 8 
+    window_size = 7 
+    shift_size = 0  
+    num_mlp = 256  
+    qkv_bias = True  
+
+    if model_name == 'swin_transformer':
+        model = swin_transformer_with_mlp_model(input_shape=input_shape, num_patch=num_patch,
+                                                embed_dim=embed_dim, num_heads=num_heads,
+                                                window_size=window_size, shift_size=shift_size,
+                                                num_mlp=num_mlp, qkv_bias=qkv_bias,
+                                                dropout_rate=dropout_rate)
+        return model
+    else:
+        raise ValueError("Model name not recognized.")
+
+# 모델 생성 호출 예시
+# model = get_model(MODEL_NAME, input_height=IMAGE_SIZE[0], input_width=IMAGE_SIZE[1], n_filters=N_FILTERS, n_channels=N_CHANNELS)
+        
+# 예시: 모델 이름으로 모델 생성
+# model = get_model('swin_transformer')
 model.summary()
+
+
+def dice_coef(y_true, y_pred, smooth=1):
+    intersection = K.sum(y_true * y_pred, axis=[1,2,3])
+    union = K.sum(y_true, axis=[1,2,3]) + K.sum(y_pred, axis=[1,2,3])
+    dice = K.mean((2. * intersection + smooth)/(union + smooth), axis=0)
+    return dice
+
+# 픽셀 정확도를 계산 metric
+def pixel_accuracy (y_true, y_pred):
+    sum_n = np.sum(np.logical_and(y_pred, y_true))
+    sum_t = np.sum(y_true)
+ 
+    if (sum_t == 0):
+        pixel_accuracy = 0
+    else:
+        pixel_accuracy = sum_n / sum_t
+    return pixel_accuracy                   
+
+# 사용할 데이터의 meta정보 가져오기
+
+train_meta = pd.read_csv('C:\\_data\\AI factory\\train_meta.csv')
+test_meta = pd.read_csv('C:\\_data\\AI factory\\test_meta.csv')
+
+
+# 저장 이름
+save_name = 'base_line'
+
+
+
+rlr = ReduceLROnPlateau(monitor='val_miou', patience=10, mode='accuracy', verbose=1, factor=0.5)
+# 데이터 위치
+IMAGES_PATH = 'C:\\_data\\AI factory\\train_img\\'
+MASKS_PATH = 'C:\\_data\\AI factory\\train_mask\\'
+
+# 가중치 저장 위치
+OUTPUT_DIR = 'C:\_data\AI factory\\train_output\\'
+WORKERS = 20
+
+# 조기종료
+EARLY_STOP_PATIENCE = 25
+
+# 중간 가중치 저장 이름
+CHECKPOINT_PERIOD = 5
+CHECKPOINT_MODEL_NAME = 'checkpoint-{}-{}-epoch_{{epoch:02d}}_03_18_05.hdf5'.format(MODEL_NAME, save_name)
+ 
+# 최종 가중치 저장 이름
+FINAL_WEIGHTS_OUTPUT = 'model_{}_{}_final_weights_03_18_05.h5'.format(MODEL_NAME, save_name)
+
+# 사용할 GPU 이름
+CUDA_DEVICE = 0
+
+def miou(y_true, y_pred, smooth=1e-6):
+    # 임계치 기준으로 이진화
+    y_pred = tf.cast(y_pred > THESHOLDS, tf.float32)
+    
+    intersection = tf.reduce_sum(y_true * y_pred, axis=[1, 2, 3])
+    union = tf.reduce_sum(y_true, axis=[1, 2, 3]) + tf.reduce_sum(y_pred, axis=[1, 2, 3]) - intersection
+    
+    # mIoU 계산
+    iou = (intersection + smooth) / (union + smooth)
+    miou = tf.reduce_mean(iou)
+    return miou
+
+# 저장 폴더 없으면 생성
+if not os.path.exists(OUTPUT_DIR):
+    os.makedirs(OUTPUT_DIR)
+
+
+# GPU 설정
+os.environ["CUDA_VISIBLE_DEVICES"] = str(CUDA_DEVICE)
+try:
+    config = tf.compat.v1.ConfigProto()
+    config.gpu_options.allow_growth = True
+    sess = tf.compat.v1.Session(config=config)
+    K.set_session(sess)
+except:
+    pass
+
+try:
+    np.random.bit_generator = np.random._bit_generator
+except:
+    pass
+
+
+# train : val = 8 : 2 나누기
+train_meta = pd.read_csv('C:\\_data\\AI factory\\train_meta.csv')
+x_tr, x_val = train_test_split(train_meta, test_size=0.2, random_state=RANDOM_STATE)
+
+images_train = [os.path.join(IMAGES_PATH, image) for image in x_tr['train_img'] ]
+masks_train = [os.path.join(MASKS_PATH, mask) for mask in x_tr['train_mask'] ]
+images_val = [os.path.join(IMAGES_PATH, image) for image in x_val['train_img'] ]
+masks_val = [os.path.join(MASKS_PATH, mask) for mask in x_val['train_mask'] ]
+
+train_generator = generator_from_lists(images_train, masks_train, BATCH_SIZE, image_mode='762', shuffle=True)
+val_generator = generator_from_lists(images_val, masks_val, BATCH_SIZE, image_mode='762', shuffle=True)
+
+
+
+
+# print(images_train)
+# print(masks_train)
+
+import segmentation_models as sm
+loss = sm.losses.bce_jaccard_loss
+# model 불러오기
+model = get_model(MODEL_NAME, input_height=IMAGE_SIZE[0], input_width=IMAGE_SIZE[1], n_filters=N_FILTERS, n_channels=N_CHANNELS)
+model.compile(optimizer = Adam(learning_rate=lr), loss = loss, metrics = ['accuracy', sm.metrics.iou_score])
+model.summary()
+
+
+# checkpoint 및 조기종료 설정
+es = EarlyStopping(monitor='val_miou', mode='max', verbose=1, patience=EARLY_STOP_PATIENCE, restore_best_weights=True)
+checkpoint = ModelCheckpoint(os.path.join(OUTPUT_DIR, CHECKPOINT_MODEL_NAME), monitor='val_miou', verbose=1,
+save_best_only=True, mode='max', period=CHECKPOINT_PERIOD)
+
+print('---model 훈련 시작---')
+history = model.fit(
+    train_generator,
+    steps_per_epoch=len(images_train) // BATCH_SIZE,
+    validation_data=val_generator,
+    validation_steps=len(images_val) // BATCH_SIZE,
+    callbacks=[checkpoint, es, rlr],
+    epochs=EPOCHS,
+    workers=WORKERS,
+    initial_epoch=INITIAL_EPOCH
+    
+)
+# history = model.fit(
+#     x=train_generator,  # 훈련 데이터 제너레이터
+#     validation_data=val_generator,  # 검증 데이터 제너레이터
+#     steps_per_epoch=len(images_train) // BATCH_SIZE,
+#     validation_steps=len(images_val) // BATCH_SIZE,
+#     epochs=EPOCHS,
+#     callbacks=[checkpoint, es, rlr]
+# )
+
+
+print('---model 훈련 종료---')
+
+print('가중치 저장')
+model_weights_output = os.path.join(OUTPUT_DIR, FINAL_WEIGHTS_OUTPUT)
+model.save_weights(model_weights_output)
+print("저장된 가중치 명: {}".format(model_weights_output))
+
+
+# model = get_model(MODEL_NAME, input_height=IMAGE_SIZE[0], input_width=IMAGE_SIZE[1], n_filters=N_FILTERS, n_channels=N_CHANNELS)
+# model.compile(optimizer = Adam(), loss = 'binary_crossentropy', metrics = ['accuracy'])
+# model.summary()
+
+model.load_weights('C:\\_data\\AI factory\\train_output\\model_swin_transformer_base_line_final_weights_03_18_05.h5')
+
+
+y_pred_dict = {}
+
+for i in test_meta['test_img']:
+    img = get_img_762bands(f'C:\\_data\\AI factory\\test_img\\{i}')
+    y_pred = model.predict(np.array([img]), batch_size=1)
+    
+    y_pred = np.where(y_pred[0, :, :, 0] > 0.25, 1, 0) # 임계값 처리
+    y_pred = y_pred.astype(np.uint8)
+    y_pred_dict[i] = y_pred
+
+joblib.dump(y_pred_dict, 'C:\\_data\\AI factory\\train_output\\y_pred_03_18_05.pkl')
 
 

@@ -14,7 +14,7 @@ submission_csv = pd.read_csv(path + "sample_submission.csv")
 X = train_csv.drop(['login'], axis=1)
 y = train_csv['login']
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.1, random_state=3)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.1, random_state=1717)
 
 # 데이터 스케일링
 scaler = StandardScaler()
@@ -78,7 +78,7 @@ for param, value in best_params.items():
     if param in submission_csv.columns:
         submission_csv[param] = value
 
-submission_csv.to_csv(path + "sample_submission_03_15_1_.csv", index=False)
+submission_csv.to_csv(path + "sample_submission_03_18_5_.csv", index=False)
 
 # Best parameters: {'n_estimators': 604, 'max_depth': 16, 'min_samples_split': 16, 'min_samples_leaf': 7, 'max_features': 'log2', 'bootstrap': True, 'ccp_alpha': 0.01946773755724655}
 # Best AUC: 0.851037851037851

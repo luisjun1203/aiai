@@ -349,17 +349,17 @@ checkpoint = ModelCheckpoint(os.path.join(OUTPUT_DIR, CHECKPOINT_MODEL_NAME), mo
 save_best_only=True, mode='max', period=CHECKPOINT_PERIOD)
 
 print('---model 훈련 시작---')
-history = model.fit_generator(
-    train_generator,
-    steps_per_epoch=len(images_train) // BATCH_SIZE,
-    validation_data=validation_generator,
-    validation_steps=len(images_validation) // BATCH_SIZE,
-    callbacks=[checkpoint, es, rlr],
-    epochs=EPOCHS,
-    workers=WORKERS,
-    initial_epoch=INITIAL_EPOCH,
+# history = model.fit_generator(
+#     train_generator,
+#     steps_per_epoch=len(images_train) // BATCH_SIZE,
+#     validation_data=validation_generator,
+#     validation_steps=len(images_validation) // BATCH_SIZE,
+#     callbacks=[checkpoint, es, rlr],
+#     epochs=EPOCHS,
+#     workers=WORKERS,
+#     initial_epoch=INITIAL_EPOCH,
     
-)
+# )
 print('---model 훈련 종료---')
 
 print('가중치 저장')
@@ -372,7 +372,7 @@ print("저장된 가중치 명: {}".format(model_weights_output))
 # model.compile(optimizer = Adam(), loss = 'binary_crossentropy', metrics = ['accuracy', miou])
 # model.summary()
 
-model.load_weights('C:\\_data\\AI factory\\train_output\\model_pretrained_attention_unet_base_line_final_weights_03_18_01.h5')
+model.load_weights('C:\\_data\\AI factory\\train_output\\checkpoint-pretrained_attention_unet-base_line-epoch_70_03_18_01.hdf5')
 
 
 y_pred_dict = {}
@@ -385,5 +385,5 @@ for i in test_meta['test_img']:
     y_pred = y_pred.astype(np.uint8)
     y_pred_dict[i] = y_pred
 
-joblib.dump(y_pred_dict, 'C:\\_data\\AI factory\\train_output\\y_pred_03_18_01.pkl')    
+joblib.dump(y_pred_dict, 'C:\\_data\\AI factory\\train_output\\y_pred_03_18_10.pkl')    
     
