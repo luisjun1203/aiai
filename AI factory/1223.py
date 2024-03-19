@@ -478,28 +478,17 @@ def swin_transformer_with_mlp_model(input_shape, num_patch, num_patch_x, num_pat
         qkv_bias=qkv_bias,
         dropout_rate=dropout_rate,
     )(x)
-    x = PatchMerging((num_patch_x, num_patch_y), embed_dim=embed_dim)(x)
-    x = layers.GlobalAveragePooling1D()(x)
-    x_1 = tf.keras.layers.LeakyReLU()(x)
     
-    # Metadata MLP
-    # input_1 = Input(shape=input_shape, name='table')
-    x = Dense(19)(input_1)
-    x = tf.keras.layers.LeakyReLU()(x)
-    x = Dense(97)(x)
-    x = tf.keras.layers.LeakyReLU()(x)
-    x = Dense(9)(x)
-    x = layers.GlobalAveragePooling2D()(x)
-    x_2 = tf.keras.layers.LeakyReLU()(x)
+    x = PatchMerging((num_patch_x, num_patch_y), embed_dim=embed_dim)(x)
+    x = Reshape((32, 32, 128))(x)
 
-    concat = Concatenate()([x_1, x_2])
+    # 차원을 증가시키기 위한 Conv2DTranspose 사용
+    x = Conv2DTranspose(128, (3, 3), strides=(2, 2), padding='same', activation='relu')(x)
+    x = Conv2DTranspose(64, (3, 3), strides=(2, 2), padding='same', activation='relu')(x)
+    x = Conv2DTranspose(32, (3, 3), strides=(2, 2), padding='same', activation='relu')(x)
+    x = Conv2DTranspose(3, (3, 3), strides=(1, 1), padding='same', activation='sigmoid')(x)  # 최종 출력
 
-    x = Dense(21)(concat)
-    x = tf.keras.layers.LeakyReLU()(x)
-    output = layers.Dense(256 * 256 * 3, activation='sigmoid')(x)
-    output = Reshape((256, 256, 3))(output)  # Reshape 레이어 추가
-
-    model = Model(inputs=input_1, outputs=output)
+    model = Model(inputs=input_1, outputs=x)
     return model
 
 
@@ -557,7 +546,7 @@ def get_model(MODEL_NAME, input_height, input_width, n_filters, n_channels):
     input_shape = (input_height, input_width, n_channels)  # 입력 이미지의 차원 정의
     num_patch = num_patch_x * num_patch_y  # 전체 패치 수
     embed_dim = 64  # 임베딩 차원
-    num_heads = 8  # 주의 메커니즘에서의 헤드 수
+    num_heads = 16  # 주의 메커니즘에서의 헤드 수
     window_size = 2  # 윈도우 크기
     shift_size = 1  # 윈도우 이동 크기
     num_mlp = 256  # MLP의 크기
@@ -590,11 +579,12 @@ def get_model(MODEL_NAME, input_height, input_width, n_filters, n_channels):
 N_FILTERS = 16 # 필터수 지정
 N_CHANNELS = 3 # channel 지정
 EPOCHS = 150 # 훈련 epoch 지정
-BATCH_SIZE = 32 # batch size 지정
+BATCH_SIZE = 3 # batch size 지정
 IMAGE_SIZE = (256, 256) # 이미지 크기 지정
 MODEL_NAME = 'swin_transformer' # 모델 이름
 RANDOM_STATE = 3 # seed 고정
 INITIAL_EPOCH = 0 # 초기 epoch
+
 lr = 0.001
 num_patches = (input_shape[0] // patch_size[0]) * (input_shape[1] // patch_size[1])
 
@@ -629,7 +619,6 @@ def pixel_accuracy (y_true, y_pred):
     return pixel_accuracy                   
 
 # 사용할 데이터의 meta정보 가져오기
-
 train_meta = pd.read_csv('C:\\_data\\AI factory\\train_meta.csv')
 test_meta = pd.read_csv('C:\\_data\\AI factory\\test_meta.csv')
 
@@ -641,6 +630,7 @@ save_name = 'base_line'
 
 rlr = ReduceLROnPlateau(monitor='val_miou', patience=10, mode='accuracy', verbose=1, factor=0.5)
 # 데이터 위치
+
 IMAGES_PATH = 'C:\\_data\\AI factory\\train_img\\'
 MASKS_PATH = 'C:\\_data\\AI factory\\train_mask\\'
 
@@ -656,7 +646,7 @@ CHECKPOINT_PERIOD = 5
 CHECKPOINT_MODEL_NAME = 'checkpoint-{}-{}-epoch_{{epoch:02d}}_03_19_01.hdf5'.format(MODEL_NAME, save_name)
  
 # 최종 가중치 저장 이름
-FINAL_WEIGHTS_OUTPUT = 'model_{}_{}_final_weights_03_19_01.h5'.format(MODEL_NAME, save_name)
+FINAL_WEIGHTS_OUTPUT = 'model_{}_{}_swin_pjh.h5'.format(MODEL_NAME, save_name)
 
 # 사용할 GPU 이름
 CUDA_DEVICE = 0
@@ -759,7 +749,7 @@ print("저장된 가중치 명: {}".format(model_weights_output))
 # model.compile(optimizer = Adam(), loss = 'binary_crossentropy', metrics = ['accuracy'])
 # model.summary()
 
-model.load_weights('C:\\_data\\AI factory\\train_output\\model_swin_transformer_base_line_final_weights_03_19_01.h5')
+# model.load_weights('C:\\_data\\AI factory\\train_output\\model_swin_transformer_base_line_final_weights_03_19_01.h5')
 
 
 y_pred_dict = {}
@@ -772,6 +762,6 @@ for i in test_meta['test_img']:
     y_pred = y_pred.astype(np.uint8)
     y_pred_dict[i] = y_pred
 
-joblib.dump(y_pred_dict, 'C:\\_data\\AI factory\\train_output\\y_pred_03_19_01.pkl')
-
-
+from datetime import datetime
+dt = datetime.now()
+joblib.dump(y_pred_dict,  'C:\\_data\\AI factory\\train_output\\y_pred_03_19_01.pkl')

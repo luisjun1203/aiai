@@ -37,8 +37,8 @@ def window_partition(x, window_size):
     x = tf.reshape(
         x, shape=(-1, patch_num_y, window_size, patch_num_x, window_size, channels)
     )
-    x = tf.transpose(x, (0, 1, 3, 2, 4, 5))
-    windows = tf.reshape(x, shape=(-1, window_size, window_size, channels))
+    x = tf.transpose(x, (0, 1, 3, 2, 4, 5))                                             # [batch_size, height, width, channels]
+    windows = tf.reshape(x, shape=(-1, window_size, window_size, channels))            # [num_windows, window_size, window_size, channels]
     return windows
 
 
@@ -51,11 +51,11 @@ def window_reverse(windows, window_size, height, width, channels):
     )
     x = tf.transpose(x, perm=(0, 1, 3, 2, 4, 5))
     x = tf.reshape(x, shape=(-1, height, width, channels))
-    return x
+    return x                                                #  window_partition의 반대 : 최종이미지 형태로 재구성
 
 
-class DropPath(layers.Layer):
-    def __init__(self, drop_prob=None, **kwargs):
+class DropPath(layers.Layer):                               #  일부 경로를 drop하면서 과적합을 줄여줌 dropout은 노드의 개수를 줄여주지만
+    def __init__(self, drop_prob=None, **kwargs):           # 이 친구는 네트워크의 특정 경로를 생략한다  
         super(DropPath, self).__init__(**kwargs)
         self.drop_prob = drop_prob
 
@@ -68,6 +68,7 @@ class DropPath(layers.Layer):
         path_mask = tf.floor(random_tensor)
         output = tf.math.divide(x, 1 - self.drop_prob) * path_mask
         return output
+    
 class WindowAttention(layers.Layer):
     def __init__(
         self, dim, window_size, num_heads, qkv_bias=True, dropout_rate=0.0, **kwargs
@@ -76,14 +77,14 @@ class WindowAttention(layers.Layer):
         self.dim = dim
         self.window_size = window_size
         self.num_heads = num_heads
-        self.scale = (dim // num_heads) ** -0.5
+        self.scale = (dim // num_heads) ** -0.5             #  attention score 계산시 사용
         self.qkv = layers.Dense(dim * 3, use_bias=qkv_bias)
         self.dropout = layers.Dropout(dropout_rate)
         self.proj = layers.Dense(dim)
 
-    def build(self, input_shape):
+    def build(self, input_shape):                                   # 레이어가 처음 사용될 때 한 번 호출되어 내부 변수들을 초기화
         num_window_elements = (2 * self.window_size[0] - 1) * (
-            2 * self.window_size[1] - 1
+            2 * self.window_size[1] - 1                             # 상대적 위치 bias를 계산하여 저장
         )
         self.relative_position_bias_table = self.add_weight(
             shape=(num_window_elements, self.num_heads),
@@ -113,8 +114,8 @@ class WindowAttention(layers.Layer):
         x_qkv = tf.reshape(x_qkv, shape=(-1, size, 3, self.num_heads, head_dim))
         x_qkv = tf.transpose(x_qkv, perm=(2, 0, 3, 1, 4))
         q, k, v = x_qkv[0], x_qkv[1], x_qkv[2]
-        q = q * self.scale
-        k = tf.transpose(k, perm=(0, 1, 3, 2))
+        q = q * self.scale                      # query에 self.scale을 곱해줌
+        k = tf.transpose(k, perm=(0, 1, 3, 2))  # 위에서 나온 결과를 key와 내적
         attn = q @ k
 
         num_window_elements = self.window_size[0] * self.window_size[1]
@@ -151,6 +152,7 @@ class WindowAttention(layers.Layer):
         x_qkv = self.proj(x_qkv)
         x_qkv = self.dropout(x_qkv)
         return x_qkv
+    
 class SwinTransformer(layers.Layer):
     def __init__(
         self,
@@ -164,8 +166,7 @@ class SwinTransformer(layers.Layer):
         dropout_rate=0.0,
         **kwargs,
     ):
-        super(SwinTransformer, self).__init__(**kwargs)
-
+        super(SwinTransformer, self).__init__(**kwargs)            
         self.dim = dim  # number of input dimensions
         self.num_patch = num_patch  # number of embedded patches
         self.num_heads = num_heads  # number of attention heads
@@ -198,7 +199,8 @@ class SwinTransformer(layers.Layer):
             self.shift_size = 0
             self.window_size = min(self.num_patch)
 
-    def build(self, input_shape):
+    def build(self, input_shape):            # 주의 메커니즘에 사용될 상대적 위치 편향과 attention mask를 초기화
+
         if self.shift_size == 0:
             self.attn_mask = None
         else:
@@ -274,24 +276,26 @@ class SwinTransformer(layers.Layer):
         x = self.drop_path(x)
         x = x_skip + x
         return x
-class PatchExtract(layers.Layer):
+    
+class PatchExtract(layers.Layer):                       #  이미지로부터 패치를 추출하는 사용자 정의 층
     def __init__(self, patch_size, **kwargs):
         super(PatchExtract, self).__init__(**kwargs)
         self.patch_size_x = patch_size[0]
-        self.patch_size_y = patch_size[0]
+        self.patch_size_y = patch_size[1]
 
-    def call(self, images):
+    def call(self, images):                     # images = [batch_size, height, width, channels]
         batch_size = tf.shape(images)[0]
         patches = tf.image.extract_patches(
             images=images,
             sizes=(1, self.patch_size_x, self.patch_size_y, 1),
             strides=(1, self.patch_size_x, self.patch_size_y, 1),
             rates=(1, 1, 1, 1),
-            padding="VALID",
+            padding="VALID",                    # [batch_size, out_height, out_width, patch_dim]
         )
         patch_dim = patches.shape[-1]
-        patch_num = patches.shape[1]
-        return tf.reshape(patches, (batch_size, patch_num * patch_num, patch_dim))
+        patch_num_x = patches.shape[1]
+        patch_num_y = patches.shape[2]
+        return tf.reshape(patches, (batch_size, patch_num_x * patch_num_y, patch_dim))
 
 
 class PatchEmbedding(layers.Layer):
@@ -303,17 +307,17 @@ class PatchEmbedding(layers.Layer):
 
     def call(self, patch):
         pos = tf.range(start=0, limit=self.num_patch, delta=1)
-        return self.proj(patch) + self.pos_embed(pos)
+        return self.proj(patch) + self.pos_embed(pos)               #  패치의 원본 내용뿐만 아니라 패치의 상대적 또는 절대적 위치 정보도 학습
 
 
 class PatchMerging(tf.keras.layers.Layer):
     def __init__(self, num_patch, embed_dim):
         super(PatchMerging, self).__init__()
-        self.num_patch = num_patch
+        self.num_patch = num_patch      # 입력 데이터의 패치 수, 즉 입력 데이터의 height와 width의 패치 수를 튜플 형태
         self.embed_dim = embed_dim
         self.linear_trans = layers.Dense(2 * embed_dim, use_bias=False)
 
-    def call(self, x):
+    def call(self, x):                  # x: 입력 텐서. 패치 임베딩들로 구성된 [batch_size, num_patches, channels] 형태
         height, width = self.num_patch
         _, _, C = x.get_shape().as_list()
         x = tf.reshape(x, shape=(-1, height, width, C))
@@ -324,6 +328,7 @@ class PatchMerging(tf.keras.layers.Layer):
         x = tf.concat((x0, x1, x2, x3), axis=-1)
         x = tf.reshape(x, shape=(-1, (height // 2) * (width // 2), 4 * C))
         return self.linear_trans(x)
+    
 def swin_transformer_with_mlp_model():
     # Images Swin Transformer
     input_1 = layers.Input(input_shape, name='img')
