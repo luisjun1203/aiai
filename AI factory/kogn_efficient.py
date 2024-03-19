@@ -175,44 +175,61 @@ def attention_gate(F_g, F_l, inter_channel):
     return multiply([F_l, psi])
 
 from keras.applications import VGG16, EfficientNetB0
-def get_pretrained_attention_unet(input_height=256, input_width=256, nClasses=1, n_filters=16, dropout=0.5, batchnorm=True, n_channels=3):
-    base_model = VGG16(weights='imagenet', include_top=False, input_shape=(input_height, input_width, n_channels))
+def build_efficientunet(input_shape=(256, 256, 3), n_classes=1, n_filters=16, pretrained=True):
+    inputs = Input(input_shape)
     
-    # Define the inputs
-    inputs = base_model.input
+    # Loading EfficientNetB0 model
+    if pretrained:
+        base_model = EfficientNetB0(include_top=False, weights='imagenet', input_tensor=inputs)
+    else:
+        base_model = EfficientNetB0(include_top=False, input_tensor=inputs)
     
-    # Use specific layers from the VGG16 model for skip connections
-    s1 = base_model.get_layer("block1_conv2").output
-    s2 = base_model.get_layer("block2_conv2").output
-    s3 = base_model.get_layer("block3_conv3").output
-    s4 = base_model.get_layer("block4_conv3").output
-    bridge = base_model.get_layer("block5_conv3").output
+    # Encoder - retrieving intermediate layers
+    s1 = base_model.get_layer('block1a_activation').output
+    s2 = base_model.get_layer('block2a_expand_activation').output
+    s3 = base_model.get_layer('block3a_expand_activation').output
+    s4 = base_model.get_layer('block4a_expand_activation').output
+    bridge = base_model.get_layer('top_activation').output
     
-    # Decoder with attention gates
-    d1 = UpSampling2D((2, 2))(bridge)
-    d1 = concatenate([d1, attention_gate(d1, s4, n_filters*8)])
-    d1 = conv2d_block(d1, n_filters*8, kernel_size=3, batchnorm=batchnorm)
-    
-    d2 = UpSampling2D((2, 2))(d1)
-    d2 = concatenate([d2, attention_gate(d2, s3, n_filters*4)])
-    d2 = conv2d_block(d2, n_filters*4, kernel_size=3, batchnorm=batchnorm)
-    
-    d3 = UpSampling2D((2, 2))(d2)
-    d3 = concatenate([d3, attention_gate(d3, s2, n_filters*2)])
-    d3 = conv2d_block(d3, n_filters*2, kernel_size=3, batchnorm=batchnorm)
-    
-    d4 = UpSampling2D((2, 2))(d3)
-    d4 = concatenate([d4, attention_gate(d4, s1, n_filters)])
-    d4 = conv2d_block(d4, n_filters, kernel_size=3, batchnorm=batchnorm)
-    
-    outputs = Conv2D(nClasses, (1, 1), activation='sigmoid')(d4)
+    # Decoder
+    d1 = UpSampling2D((2, 2), interpolation='bilinear')(bridge)
+    d1 = conv2d_block(d1, n_filters * 32, batchnorm=True)
+    d1 = Conv2D(240, (1, 1), padding='same')(d1)  # Adjusting the channel dimension to match with s4
+    d1 = UpSampling2D((2, 2), interpolation='bilinear')(d1)  # Adjusting the spatial dimensions to match with s4
+    d1 = Concatenate()([d1, s4])
+    d1 = conv2d_block(d1, n_filters * 8, batchnorm=True)
+
+    d2 = UpSampling2D((2, 2), interpolation='bilinear')(d1)
+    d2 = Conv2D(144, (1, 1), padding='same')(d2)  # Adjusting the channel dimension to match with s3
+    d2 = Concatenate()([d2, s3])
+    d2 = conv2d_block(d2, n_filters * 8, batchnorm=True)
+
+    d3 = UpSampling2D((2, 2), interpolation='bilinear')(d2)
+    d3 = Conv2D(32, (1, 1), padding='same')(d3)  # Adjusting the channel dimension to match with s2
+    d3 = Concatenate()([d3, s2])
+    d3 = conv2d_block(d3, n_filters * 8, batchnorm=True)
+
+    d4 = UpSampling2D((2, 2), interpolation='bilinear')(d3)
+    d4 = Conv2D(24, (1, 1), padding='same')(d4)  # Adjusting the channel dimension to match with s1
+    d4 = Concatenate()([d4, s1])
+    d4 = conv2d_block(d4, n_filters * 4, batchnorm=True)
+
+    # Output layer
+    outputs = Conv2D(n_classes, (1, 1), activation='sigmoid')(d4)
     model = Model(inputs=[inputs], outputs=[outputs])
     return model
 
+# Example usage
+model = build_efficientunet(input_shape=(256, 256, 3), n_classes=1, n_filters=16, pretrained=True)
+model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
+
+# Show the model architecture
+model.summary()
+
 def get_model(model_name, nClasses=1, input_height=128, input_width=128, n_filters = 16, dropout = 0.1, batchnorm = True, n_channels=10):
     
-    if model_name == 'pretrained_attention_unet':
-        model = get_pretrained_attention_unet
+    if model_name == 'efficientunet':
+        model = build_efficientunet
         
         
     return model(
@@ -254,10 +271,10 @@ save_name = 'base_line'
 
 N_FILTERS = 16 # 필터수 지정
 N_CHANNELS = 3 # channel 지정
-EPOCHS = 100 # 훈련 epoch 지정
+EPOCHS = 1000 # 훈련 epoch 지정
 BATCH_SIZE = 32   # batch size 지정
 IMAGE_SIZE = (256, 256) # 이미지 크기 지정
-MODEL_NAME = 'pretrained_attention_unet' # 모델 이름
+MODEL_NAME = 'efficientunet' # 모델 이름
 RANDOM_STATE = 3 # seed 고정
 INITIAL_EPOCH = 0 # 초기 epoch
 THESHOLDS = 0.25
@@ -287,14 +304,14 @@ OUTPUT_DIR = 'C:\_data\AI factory\\train_output\\'
 WORKERS = 20
 
 # 조기종료
-EARLY_STOP_PATIENCE = 17
+EARLY_STOP_PATIENCE = 35
 
 # 중간 가중치 저장 이름
 CHECKPOINT_PERIOD = 5
-CHECKPOINT_MODEL_NAME = 'checkpoint-{}-{}-epoch_{{epoch:02d}}_03_18_01.hdf5'.format(MODEL_NAME, save_name)
+CHECKPOINT_MODEL_NAME = 'checkpoint-{}-{}-epoch_{{epoch:02d}}_03_19_01.hdf5'.format(MODEL_NAME, save_name)
  
 # 최종 가중치 저장 이름
-FINAL_WEIGHTS_OUTPUT = 'model_{}_{}_final_weights_03_18_01.h5'.format(MODEL_NAME, save_name)
+FINAL_WEIGHTS_OUTPUT = 'model_{}_{}_final_weights_03_19_01.h5'.format(MODEL_NAME, save_name)
 
 # 사용할 GPU 이름
 CUDA_DEVICE = 0
@@ -349,17 +366,17 @@ checkpoint = ModelCheckpoint(os.path.join(OUTPUT_DIR, CHECKPOINT_MODEL_NAME), mo
 save_best_only=True, mode='max', period=CHECKPOINT_PERIOD)
 
 print('---model 훈련 시작---')
-# history = model.fit_generator(
-#     train_generator,
-#     steps_per_epoch=len(images_train) // BATCH_SIZE,
-#     validation_data=validation_generator,
-#     validation_steps=len(images_validation) // BATCH_SIZE,
-#     callbacks=[checkpoint, es, rlr],
-#     epochs=EPOCHS,
-#     workers=WORKERS,
-#     initial_epoch=INITIAL_EPOCH,
+history = model.fit_generator(
+    train_generator,
+    steps_per_epoch=len(images_train) // BATCH_SIZE,
+    validation_data=validation_generator,
+    validation_steps=len(images_validation) // BATCH_SIZE,
+    callbacks=[checkpoint, es, rlr],
+    epochs=EPOCHS,
+    workers=WORKERS,
+    initial_epoch=INITIAL_EPOCH,
     
-# )
+)
 print('---model 훈련 종료---')
 
 print('가중치 저장')
@@ -372,7 +389,7 @@ print("저장된 가중치 명: {}".format(model_weights_output))
 # model.compile(optimizer = Adam(), loss = 'binary_crossentropy', metrics = ['accuracy', miou])
 # model.summary()
 
-model.load_weights('C:\\_data\\AI factory\\train_output\\checkpoint-pretrained_attention_unet-base_line-epoch_70_03_18_01.hdf5')
+model.load_weights('C:\\_data\\AI factory\\train_output\\model_efficient_unet_base_line_final_weights_03_19_01.hdf5')
 
 
 y_pred_dict = {}
@@ -385,5 +402,5 @@ for i in test_meta['test_img']:
     y_pred = y_pred.astype(np.uint8)
     y_pred_dict[i] = y_pred
 
-joblib.dump(y_pred_dict, 'C:\\_data\\AI factory\\train_output\\y_pred_03_18_10.pkl')    
+joblib.dump(y_pred_dict, 'C:\\_data\\AI factory\\train_output\\y_pred_03_19_10.pkl')    
     
