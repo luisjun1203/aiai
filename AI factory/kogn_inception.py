@@ -80,20 +80,20 @@ def get_mask_arr(path):
     return seg
 
 #miou metric
-def miou(y_true, y_pred, smooth=1e-6):
-    # 임계치 기준으로 이진화
-    y_pred = tf.cast(y_pred > THESHOLDS, tf.float32)
+# def miou(y_true, y_pred, smooth=1e-6):
+#     # 임계치 기준으로 이진화
+#     y_pred = tf.cast(y_pred > THESHOLDS, tf.float32)
     
-    intersection = tf.reduce_sum(y_true * y_pred, axis=[1, 2, 3])
-    union = tf.reduce_sum(y_true, axis=[1, 2, 3]) + tf.reduce_sum(y_pred, axis=[1, 2, 3]) - intersection
+#     intersection = tf.reduce_sum(y_true * y_pred, axis=[1, 2, 3])
+#     union = tf.reduce_sum(y_true, axis=[1, 2, 3]) + tf.reduce_sum(y_pred, axis=[1, 2, 3]) - intersection
     
-    # mIoU 계산
-    iou = (intersection + smooth) / (union + smooth)
-    miou = tf.reduce_mean(iou)
-    return miou
+#     # mIoU 계산
+#     iou = (intersection + smooth) / (union + smooth)
+#     miou = tf.reduce_mean(iou)
+#     return miou
 
 @threadsafe_generator
-def generator_from_lists(images_path, masks_path, batch_size=32, shuffle = True, random_state=None, image_mode='10bands'):
+def generator_from_lists(images_path, masks_path, batch_size=16, shuffle = True, random_state=None, image_mode='10bands'):
    
     images = []
     masks = []
@@ -137,14 +137,14 @@ def conv2d_block(input_tensor, n_filters, kernel_size = 3, batchnorm = True):
                padding="same")(input_tensor)
     if batchnorm:
         x = BatchNormalization()(x)
-    x = Activation("swish")(x)
+    x = Activation("relu")(x)
 
     # second layer
     x = Conv2D(filters=n_filters, kernel_size=(kernel_size, kernel_size), kernel_initializer="he_normal",
                padding="same")(x)
     if batchnorm:
         x = BatchNormalization()(x)
-    x = Activation("swish")(x)
+    x = Activation("relu")(x)
     return x
 
 #Attention Gate
@@ -166,17 +166,18 @@ def attention_gate(F_g, F_l, inter_channel):
     W_x = BatchNormalization()(W_x)
 
     # Combine the transformations
-    psi = Activation('swish')(add([W_g, W_x]))
+    psi = Activation('relu')(add([W_g, W_x]))
     psi = Conv2D(1, kernel_size=1, strides=1, padding='same', kernel_initializer='he_normal')(psi)
     psi = BatchNormalization()(psi)
     psi = Activation('sigmoid')(psi)
 
     # Apply the attention coefficients to the feature map from the skip connection
     return multiply([F_l, psi])
-
+from keras.applications.inception_v3 import InceptionV3
 from keras.applications import VGG16, EfficientNetB0
-def get_pretrained_attention_unet(input_height=256, input_width=256, nClasses=1, n_filters=16, dropout=0.5, batchnorm=True, n_channels=3):
-    base_model = VGG16(weights='imagenet', include_top=False, input_shape=(input_height, input_width, n_channels))
+def get_pretrained_inception_unet(input_height=256, input_width=256, nClasses=1, n_filters=16, dropout=0.5, batchnorm=True, n_channels=3):
+    # InceptionV3 모델 불러오기
+    base_model = InceptionV3(weights='imagenet', include_top=False, input_shape=(input_height, input_width, n_channels))
     
     # Define the inputs
     inputs = base_model.input
@@ -189,30 +190,31 @@ def get_pretrained_attention_unet(input_height=256, input_width=256, nClasses=1,
     bridge = base_model.get_layer("block5_conv3").output
     
     # Decoder with attention gates
+    # Decoder with attention gates can be added here. For simplicity, only conv2d blocks are used.
     d1 = UpSampling2D((2, 2))(bridge)
-    d1 = concatenate([d1, attention_gate(d1, s4, n_filters*8)])
+    d1 = Concatenate()([d1, s4])
     d1 = conv2d_block(d1, n_filters*8, kernel_size=3, batchnorm=batchnorm)
     
     d2 = UpSampling2D((2, 2))(d1)
-    d2 = concatenate([d2, attention_gate(d2, s3, n_filters*4)])
+    d2 = Concatenate()([d2, s3])
     d2 = conv2d_block(d2, n_filters*4, kernel_size=3, batchnorm=batchnorm)
     
     d3 = UpSampling2D((2, 2))(d2)
-    d3 = concatenate([d3, attention_gate(d3, s2, n_filters*2)])
+    d3 = Concatenate()([d3, s2])
     d3 = conv2d_block(d3, n_filters*2, kernel_size=3, batchnorm=batchnorm)
     
     d4 = UpSampling2D((2, 2))(d3)
-    d4 = concatenate([d4, attention_gate(d4, s1, n_filters)])
+    d4 = Concatenate()([d4, s1])
     d4 = conv2d_block(d4, n_filters, kernel_size=3, batchnorm=batchnorm)
     
-    outputs = Conv2D(nClasses, (1, 1), activation='sigmoid')(d4)
+    outputs = Conv2D(n_classes, (1, 1), activation='sigmoid')(d4)
     model = Model(inputs=[inputs], outputs=[outputs])
     return model
 
 def get_model(model_name, nClasses=1, input_height=128, input_width=128, n_filters = 16, dropout = 0.1, batchnorm = True, n_channels=10):
     
     if model_name == 'pretrained_attention_unet':
-        model = get_pretrained_attention_unet
+        model = get_pretrained_inception_unet
         
         
     return model(
