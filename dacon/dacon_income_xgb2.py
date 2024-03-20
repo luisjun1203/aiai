@@ -101,4 +101,4 @@ for i in range(10000000):
 #random_state :  53338046   rmse :  484.37078689407923
 #random_state :  79422819   rmse :  499.38601065590484
 #random_state :  55973140   rmse :  498.85454619212214
-#
+# random_state :  66409007

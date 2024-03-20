@@ -595,7 +595,7 @@ IMAGE_SIZE = (256, 256) # 이미지 크기 지정
 MODEL_NAME = 'swin_transformer' # 모델 이름
 RANDOM_STATE = 3 # seed 고정
 INITIAL_EPOCH = 0 # 초기 epoch
-lr = 0.001
+lr = 0.1
 num_patches = (input_shape[0] // patch_size[0]) * (input_shape[1] // patch_size[1])
 
 
@@ -639,7 +639,7 @@ save_name = 'base_line'
 
 
 
-rlr = ReduceLROnPlateau(monitor='val_miou', patience=10, mode='accuracy', verbose=1, factor=0.5)
+rlr = ReduceLROnPlateau(monitor='val_miou', patience=10, mode='accuracy', verbose=1, factor=0.1)
 # 데이터 위치
 IMAGES_PATH = 'C:\\_data\\AI factory\\train_img\\'
 MASKS_PATH = 'C:\\_data\\AI factory\\train_mask\\'

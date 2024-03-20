@@ -158,7 +158,10 @@ def attention_gate(F_g, F_l, inter_channel):
     - inter_channel: The number of channels/filters in the intermediate layer.
     """
     # Intermediate transformation on the gating signal
-    W_g = Conv2D(inter_channel, kernel_size=1, strides=1, padding='same', kernel_initializer='he_normal')(F_g)
+    F_g_resized = Lambda(lambda x: tf.image.resize(x, (F_l.shape[1], F_l.shape[2])))(F_g)
+    
+    # Intermediate transformation on the gating signal
+    W_g = Conv2D(inter_channel, kernel_size=1, strides=1, padding='same', kernel_initializer='he_normal')(F_g_resized)
     W_g = BatchNormalization()(W_g)
 
     # Intermediate transformation on the skip connection feature map
@@ -174,24 +177,33 @@ def attention_gate(F_g, F_l, inter_channel):
     # Apply the attention coefficients to the feature map from the skip connection
     return multiply([F_l, psi])
 
+
+
+from keras.applications.mobilenet_v3 import MobileNetV3Small, MobileNetV3Large
 from keras.applications import VGG16, EfficientNetB0
 def get_pretrained_attention_unet(input_height=256, input_width=256, nClasses=1, n_filters=16, dropout=0.5, batchnorm=True, n_channels=3):
-    base_model = VGG16(weights='imagenet', include_top=False, input_shape=(input_height, input_width, n_channels))
-    
+    base_model = MobileNetV3Small(weights='imagenet', include_top=False, input_shape=(input_height, input_width, n_channels))
+    # base_model = MobileNetV3large(weights='imagenet', include_top=False, input_shape=(input_height, input_width, n_channels))
     # Define the inputs
     inputs = base_model.input
     
     # Use specific layers from the VGG16 model for skip connections
-    s1 = base_model.get_layer("block1_conv2").output
-    s2 = base_model.get_layer("block2_conv2").output
-    s3 = base_model.get_layer("block3_conv3").output
-    s4 = base_model.get_layer("block4_conv3").output
-    bridge = base_model.get_layer("block5_conv3").output
+    s1 = base_model.get_layer("expanded_conv/project/BatchNorm").output
+    s2 = base_model.get_layer("expanded_conv_6/project/BatchNorm").output
+    s3 = base_model.get_layer("expanded_conv_7/project/BatchNorm").output
+    s4 = base_model.get_layer("Conv_1/BatchNorm").output
+    # bridge = base_model.get_layer("block5_conv3").output
+    def resize_tensor(x, target):
+    # x는 조정하려는 텐서, target은 목표 텐서입니다.
+        return Lambda(lambda x: tf.image.resize(x, (target.shape[1], target.shape[2])))(x)
     
-    # Decoder with attention gates
-    d1 = UpSampling2D((2, 2))(bridge)
-    d1 = concatenate([d1, attention_gate(d1, s4, n_filters*8)])
+    d1 = UpSampling2D((2, 2))(s4)
+    # s4를 d1과 동일한 크기로 조정
+    s4_resized = resize_tensor(s4, d1)
+    d1 = concatenate([d1, attention_gate(d1, s4_resized, n_filters*8)]) # attention_gate의 출력과 s4를 결합
     d1 = conv2d_block(d1, n_filters*8, kernel_size=3, batchnorm=batchnorm)
+    # Decoder with attention gates
+   
     
     d2 = UpSampling2D((2, 2))(d1)
     d2 = concatenate([d2, attention_gate(d2, s3, n_filters*4)])
@@ -209,7 +221,7 @@ def get_pretrained_attention_unet(input_height=256, input_width=256, nClasses=1,
     model = Model(inputs=[inputs], outputs=[outputs])
     return model
 
-def get_model(model_name, nClasses=1, input_height=128, input_width=128, n_filters = 32, dropout = 0.1, batchnorm = True, n_channels=10):
+def get_model(model_name, nClasses=1, input_height=128, input_width=128, n_filters = 16, dropout = 0.1, batchnorm = True, n_channels=10):
     
     if model_name == 'pretrained_attention_unet':
         model = get_pretrained_attention_unet
@@ -287,7 +299,7 @@ OUTPUT_DIR = 'C:\_data\AI factory\\train_output\\'
 WORKERS = 20
 
 # 조기종료
-EARLY_STOP_PATIENCE = 100
+EARLY_STOP_PATIENCE = 40
 
 # 중간 가중치 저장 이름
 CHECKPOINT_PERIOD = 5
@@ -322,7 +334,7 @@ except:
 
 
 # train : val = 8 : 2 나누기
-x_tr, x_val = train_test_split(train_meta, test_size=0.12, random_state=RANDOM_STATE)
+x_tr, x_val = train_test_split(train_meta, test_size=0.1, random_state=RANDOM_STATE)
 print(len(x_tr), len(x_val))
 
 # train : val 지정 및 generator
@@ -336,10 +348,10 @@ train_generator = generator_from_lists(images_train, masks_train, batch_size=BAT
 validation_generator = generator_from_lists(images_validation, masks_validation, batch_size=BATCH_SIZE, random_state=RANDOM_STATE, image_mode="762")
 
 import segmentation_models as sm
-loss = sm.losses.binary_focal_jaccard_loss
+#  loss = sm.losses.binary_focal_jaccard_loss
 # model 불러오기
 model = get_model(MODEL_NAME, input_height=IMAGE_SIZE[0], input_width=IMAGE_SIZE[1], n_filters=N_FILTERS, n_channels=N_CHANNELS)
-model.compile(optimizer = Adam(learning_rate=lr), loss = loss, metrics = ['accuracy', miou])
+model.compile(optimizer = Adam(learning_rate=lr), loss = 'binary_crossentropy', metrics = ['accuracy', miou])
 model.summary()
 
 
@@ -372,8 +384,7 @@ print("저장된 가중치 명: {}".format(model_weights_output))
 # model.compile(optimizer = Adam(), loss = 'binary_crossentropy', metrics = ['accuracy', miou])
 # model.summary()
 
-model.load_weights('C:\\_data\\AI factory\\train_output\\model_pretrained_attention_unet_base_line_final_weights_03_20_01.h5')
-# model.load_weights('C:\\_data\\AI factory\\train_output\\checkpoint-pretrained_attention_unet-base_line-epoch_35_03_20_01.hdf5')
+model.load_weights('C:\\_data\\AI factory\\train_output\\model_attention_unet_base_line_final_weights_70_03_19_01.hdf5')
 
 
 y_pred_dict = {}
@@ -386,7 +397,7 @@ for i in test_meta['test_img']:
     y_pred = y_pred.astype(np.uint8)
     y_pred_dict[i] = y_pred
 
-joblib.dump(y_pred_dict, 'C:\\_data\\AI factory\\train_output\\y_pred_03_20_15.pkl')    
+joblib.dump(y_pred_dict, 'C:\\_data\\AI factory\\train_output\\y_pred_03_19_10.pkl')    
     
     
     
