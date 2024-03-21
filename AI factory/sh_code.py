@@ -133,9 +133,9 @@ def generator_from_lists(images_path, masks_path, batch_size=32, shuffle = True,
 
 from keras.layers import Layer
 import keras.backend as K
-class ReluActivation(Layer):
+class SwishActivation(Layer):
     def __init__(self, **kwargs):
-        super(ReluActivation, self).__init__(**kwargs)
+        super(SwishActivation, self).__init__(**kwargs)
 
     def call(self, inputs):
         return inputs * K.sigmoid(inputs)
@@ -159,12 +159,12 @@ def conv_block(X, filters, block):
     X = Conv2D(filters=f1, kernel_size=(1, 1), dilation_rate=(1, 1),
                padding='same', kernel_initializer='he_normal', name=b + 'a')(X)
     X = BatchNormalization(name=b + 'batch_norm_a')(X)
-    X = LeakyReLU(name=b + 'relu_activation_a')(X)
+    X = SwishActivation(name=b + 'swish_activation_a')(X)
     # block_b
     X = Conv2D(filters=f2, kernel_size=(3, 3), dilation_rate=(2, 2),
                padding='same', kernel_initializer='he_normal', name=b + 'b')(X)
     X = BatchNormalization(name=b + 'batch_norm_b')(X)
-    X = LeakyReLU(name=b + 'relu_activation_b')(X)
+    X = SwishActivation(name=b + 'swish_activation_b')(X)
     # block_c
     X = Conv2D(filters=f3, kernel_size=(1, 1), dilation_rate=(1, 1),
                padding='same', kernel_initializer='he_normal', name=b + 'c')(X)
@@ -198,15 +198,15 @@ def pyramid_feature_maps(input_layer):
     red = Convolution2D(filters=32,kernel_size=(1,1),name='red_1_by_1')(red)
     red = UpSampling2D(size=256,interpolation='bilinear',name='red_upsampling')(red)
     # yellow
-    yellow = AveragePooling2D(pool_size=(2,2),name='yellow_pool')(base)
+    yellow = MaxPooling2D(pool_size=(2,2),name='yellow_pool')(base)
     yellow = Convolution2D(filters=32,kernel_size=(1,1),name='yellow_1_by_1')(yellow)
     yellow = UpSampling2D(size=2,interpolation='bilinear',name='yellow_upsampling')(yellow)
     # blue
-    blue = AveragePooling2D(pool_size=(4,4),name='blue_pool')(base)
+    blue = MaxPooling2D(pool_size=(4,4),name='blue_pool')(base)
     blue = Convolution2D(filters=32,kernel_size=(1,1),name='blue_1_by_1')(blue)
     blue = UpSampling2D(size=4,interpolation='bilinear',name='blue_upsampling')(blue)
     # green
-    green = AveragePooling2D(pool_size=(8,8),name='green_pool')(base)
+    green = MaxPooling2D(pool_size=(8,8),name='green_pool')(base)
     green = Convolution2D(filters=32,kernel_size=(1,1),name='green_1_by_1')(green)
     green = UpSampling2D(size=8,interpolation='bilinear',name='green_upsampling')(green)
     # base + red + yellow + blue + green
@@ -331,7 +331,7 @@ checkpoint = ModelCheckpoint(os.path.join(OUTPUT_DIR, CHECKPOINT_MODEL_NAME), mo
 save_best_only=True)
 
 rlr = ReduceLROnPlateau(monitor='val_loss',             # 통상 early_stopping patience보다 작다
-                        patience=3,
+                        patience=5,
                         mode='min',
                         verbose=1,
                         factor=0.5,
@@ -356,7 +356,7 @@ print('---model 훈련 종료---')
 # model.save_weights(model_weights_output)
 # print("저장된 가중치 명: {}".format(model_weights_output))
 
-model.load_weights('../resource/weights/model_psp_indian0318_indian0319Swi.h5')
+model.load_weights('C:\\_data\\AI factory\\train_output\\model_psp_indian0318_indian0319Swi.h5')
 
 y_pred_dict = {}
 
@@ -368,6 +368,6 @@ for i in test_meta['test_img']:
     y_pred = y_pred.astype(np.uint8)
     y_pred_dict[i] = y_pred
 
-joblib.dump(y_pred_dict, 'C:\\_data\\AI factory\\train_output\\y_pred_03_20_01.pkl')
+joblib.dump(y_pred_dict, 'C:\\_data\\AI factory\\train_output\\y_pred_03_21_01.pkl')
 
 print('done')

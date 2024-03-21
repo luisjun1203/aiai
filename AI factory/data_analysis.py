@@ -1,104 +1,158 @@
-import os
-import rasterio
-import numpy as np
-import pandas as pd
-from PIL import Image
 import matplotlib.pyplot as plt
+import os
+import warnings
+warnings.filterwarnings("ignore")
+import glob
+import matplotlib.pyplot as plt
+from sklearn.metrics import confusion_matrix
+from sklearn.model_selection import train_test_split
+import tensorflow as tf
+import keras
+from keras.optimizers import *
+from keras.callbacks import ModelCheckpoint, EarlyStopping
+from tensorflow.python.keras import backend as K
+import sys
+import pandas as pd
+from tqdm import tqdm
+from keras.preprocessing.image import ImageDataGenerator
+import threading
+import random
+import rasterio
+import os
+import numpy as np
+import sys
+from sklearn.utils import shuffle as shuffle_lists
+from keras.models import *
+from keras.layers import *
+import numpy as np
+from keras import backend as K
+from sklearn.model_selection import train_test_split
+import joblib
+tf.random.set_seed(3)
+np.random.seed(3)
 
+MAX_PIXEL_VALUE = 65535 # 이미지 정규화를 위한 픽셀 최대값
+
+class threadsafe_iter:
+    """
+    데이터 불러올떼, 호출 직렬화
+    """
+    def __init__(self, it):
+        self.it = it
+        self.lock = threading.Lock()
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        with self.lock:
+            return self.it.__next__()
+
+
+def threadsafe_generator(f):
+    def g(*a, **kw):
+        return threadsafe_iter(f(*a, **kw))
+
+    return g
 
 def get_img_arr(path):
-
-    MAX_PIXEL_VALUE = 65535 # 이미지 정규화를 위한 픽셀 최대값
-
-    img = rasterio.open(path).read()#.transpose((1, 2, 0))
-
+    img = rasterio.open(path).read().transpose((1, 2, 0))    
     img = np.float32(img)/MAX_PIXEL_VALUE
+    
+    return img
 
-    for i in range(len(img)):
+def get_img_762bands(path):
+    img = rasterio.open(path).read((7,6,2)).transpose((1, 2, 0))    
+    img = np.float32(img)/MAX_PIXEL_VALUE
+    
+    return img
+    
+def get_mask_arr(path):
+    img = rasterio.open(path).read().transpose((1, 2, 0))
+    seg = np.float32(img)
+    return seg
 
-        max_val = np.max(img[i])
+images_path = 'C:\\_data\\AI factory\\train_img\\'
+masks_path = 'C:\\_data\\AI factory\\train_mask\\' 
 
-        img[i] = (img[i]/max_val)*255
 
-    return img.astype(np.uint8)
-
-    #return img
-
-def show_images(images, titles=None):
-
-    """
-
-    이미지를 여러 장 보여주는 함수.
-    :param images: PIL 이미지 객체의 리스트
-    :param titles: 각 이미지에 대한 제목의 리스트 (선택 사항)
-    """
-
-    num_images = len(images)
-
-    len_batch = len(images[0])
-
-    print(num_images, len_batch)
-
-    if titles is not None and len(titles) != num_images:
-
-        raise ValueError("이미지와 제목의 수가 일치하지 않습니다.")
-
+@threadsafe_generator
+def generator_from_lists(images_path, masks_path, batch_size=32, shuffle = True, random_state=None, image_mode='10bands'):
    
-    fig, axes = plt.subplots(num_images, len_batch, figsize=(50, 50))
+    images = []
+    masks = []
 
-    if num_images == 1:
+    fopen_image = get_img_arr
+    fopen_mask = get_mask_arr
 
-        for j in range(len_batch):
+    if image_mode == '762':
+        fopen_image = get_img_762bands
 
-            axes[j].imshow(images[j])
+    i = 0 
+    # 데이터 shuffle
+    while True:
+        
+        if shuffle:
+            if random_state is None:
+                images_path, masks_path = shuffle_lists(images_path, masks_path)
+            else:
+                images_path, masks_path = shuffle_lists(images_path, masks_path, random_state= random_state + i)
+                i += 1 
 
-            axes[j].axis('off')
 
-            if titles is not None:
+        for img_path, mask_path in zip(images_path, masks_path):
 
-                axes[j].set_title(titles)
+            img = fopen_image(img_path)
+            mask = fopen_mask(mask_path)
+            images.append(img)
+            masks.append(mask)
 
-    else:
+            # 이미지 시각화 코드 추가
+        if len(images) == 1:  # 예시로 첫 번째 이미지만 시각화합니다.
+            plt.figure(figsize=(12, 6))
+            plt.subplot(1, 2, 1)
+            plt.imshow(img)
+            plt.title('Image')
+            plt.axis('off')
 
-        for i in range(num_images):
+            plt.subplot(1, 2, 2)
+            plt.imshow(mask)
+            plt.title('Mask')
+            plt.axis('off')
 
-            for j in range(len_batch):
+            plt.show()
 
-                axes[i][j].imshow(images[i][j])
+        if len(images) >= batch_size:
+            yield (np.array(images), np.array(masks))
+            images = []
+            masks = []
+def visualize_image_and_mask(image_path, mask_path):
+    """
+    단일 이미지와 마스크를 로드하고 시각화합니다.
+    """
+    img = get_img_arr(image_path)
+    mask = get_mask_arr(mask_path)
 
-                axes[i][j].axis('off')
+    plt.figure(figsize=(12, 6))
 
-                if titles is not None:
+    plt.subplot(1, 2, 1)
+    plt.imshow(img)
+    plt.title('Image')
+    plt.axis('off')
 
-                    axes[i][j].set_title(titles[i])
+    plt.subplot(1, 2, 2)
+    plt.imshow(mask, cmap='gray')  # 마스크는 흑백으로 표시
+    plt.title('Mask')
+    plt.axis('off')
 
     plt.show()
 
+# 예제 이미지 및 마스크 경로
+image_path_example = os.path.join(images_path, 'train_img_0.tif')
+mask_path_example = os.path.join(masks_path, 'train_mask_0.tif')
 
- 
-
-image_path = 'C:\\_data\\AI factory\\train_img\\'
-mask_path = 'C:\\_data\\AI factory\\train_mask\\'
-
-images = []
-
-
- 
-
-for i in range(10):
-
-    image = get_img_arr(os.path.join(image_path, 'train_img_{}.tif'.format(i)))
-
-    mask = get_img_arr(os.path.join(mask_path, 'train_mask_{}.tif'.format(i)))
-
-    images.append(np.concatenate((image, mask), axis=0))
-
-    #break
-
-show_images(images)
-
-print(image.shape)
-
-#img = Image.fromarray(mask)
-
-#img.show()
+# 시각화 함수 호출
+visualize_image_and_mask(image_path_example, mask_path_example)            
+            
+            
+           

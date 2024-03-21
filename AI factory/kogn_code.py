@@ -69,10 +69,13 @@ def get_img_arr(path):
     return img
 
 def get_img_762bands(path):
-    img = rasterio.open(path).read((7,6,2)).transpose((1, 2, 0))    
+    img = rasterio.open(path).read((10,7,2)).transpose((1, 2, 0))    
     img = np.float32(img)/MAX_PIXEL_VALUE
     
     return img
+
+
+
     
 def get_mask_arr(path):
     img = rasterio.open(path).read().transpose((1, 2, 0))
@@ -131,17 +134,17 @@ def generator_from_lists(images_path, masks_path, batch_size=32, shuffle = True,
 #############################################모델################################################
 
 #Default Conv2D
-def conv2d_block(input_tensor, n_filters, kernel_size = 3, batchnorm = True):
+def conv2d_block(input_tensor, n_filters, kernel_size = 3, batchnorm = True, dilation_rate=2):
     # first layer
     x = Conv2D(filters=n_filters, kernel_size=(kernel_size, kernel_size), kernel_initializer="he_normal",
-               padding="same")(input_tensor)
+               padding="same", dilation_rate=dilation_rate)(input_tensor)
     if batchnorm:
         x = BatchNormalization()(x)
     x = Activation("swish")(x)
 
     # second layer
     x = Conv2D(filters=n_filters, kernel_size=(kernel_size, kernel_size), kernel_initializer="he_normal",
-               padding="same")(x)
+               padding="same", dilation_rate=dilation_rate)(x)
     if batchnorm:
         x = BatchNormalization()(x)
     x = Activation("swish")(x)
@@ -174,7 +177,7 @@ def attention_gate(F_g, F_l, inter_channel):
     # Apply the attention coefficients to the feature map from the skip connection
     return multiply([F_l, psi])
 
-from keras.applications import VGG16, EfficientNetB0
+from keras.applications import VGG16
 def get_pretrained_attention_unet(input_height=256, input_width=256, nClasses=1, n_filters=16, dropout=0.5, batchnorm=True, n_channels=3):
     base_model = VGG16(weights='imagenet', include_top=False, input_shape=(input_height, input_width, n_channels))
     
@@ -209,7 +212,7 @@ def get_pretrained_attention_unet(input_height=256, input_width=256, nClasses=1,
     model = Model(inputs=[inputs], outputs=[outputs])
     return model
 
-def get_model(model_name, nClasses=1, input_height=128, input_width=128, n_filters = 32, dropout = 0.1, batchnorm = True, n_channels=10):
+def get_model(model_name, nClasses=1, input_height=128, input_width=128, n_filters = 16, dropout = 0.1, batchnorm = True, n_channels=10):
     
     if model_name == 'pretrained_attention_unet':
         model = get_pretrained_attention_unet
@@ -255,7 +258,7 @@ save_name = 'base_line'
 N_FILTERS = 16 # 필터수 지정
 N_CHANNELS = 3 # channel 지정
 EPOCHS = 1000 # 훈련 epoch 지정
-BATCH_SIZE = 32   # batch size 지정
+BATCH_SIZE = 4  # batch size 지정
 IMAGE_SIZE = (256, 256) # 이미지 크기 지정
 MODEL_NAME = 'pretrained_attention_unet' # 모델 이름
 RANDOM_STATE = 3 # seed 고정
@@ -284,17 +287,17 @@ MASKS_PATH = 'C:\\_data\\AI factory\\train_mask\\'
 
 # 가중치 저장 위치
 OUTPUT_DIR = 'C:\_data\AI factory\\train_output\\'
-WORKERS = 20
+WORKERS = 22
 
 # 조기종료
 EARLY_STOP_PATIENCE = 100
 
 # 중간 가중치 저장 이름
 CHECKPOINT_PERIOD = 5
-CHECKPOINT_MODEL_NAME = 'checkpoint-{}-{}-epoch_{{epoch:02d}}_03_19_01.hdf5'.format(MODEL_NAME, save_name)
+CHECKPOINT_MODEL_NAME = 'checkpoint-{}-{}-epoch_{{epoch:02d}}_03_21_01.hdf5'.format(MODEL_NAME, save_name)
  
 # 최종 가중치 저장 이름
-FINAL_WEIGHTS_OUTPUT = 'model_{}_{}_final_weights_03_19_01.h5'.format(MODEL_NAME, save_name)
+FINAL_WEIGHTS_OUTPUT = 'model_{}_{}_final_weights_03_21_01.h5'.format(MODEL_NAME, save_name)
 
 # 사용할 GPU 이름
 CUDA_DEVICE = 0
@@ -322,7 +325,7 @@ except:
 
 
 # train : val = 8 : 2 나누기
-x_tr, x_val = train_test_split(train_meta, test_size=0.12, random_state=RANDOM_STATE)
+x_tr, x_val = train_test_split(train_meta, test_size=0.1, random_state=RANDOM_STATE)
 print(len(x_tr), len(x_val))
 
 # train : val 지정 및 generator
@@ -336,10 +339,10 @@ train_generator = generator_from_lists(images_train, masks_train, batch_size=BAT
 validation_generator = generator_from_lists(images_validation, masks_validation, batch_size=BATCH_SIZE, random_state=RANDOM_STATE, image_mode="762")
 
 import segmentation_models as sm
-loss = sm.losses.binary_focal_jaccard_loss
+#  loss = sm.losses.binary_focal_jaccard_loss
 # model 불러오기
 model = get_model(MODEL_NAME, input_height=IMAGE_SIZE[0], input_width=IMAGE_SIZE[1], n_filters=N_FILTERS, n_channels=N_CHANNELS)
-model.compile(optimizer = Adam(learning_rate=lr), loss = loss, metrics = ['accuracy', miou])
+model.compile(optimizer = Adam(learning_rate=lr), loss = 'binary_crossentropy', metrics = ['accuracy', miou])
 model.summary()
 
 
@@ -372,8 +375,7 @@ print("저장된 가중치 명: {}".format(model_weights_output))
 # model.compile(optimizer = Adam(), loss = 'binary_crossentropy', metrics = ['accuracy', miou])
 # model.summary()
 
-model.load_weights('C:\\_data\\AI factory\\train_output\\model_pretrained_attention_unet_base_line_final_weights_03_20_01.h5')
-# model.load_weights('C:\\_data\\AI factory\\train_output\\checkpoint-pretrained_attention_unet-base_line-epoch_35_03_20_01.hdf5')
+model.load_weights('C:\\_data\\AI factory\\train_output\\model_pretrained_attention_unet_base_line_final_weights_03_21_01.h5')
 
 
 y_pred_dict = {}
@@ -386,9 +388,5 @@ for i in test_meta['test_img']:
     y_pred = y_pred.astype(np.uint8)
     y_pred_dict[i] = y_pred
 
-joblib.dump(y_pred_dict, 'C:\\_data\\AI factory\\train_output\\y_pred_03_20_15.pkl')    
+joblib.dump(y_pred_dict, 'C:\\_data\\AI factory\\train_output\\y_pred_03_21_01.pkl')    
     
-    
-    
-    
-# relu -> swish    
