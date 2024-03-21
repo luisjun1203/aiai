@@ -40,7 +40,7 @@ def show_bands_image(image_path, band=(0, 0, 0)):
     plt.show()
     return img
 
-for i in range(1004, 1007):
+for i in range(55, 58):
     # 데이터 확인
     show_band_images(IMAGES_PATH + f'train_img_{i}.tif', MASKS_PATH + f'train_mask_{i}.tif')
-    show_bands_image(IMAGES_PATH + f'train_img_{i}.tif', (10, 7, 2))
+    show_bands_image(IMAGES_PATH + f'train_img_{i}.tif', (7, 10, 6))
