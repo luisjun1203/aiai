@@ -69,7 +69,7 @@ def get_img_arr(path):
     return img
 
 def get_img_762bands(path):
-    img = rasterio.open(path).read((7,5,2)).transpose((1, 2, 0))    
+    img = rasterio.open(path).read((7,6,5)).transpose((1, 2, 0))    
     img = np.float32(img)/MAX_PIXEL_VALUE
     
     return img
@@ -131,20 +131,18 @@ def generator_from_lists(images_path, masks_path, batch_size=32, shuffle = True,
                 images = []
                 masks = []
 
-#############################################모델################################################
-
 #Default Conv2D
-def conv2d_block(input_tensor, n_filters, kernel_size = 3, batchnorm = True, dilation_rate=2):
+def conv2d_block(input_tensor, n_filters, kernel_size = 3, batchnorm = True):
     # first layer
     x = Conv2D(filters=n_filters, kernel_size=(kernel_size, kernel_size), kernel_initializer="he_normal",
-               padding="same", dilation_rate=dilation_rate)(input_tensor)
+               padding="same")(input_tensor)
     if batchnorm:
         x = BatchNormalization()(x)
     x = Activation("swish")(x)
 
     # second layer
     x = Conv2D(filters=n_filters, kernel_size=(kernel_size, kernel_size), kernel_initializer="he_normal",
-               padding="same", dilation_rate=dilation_rate)(x)
+               padding="same")(x)
     if batchnorm:
         x = BatchNormalization()(x)
     x = Activation("swish")(x)
@@ -266,7 +264,7 @@ INITIAL_EPOCH = 0 # 초기 epoch
 THESHOLDS = 0.25
 lr = 0.001
 
-rlr = ReduceLROnPlateau(monitor='val_miou', patience=10, mode='accuracy', verbose=1, factor=0.5)
+rlr = ReduceLROnPlateau(monitor='val_miou', patience=5, mode='accuracy', verbose=1, factor=0.5)
 
 
 def miou(y_true, y_pred, smooth=1e-6):
@@ -290,14 +288,14 @@ OUTPUT_DIR = 'C:\_data\AI factory\\train_output\\'
 WORKERS = 22
 
 # 조기종료
-EARLY_STOP_PATIENCE = 100
+EARLY_STOP_PATIENCE = 50
 
 # 중간 가중치 저장 이름
 CHECKPOINT_PERIOD = 5
-CHECKPOINT_MODEL_NAME = 'checkpoint-{}-{}-epoch_{{epoch:02d}}_03_21_01.hdf5'.format(MODEL_NAME, save_name)
+CHECKPOINT_MODEL_NAME = 'checkpoint-{}-{}-epoch_{{epoch:02d}}_03_22_01.hdf5'.format(MODEL_NAME, save_name)
  
 # 최종 가중치 저장 이름
-FINAL_WEIGHTS_OUTPUT = 'model_{}_{}_final_weights_03_21_01.h5'.format(MODEL_NAME, save_name)
+FINAL_WEIGHTS_OUTPUT = 'model_{}_{}_final_weights_03_22_01.h5'.format(MODEL_NAME, save_name)
 
 # 사용할 GPU 이름
 CUDA_DEVICE = 0
@@ -339,10 +337,10 @@ train_generator = generator_from_lists(images_train, masks_train, batch_size=BAT
 validation_generator = generator_from_lists(images_validation, masks_validation, batch_size=BATCH_SIZE, random_state=RANDOM_STATE, image_mode="762")
 
 import segmentation_models as sm
-#  loss = sm.losses.binary_focal_jaccard_loss
+loss = sm.losses.binary_focal_dice_loss
 # model 불러오기
 model = get_model(MODEL_NAME, input_height=IMAGE_SIZE[0], input_width=IMAGE_SIZE[1], n_filters=N_FILTERS, n_channels=N_CHANNELS)
-model.compile(optimizer = Adam(learning_rate=lr), loss = 'binary_crossentropy', metrics = ['accuracy', miou])
+model.compile(optimizer = Adam(learning_rate=lr), loss = loss, metrics = ['accuracy', miou])
 model.summary()
 
 
@@ -375,7 +373,7 @@ print("저장된 가중치 명: {}".format(model_weights_output))
 # model.compile(optimizer = Adam(), loss = 'binary_crossentropy', metrics = ['accuracy', miou])
 # model.summary()
 
-model.load_weights('C:\\_data\\AI factory\\train_output\\model_pretrained_attention_unet_base_line_final_weights_03_21_01.h5')
+model.load_weights('C:\\_data\\AI factory\\train_output\\model_pretrained_attention_unet_base_line_final_weights_03_22_01.h5')
 
 
 y_pred_dict = {}
@@ -388,5 +386,5 @@ for i in test_meta['test_img']:
     y_pred = y_pred.astype(np.uint8)
     y_pred_dict[i] = y_pred
 
-joblib.dump(y_pred_dict, 'C:\\_data\\AI factory\\train_output\\y_pred_03_21_01.pkl')    
+joblib.dump(y_pred_dict, 'C:\\_data\\AI factory\\train_output\\y_pred_03_22_01.pkl')    
     
