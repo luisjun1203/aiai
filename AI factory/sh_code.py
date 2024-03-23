@@ -70,7 +70,7 @@ def get_img_arr(path):
     return img
 
 def get_img_762bands(path):
-    img = rasterio.open(path).read((7,6,2)).transpose((1, 2, 0))    
+    img = rasterio.open(path).read((7,5,6)).transpose((1, 2, 0))    
     img = np.float32(img)/MAX_PIXEL_VALUE
     
     return img
@@ -214,7 +214,7 @@ def pyramid_feature_maps(input_layer):
 
 def last_conv_module(input_layer):
     X = pyramid_feature_maps(input_layer)
-    X = Convolution2D(filters=1,kernel_size=3,padding='same',name='last_conv_3_by_3')(X)
+    X = Convolution2D(filters=1,kernel_size=1,padding='same',name='last_conv_3_by_3')(X)
     X = BatchNormalization(name='last_conv_3_by_3_batch_norm')(X)
     X = Activation('sigmoid',name='last_conv_sigmoid')(X)
     # X = tf.keras.layers.Flatten(name='last_conv_flatten')(X)
@@ -246,13 +246,13 @@ test_meta = pd.read_csv('C:\\_data\\AI factory\\test_meta.csv')
 #  저장 이름
 save_name = 'indian0318'
 
-N_FILTERS = 22 # 필터수 지정
+N_FILTERS = 24 # 필터수 지정
 N_CHANNELS = 3 # channel 지정
 EPOCHS = 1000 # 훈련 epoch 지정
-BATCH_SIZE = 12  # batch size 지정
+BATCH_SIZE = 8  # batch size 지정
 IMAGE_SIZE = (256, 256) # 이미지 크기 지정
 MODEL_NAME = 'psp' # 모델 이름
-RANDOM_STATE = 42 # seed 고정
+RANDOM_STATE = 713 # seed 고정
 INITIAL_EPOCH = 0 # 초기 epoch
 
 # 데이터 위치
@@ -269,10 +269,10 @@ EARLY_STOP_PATIENCE = 40
 
 # 중간 가중치 저장 이름
 CHECKPOINT_PERIOD = 3
-CHECKPOINT_MODEL_NAME = 'checkpoint-{}-{}-epoch_{{epoch:02d}}indian0319Swi.hdf5'.format(MODEL_NAME, save_name)
+CHECKPOINT_MODEL_NAME = 'checkpoint-{}-{}-epoch_{{epoch:02d}}indian0319Swi955.hdf5'.format(MODEL_NAME, save_name)
  
 # 최종 가중치 저장 이름
-FINAL_WEIGHTS_OUTPUT = 'model_{}_{}_indian0319Swi.h5'.format(MODEL_NAME, save_name)
+FINAL_WEIGHTS_OUTPUT = 'model_{}_{}_indian0319Swi955.h5'.format(MODEL_NAME, save_name)
 
 # 사용할 GPU 이름
 CUDA_DEVICE = 0
@@ -299,7 +299,7 @@ except:
 
 
 # train : val = 8 : 2 나누기
-x_tr, x_val = train_test_split(train_meta, test_size=0.15, random_state=RANDOM_STATE)
+x_tr, x_val = train_test_split(train_meta, test_size=0.1, random_state=RANDOM_STATE)
 print(len(x_tr), len(x_val))
 
 # train : val 지정 및 generator
@@ -321,7 +321,7 @@ validation_generator = generator_from_lists(images_validation, masks_validation,
 # model = get_attention_unet()
 # model = get_model(MODEL_NAME, nClasses=1, input_height=IMAGE_SIZE[0], input_width=IMAGE_SIZE[1], n_filters=N_FILTERS, n_channels=N_CHANNELS)
 # learning_rate = 0.005
-model.compile(optimizer=Adam(), loss=sm.losses.bce_jaccard_loss, metrics=[sm.metrics.iou_score])
+model.compile(optimizer=Adam(), loss=sm.losses.binary_focal_dice_loss, metrics=[sm.metrics.iou_score])
 model.summary()
 
 # checkpoint 및 조기종료 설정
@@ -331,10 +331,11 @@ checkpoint = ModelCheckpoint(os.path.join(OUTPUT_DIR, CHECKPOINT_MODEL_NAME), mo
 save_best_only=True)
 
 rlr = ReduceLROnPlateau(monitor='val_loss',             # 통상 early_stopping patience보다 작다
-                        patience=5,
+                        patience=7,
                         mode='min',
                         verbose=1,
-                        factor=0.5,
+                        factor=0.7,
+                        min_lr = 0.0000001
                         # 통상 디폴트보다 높게 잡는다?
                         )
 
@@ -356,7 +357,7 @@ print('---model 훈련 종료---')
 # model.save_weights(model_weights_output)
 # print("저장된 가중치 명: {}".format(model_weights_output))
 
-model.load_weights('C:\\_data\\AI factory\\train_output\\model_psp_indian0318_indian0319Swi.h5')
+model.load_weights('C:\\_data\\AI factory\\train_output\\model_psp_indian0318_indian0319Swi955.h5')
 
 y_pred_dict = {}
 
@@ -368,6 +369,6 @@ for i in test_meta['test_img']:
     y_pred = y_pred.astype(np.uint8)
     y_pred_dict[i] = y_pred
 
-joblib.dump(y_pred_dict, 'C:\\_data\\AI factory\\train_output\\y_pred_03_21_01.pkl')
+joblib.dump(y_pred_dict, 'C:\\_data\\AI factory\\train_output\\y_pred_03_23_01.pkl')
 
 print('done')
