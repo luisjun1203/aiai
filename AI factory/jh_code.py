@@ -30,10 +30,10 @@ import joblib
 import numpy as np
 from keras.callbacks import ReduceLROnPlateau
 import segmentation_models as sm
-tf.random.set_seed(3)
-random.seed(3)
-np.random.seed(3)
-
+import tensorflow_addons as tfa
+tf.random.set_seed(33)
+np.random.seed(33)
+random.seed(33)
 MAX_PIXEL_VALUE = 65535 # 이미지 정규화를 위한 픽셀 최대값
 
 class threadsafe_iter:
@@ -117,31 +117,6 @@ def generator_from_lists(images_path, masks_path, batch_size=32, shuffle = True,
 
 ############################## 모델 정의 #################################
 
-def attention_gate(F_g, F_l, inter_channel):
-    """
-    An attention gate.
-
-    Arguments:
-    - F_g: Gating signal typically from a coarser scale.
-    - F_l: The feature map from the skip connection.
-    - inter_channel: The number of channels/filters in the intermediate layer.
-    """
-    # Intermediate transformation on the gating signal
-    W_g = Conv2D(inter_channel, kernel_size=1, strides=1, padding='same', kernel_initializer='he_normal')(F_g)
-    W_g = BatchNormalization()(W_g)
-
-    # Intermediate transformation on the skip connection feature map
-    W_x = Conv2D(inter_channel, kernel_size=1, strides=1, padding='same', kernel_initializer='he_normal')(F_l)
-    W_x = BatchNormalization()(W_x)
-
-    # Combine the transformations
-    psi = Activation('swish')(add([W_g, W_x]))
-    psi = Conv2D(1, kernel_size=1, strides=1, padding='same', kernel_initializer='he_normal')(psi)
-    psi = BatchNormalization()(psi)
-    psi = Activation('sigmoid')(psi)
-
-    # Apply the attention coefficients to the feature map from the skip connection
-    return multiply([F_l, psi])
 
 def conv2d_bn(x, filters, num_row, num_col, padding='same', strides=(1, 1), activation='swish', name=None):
     '''
@@ -156,7 +131,7 @@ def conv2d_bn(x, filters, num_row, num_col, padding='same', strides=(1, 1), acti
     Keyword Arguments:
         padding {str} -- mode of padding (default: {'same'})
         strides {tuple} -- stride of convolution operation (default: {(1, 1)})
-        activation {str} -- activation function (default: {'swish'})
+        activation {str} -- activation function (default: {'relu'})
         name {str} -- name of the layer (default: {None})
     
     Returns:
@@ -296,42 +271,42 @@ def MultiResUnet(height, width, n_channels):
 
     inputs = Input((height, width, n_channels))
 
-    mresblock1 = MultiResBlock(48, inputs)  # 수정
+    mresblock1 = MultiResBlock(32, inputs)
     pool1 = MaxPooling2D(pool_size=(2, 2))(mresblock1)
-    mresblock1 = ResPath(48, 4, mresblock1)  # 수정
+    mresblock1 = ResPath(32, 4, mresblock1)
 
-    mresblock2 = MultiResBlock(48*2, pool1)  # 수정
+    mresblock2 = MultiResBlock(32*2, pool1)
     pool2 = MaxPooling2D(pool_size=(2, 2))(mresblock2)
-    mresblock2 = ResPath(48*2, 3, mresblock2)  # 수정
+    mresblock2 = ResPath(32*2, 3, mresblock2)
 
-    mresblock3 = MultiResBlock(48*4, pool2)  # 수정
+    mresblock3 = MultiResBlock(32*4, pool2)
     pool3 = MaxPooling2D(pool_size=(2, 2))(mresblock3)
-    mresblock3 = ResPath(48*4, 2, mresblock3)  # 수정
+    mresblock3 = ResPath(32*4, 2, mresblock3)
 
-    mresblock4 = MultiResBlock(48*8, pool3)  # 수정
+    mresblock4 = MultiResBlock(32*8, pool3)
     pool4 = MaxPooling2D(pool_size=(2, 2))(mresblock4)
-    mresblock4 = ResPath(48*8, 1, mresblock4)  # 수정
+    mresblock4 = ResPath(32*8, 1, mresblock4)
 
-    mresblock5 = MultiResBlock(48*16, pool4)  # 수정
+    mresblock5 = MultiResBlock(32*16, pool4)
 
-    d1 = Conv2DTranspose(48*8, (2, 2), strides=(2, 2), padding='same')(mresblock5)
-    up6 = concatenate([d1, attention_gate(d1, mresblock4, 48*8)], axis=3)
-    mresblock6 = MultiResBlock(48*8, up6)
+    up6 = concatenate([Conv2DTranspose(
+        32*8, (2, 2), strides=(2, 2), padding='same')(mresblock5), mresblock4], axis=3)
+    mresblock6 = MultiResBlock(32*8, up6)
 
-    d2 = Conv2DTranspose(48*4, (2, 2), strides=(2, 2), padding='same')(mresblock6)
-    up7 = concatenate([d2, attention_gate(d2, mresblock3, 48*4)], axis=3)
-    mresblock7 = MultiResBlock(48*4, up7)
+    up7 = concatenate([Conv2DTranspose(
+        32*4, (2, 2), strides=(2, 2), padding='same')(mresblock6), mresblock3], axis=3)
+    mresblock7 = MultiResBlock(32*4, up7)
 
-    d3 = Conv2DTranspose(48*2, (2, 2), strides=(2, 2), padding='same')(mresblock7)
-    up8 = concatenate([d3, attention_gate(d3, mresblock2, 48*2)], axis=3)
-    mresblock8 = MultiResBlock(48*2, up8)
+    up8 = concatenate([Conv2DTranspose(
+        32*2, (2, 2), strides=(2, 2), padding='same')(mresblock7), mresblock2], axis=3)
+    mresblock8 = MultiResBlock(32*2, up8)
 
-    d4 = Conv2DTranspose(48, (2, 2), strides=(2, 2), padding='same')(mresblock8)
-    up9 = concatenate([d4, attention_gate(d4, mresblock1, 48)], axis=3)
-    mresblock9 = MultiResBlock(48, up9)
+    up9 = concatenate([Conv2DTranspose(32, (2, 2), strides=(
+        2, 2), padding='same')(mresblock8), mresblock1], axis=3)
+    mresblock9 = MultiResBlock(32, up9)
 
     conv10 = conv2d_bn(mresblock9, 1, 1, 1, activation='sigmoid')
-
+    
     model = Model(inputs=[inputs], outputs=[conv10])
 
     return model
@@ -369,16 +344,18 @@ def pixel_accuracy (y_true, y_pred):
 train_meta = pd.read_csv('C:\\_data\\AI factory\\train_meta.csv')
 test_meta = pd.read_csv('C:\\_data\\AI factory\\test_meta.csv')
 
-# 저장 이름
-save_name = 'PPP'
 
-N_FILTERS = 16 # 필터수 지정
+# 저장 이름
+save_name = '0324final_line'
+
+N_FILTERS = 18 # 필터수 지정
 N_CHANNELS = 3 # channel 지정
-EPOCHS = 250 # 훈련 epoch 지정
-BATCH_SIZE = 12 # batch size 지정
+EPOCHS = 1000 # 훈련 epoch 지정
+BATCH_SIZE = 24 # batch size 지정
 IMAGE_SIZE = (256, 256) # 이미지 크기 지정
 MODEL_NAME = 'MultiResUNet' # 모델 이름
-RANDOM_STATE = 3 # seed 고정 42 -> 1113
+RANDOM_STATE = 14576 # seed 고정 42 -> 1113
+# RANDOM_STATE = 25138 # seed 고정 42 -> 1113
 INITIAL_EPOCH = 0 # 초기 epoch
 
 # 데이터 위치
@@ -387,17 +364,17 @@ MASKS_PATH = 'C:\\_data\\AI factory\\train_mask\\'
 
 # 가중치 저장 위치
 OUTPUT_DIR = 'C:\_data\AI factory\\train_output\\'
-WORKERS = -2
+WORKERS = 22
 
 # 조기종료
-EARLY_STOP_PATIENCE = 25
+EARLY_STOP_PATIENCE = 40
 
 # 중간 가중치 저장 이름
-CHECKPOINT_PERIOD = 2
-CHECKPOINT_MODEL_NAME = 'checkpoint-{}-{}-epoch_{{epoch:02d}}_please.hdf5'.format(MODEL_NAME, save_name)
+CHECKPOINT_PERIOD = 5
+CHECKPOINT_MODEL_NAME = 'checkpoint-{}-{}-epoch_{{epoch:02d}}0324Final44.hdf5'.format(MODEL_NAME, save_name)
  
 # 최종 가중치 저장 이름
-FINAL_WEIGHTS_OUTPUT = 'model_{}_{}_final_weights_please.h5'.format(MODEL_NAME, save_name)
+FINAL_WEIGHTS_OUTPUT = 'model_{}_{}_final_weights0324Final44.h5'.format(MODEL_NAME, save_name)
 
 # 사용할 GPU 이름
 CUDA_DEVICE = 0
@@ -425,7 +402,7 @@ except:
 
 
 # train : val = 8 : 2 나누기
-x_tr, x_val = train_test_split(train_meta, test_size=0.26, random_state=RANDOM_STATE)
+x_tr, x_val = train_test_split(train_meta, test_size=0.15, random_state=RANDOM_STATE)
 print(len(x_tr), len(x_val))
 
 # train : val 지정 및 generator
@@ -440,7 +417,7 @@ validation_generator = generator_from_lists(images_validation, masks_validation,
 
 
 #miou metric
-Threshold  = 0.26
+Threshold  = 0.25
 def miou(y_true, y_pred, smooth=1e-6):
     # 임계치 기준으로 이진화
     y_pred = tf.cast(y_pred > Threshold , tf.float32)
@@ -453,16 +430,12 @@ def miou(y_true, y_pred, smooth=1e-6):
     miou = tf.reduce_mean(iou)
     return miou
 
-
 # model 불러오기
-learning_rate = 0.0002
+learning_rate = 0.000128
 model = MultiResUnet(height=IMAGE_SIZE[0], width=IMAGE_SIZE[1], n_channels=N_CHANNELS,)
 # optimizer = tfa.optimizers.AdamW(learning_rate=learning_rate, weight_decay=1e-4)  # 1e-4 = 0.0001
+model.load_weights('C:\\_data\\AI factory\\train_output\\checkpoint-MultiResUNet-0324final_line-epoch_1040324Final44.hdf5')
 
-model.load_weights('C:\\_data\\AI factory\\train_output\\checkpoint-MultiResUNet-PPP-epoch_57_please.hdf5')
-
-# for layer in model.layers:
-#     layer.trainable = False
 
 optimizer = Adam(learning_rate=learning_rate)  # 1e-4 = 0.0001
 
@@ -470,15 +443,29 @@ model.compile(
               optimizer=optimizer,
             #   loss = sm.losses.binary_focal_dice_loss,
               loss=sm.losses.bce_jaccard_loss, 
-              metrics=[sm.metrics.iou_score])
+              metrics=['accuracy', sm.metrics.iou_score, miou])
 model.summary()
 
 # checkpoint 및 조기종료 설정
 es = EarlyStopping(monitor='val_loss', mode='min', verbose=1, patience=EARLY_STOP_PATIENCE, restore_best_weights=True)
-checkpoint = ModelCheckpoint(os.path.join(OUTPUT_DIR, CHECKPOINT_MODEL_NAME), monitor='val_loss', verbose=1,
-save_best_only=True, mode='min')
+checkpoint = ModelCheckpoint(os.path.join(OUTPUT_DIR, CHECKPOINT_MODEL_NAME), monitor='val_miou', verbose=1,
+save_best_only=True, mode='max')
 # Reduce
-rlr = ReduceLROnPlateau(monitor='val_loss', patience=2, factor=0.01, mode='min', min_lr = 0.000001)
+rlr = ReduceLROnPlateau(monitor='val_miou', patience=3, factor=0.5, mode='max')
+
+
+# from keras.callbacks import LearningRateScheduler
+# import tensorflow as tf
+# import numpy as np
+# def cosine_decay(epoch, max_epochs=EPOCHS, initial_learning_rate=learning_rate, min_learning_rate=0.00001):
+#     alpha = min_learning_rate / initial_learning_rate
+#     cosine_decay = 0.5 * (1 + tf.math.cos(np.pi * epoch / max_epochs))
+#     decayed = (1 - alpha) * cosine_decay + alpha
+#     decayed_learning_rate = initial_learning_rate * decayed
+#     return decayed_learning_rate
+# rlr = LearningRateScheduler(lambda epoch: cosine_decay(epoch, max_epochs=EPOCHS, initial_learning_rate=learning_rate), verbose=1)
+
+
 
 print('---model 훈련 시작---')
 history = model.fit(
@@ -494,19 +481,24 @@ history = model.fit(
 print('---model 훈련 종료---')
 
 print('가중치 저장')
-model.save_weights('C:\\_data\\AI factory\\train_output\\checkpoint-MultiResUNet-PPP-epoch_57_please_995.hdf5')
+model_weights_output = os.path.join(OUTPUT_DIR, FINAL_WEIGHTS_OUTPUT)
+model.save_weights(model_weights_output)
+print("저장된 가중치 명: {}".format(model_weights_output))
 
-# print("저장된 가중치 명: model_MultiResUNet_PPP_final_weights_please.h5")
+
+# model.load_weights('C:\\_data\\dataset\\output\\model_MultiResUNet_sample_line_final_weights.h5')
 
 # y_pred_dict = {}
 
 # for i in test_meta['test_img']:
-#     img = get_img_762bands(f'C:\\_data\\AI factory\\test_img\\{i}')
-#     y_pred = model.predict(np.array([img]), batch_size=1, verbose=1)
+#     img = get_img_762bands(f'C:\\_data\\dataset\\test_img\\{i}')
+#     y_pred = model.predict(np.array([img]), batch_size=1, verbose=0)
     
-#     y_pred = np.where(y_pred[0, :, :, 0] > 0.27, 1, 0) # 임계값 처리
+#     y_pred = np.where(y_pred[0, :, :, 0] > 0.25, 1, 0) # 임계값 처리
 #     y_pred = y_pred.astype(np.uint8)
 #     y_pred_dict[i] = y_pred
 
-# joblib.dump(y_pred_dict, 'C:\\_data\\AI factory\\train_output\\y_pred_03_25_pretrained_epoch_57_026.pkl') 
-# print("done")
+# from datetime import datetime
+# dt = datetime.now()
+# joblib.dump(y_pred_dict, f'D:\\_data\\dataset\\output\\y_pred_{dt.day}_{dt.hour}_{dt.minute}.pkl')
+# print(f'끝. : y_pred_{dt.day}_{dt.hour}_{dt.minute}.pkl ')
