@@ -17,7 +17,7 @@ hypothesis = X * w + b
 loss = tf.compat.v1.reduce_mean(tf.square(hypothesis - y))
 optimizer = tf.compat.v1.train.AdamOptimizer(learning_rate=0.001)
 train = optimizer.minimize(loss=loss)
-
+  
 sess.run(tf.compat.v1.global_variables_initializer())
 
 for step in range(10000):

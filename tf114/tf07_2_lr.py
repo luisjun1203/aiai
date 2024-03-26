@@ -12,7 +12,7 @@ w = tf.Variable(tf.random_normal([1]),dtype=tf.float32)
 b = tf.Variable(0,dtype=tf.float32)
 
 # model
-hypothesis = _X*w + b
+hypothesis = _X*w + b   
 
 loss_fn = tf.reduce_mean(tf.abs(hypothesis - _y))  # mae
 optimizer = tf.train.AdamOptimizer(learning_rate=0.08)

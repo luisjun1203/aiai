@@ -23,4 +23,4 @@ sess.run(tf.compat.v1.global_variables_initializer())
 for step in range(1000):
     _, loss_val, w_val, b_val = sess.run([train, loss, w, b], feed_dict={X : X_data , y : y_data })
     print(step, loss_val, w_val, b_val)    
-sess.close()
+sess.close()  
