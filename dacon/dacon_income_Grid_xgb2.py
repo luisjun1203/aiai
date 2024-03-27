@@ -51,7 +51,7 @@ test_csv = scaler.transform(test_csv)
 r = random.randint(1,500)
 
 # 훈련 데이터와 검증 데이터 분리
-X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.2, random_state=53338046)
+X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.15, random_state=53338046)
 
 # XGBoost 모델 학습
 # xgb_params = {'learning_rate': 0.05,
@@ -68,14 +68,14 @@ X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.2, random_st
 
 parameters = {
 'n_estimators': [100, 300, 500],  # 부스팅 라운드의 수/ 디폴트 100/ 1 ~ inf/ 정수
-'learning_rate': [0.001, 0.01, 0.05, 0.1],  # 학습률/ 디폴트 0.3/0~1/
-'max_depth': [6, 9, 12, 15],  # 트리의 최대 깊이/ 디폴트 6/ 0 ~ inf/ 정수
+'learning_rate': [0.01, 0.05, 0.1],  # 학습률/ 디폴트 0.3/0~1/
+'max_depth': [6, 9, 12],  # 트리의 최대 깊이/ 디폴트 6/ 0 ~ inf/ 정수
 'min_child_weight':  [0, 1, 5],  # 자식에 필요한 모든 관측치에 대한 가중치 합의 최소/ 디폴트 1 / 0~inf
 'gamma': [0, 1],  # 리프 노드를 추가적으로 나눌지 결정하기 위한 최소 손실 감소/ 디폴트 0/ 0~ inf
 'subsample': [0.5, 1],  # 각 트리마다의 관측 데이터 샘플링 비율/ 디폴트 1 / 0~1
 'colsample_bytree': [0.5, 1],  # 각 트리 구성에 필요한 컬럼(특성) 샘플링 비율/ 디폴트 1 / 0~1
-'colsample_bylevel': [0, 0.5, 1], #  디폴트 1 / 0~1
-'colsample_bynode': [0, 0.5, 1], #  디폴트 1 / 0~1
+'colsample_bylevel': [0.5, 1], #  디폴트 1 / 0~1
+'colsample_bynode': [0.5, 1], #  디폴트 1 / 0~1
 'reg_alpha' : [0],   # 디폴트 0 / 0 ~ inf / L1 절대값 가중치 규제(제한) / alpha
 'reg_lambda' :   [1],   # 디폴트 1 / 0 ~ inf / L2 제곱 가중치 규제(제한) / lambda
 'objective': ['reg:squarederror'],  # 학습 태스크 파라미터
@@ -89,14 +89,16 @@ model = GridSearchCV(XGBRegressor(), param_grid=parameters, cv=kfold, verbose=1,
 
 
 
-model.fit(X_train, y_train, eval_set=[(X_val, y_val)], early_stopping_rounds=50, verbose=100)
+model.fit(X_train, y_train,
+          eval_set=[(X_val, y_val)], early_stopping_rounds=50,
+          verbose=100)
 import joblib
 
 # 모델 저장
-joblib.dump(model, "c://_data//dacon//income//weights//money_xgb_03_27_1.pkl")
+joblib.dump(model, "c://_data//dacon//income//weights//money_xgb_03_27_2.pkl")
 
 # 저장된 모델 불러오기
-loaded_model = joblib.load("c://_data//dacon//income//weights//money_xgb_03_27_1.pkl")
+loaded_model = joblib.load("c://_data//dacon//income//weights//money_xgb_03_27_2.pkl")
 # 검증 데이터 예측
 y_pred_val = model.predict(X_val)
 
@@ -110,7 +112,7 @@ y_submit = model.predict(test_csv)
 submission_csv['Income'] = y_submit
 print(y_submit)
 
-submission_csv.to_csv(path + "submisson_03_27_1_xgb.csv", index=False)
+submission_csv.to_csv(path + "submisson_03_27_2_xgb.csv", index=False)
 
 # return rmse_val
 # time.sleep(1)
@@ -134,3 +136,10 @@ submission_csv.to_csv(path + "submisson_03_27_1_xgb.csv", index=False)
 #random_state :  79422819   rmse :  499.38601065590484
 #random_state :  55973140   rmse :  498.85454619212214
 # random_state :  66409007
+
+
+
+
+#random_state :  53338046 , test_size = 0.2  Validation RMSE: 548.2939853261468 r 165     -> 542.507924671
+#random_state :  53338046 , test_size = 0.15 Validation RMSE: 509.19259917148514 r 454     -> 543.4868875554
+

@@ -230,6 +230,12 @@ test_csv['Household_Status'] = lae.fit_transform(classified_data2)
 print(np.unique(train_csv['Household_Status'], return_counts=True))       
 print(np.unique(test_csv['Household_Status'], return_counts=True))
 
+#  17  Gains                   10000 non-null  int64
+#  18  Losses                  10000 non-null  int64
+#  19  Dividends
+
+train_csv = train_csv.drop(['Gains', 'Losses','Dividends'], axis=1)
+test_csv = test_csv.drop(['Gains', 'Losses','Dividends'], axis=1)
 
   
 X = train_csv.drop(['Income'], axis=1)
