@@ -14,7 +14,7 @@ submission_csv = pd.read_csv(path + "sample_submission.csv")
 X = train_csv.drop(['login'], axis=1)
 y = train_csv['login']
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.1, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
 
 # 데이터 스케일링
 scaler = StandardScaler()
@@ -30,7 +30,7 @@ def objective(trial):
     
     # 하이퍼파라미터 탐색 공간 정의
     n_estimators = trial.suggest_int('n_estimators', 100, 1000)
-    max_depth = trial.suggest_int('max_depth', 3, 15)
+    max_depth = trial.suggest_int('max_depth', 3, 18)
     min_samples_split = trial.suggest_int('min_samples_split', 2, 20)
     min_samples_leaf = trial.suggest_int('min_samples_leaf', 1, 20)
     max_features = trial.suggest_categorical('max_features', ['sqrt', 'log2', None])
@@ -78,7 +78,7 @@ for param, value in best_params.items():
     if param in submission_csv.columns:
         submission_csv[param] = value
 
-submission_csv.to_csv(path + "sample_submission_03_20_5_.csv", index=False)
+submission_csv.to_csv(path + "sample_submission_03_27_5_.csv", index=False)
 
 # Best parameters: {'n_estimators': 604, 'max_depth': 16, 'min_samples_split': 16, 'min_samples_leaf': 7, 'max_features': 'log2', 'bootstrap': True, 'ccp_alpha': 0.01946773755724655}
 # Best AUC: 0.851037851037851
