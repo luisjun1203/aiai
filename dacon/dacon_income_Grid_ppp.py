@@ -110,7 +110,7 @@ classified_data2 = [classify_data(item) for item in test_csv['Household_Status']
 train_csv['Household_Status'] = lae.fit_transform(classified_data)
 test_csv['Household_Status'] = lae.fit_transform(classified_data2)
 
-n_splits= 5
+n_splits= 7
 kfold = KFold(n_splits=n_splits, shuffle=True, random_state=123)
 
 train_csv = train_csv.drop(['Gains', 'Losses', 'Dividends'], axis=1)
@@ -194,10 +194,10 @@ model.fit(X_train, y_train,
 import joblib
 
 # 모델 저장
-joblib.dump(model, "c://_data//dacon//income//weights//money_xgb_03_27_3.pkl")
+joblib.dump(model, "c://_data//dacon//income//weights//money_xgb_03_27_4.pkl")
 
 # 저장된 모델 불러오기
-loaded_model = joblib.load("c://_data//dacon//income//weights//money_xgb_03_27_3.pkl")
+loaded_model = joblib.load("c://_data//dacon//income//weights//money_xgb_03_27_4.pkl")
 # 검증 데이터 예측
 y_pred_val = model.predict(X_val)
 
@@ -211,7 +211,7 @@ y_submit = model.predict(test_csv)
 submission_csv['Income'] = y_submit
 print(y_submit)
 
-submission_csv.to_csv(path + "submisson_03_27_3_xgb.csv", index=False)
+submission_csv.to_csv(path + "submisson_03_27_4_xgb.csv", index=False)
 
 # return rmse_val
 # time.sleep(1)
@@ -239,9 +239,12 @@ submission_csv.to_csv(path + "submisson_03_27_3_xgb.csv", index=False)
 
 
 
-# random_state :  53338046 , test_size = 0.2  Validation RMSE: 548.2939853261468 r 165     -> 542.507924671
-# random_state :  53338046 , test_size = 0.15 Validation RMSE: 509.19259917148514 r 454     -> 543.4868875554
-# 전처리 -> random_state :  53338046 , test_size = 0.15 
+# random_state :  53338046 , test_size = 0.2            Validation RMSE: 548.2939853261468 r 165                                            -> 542.507924671
+# random_state :  53338046 , test_size = 0.15           Validation RMSE: 509.19259917148514 r 454                                           -> 543.4868875554
+# 전처리 -> random_state :  53338046 , test_size = 0.15 , kfold random state = 123, n_splits= 5  Validation RMSE: 507.5864672233961 r 468    -> 542.1382314334
+# 전처리 -> random_state :  53338046 , test_size = 0.15 , kfold random state = 713, n_splits= 7  Validation RMSE: 507.67958456052907 r 470
+# 전처리 -> random_state :  53338046 , test_size = 0.15 , kfold random state = 123, n_splits= 7  Validation RMSE: 507.54949182279205 r 449    -> 541.1157531034
+
 
 
 
