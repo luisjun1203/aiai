@@ -22,7 +22,7 @@ w_history = []
 loss_history = []
 
 with tf.compat.v1.Session() as sess:
-    for i in  range(-3, 51):
+    for i in  range(-30, 51):
         curr_w = i
         curr_loss = sess.run(loss, feed_dict = {w:curr_w})
 
