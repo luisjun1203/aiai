@@ -28,11 +28,11 @@ b = tf.Variable(0,dtype=tf.float32)
 
 hypothesis = _X1 * w1 + _X2 * w2 + _X3 * w3 + b
 
-loss_fn = tf.reduce_mean(tf.square(hypothesis-_y))
+loss = tf.reduce_mean(tf.square(hypothesis-_y))
 optimizer = tf.train.AdamOptimizer(learning_rate=0.01)
-train = optimizer.minimize(loss_fn)
+train = optimizer.minimize(loss)
 
-EPOCHS = 10000
+EPOCHS = 50000
 
 
 with tf.compat.v1.Session() as sess:
@@ -40,7 +40,7 @@ with tf.compat.v1.Session() as sess:
     
     # 훈련
     for step in range(EPOCHS):
-        _, loss_val = sess.run([train, loss_fn], feed_dict={_X1: X1_data, _X2: X2_data, _X3: X3_data, _y: y_data})
+        _, loss_val = sess.run([train, loss], feed_dict={_X1: X1_data, _X2: X2_data, _X3: X3_data, _y: y_data})
         if step % 10 == 0:
             print(f"Step: {step}, Loss: {loss_val}")
     
