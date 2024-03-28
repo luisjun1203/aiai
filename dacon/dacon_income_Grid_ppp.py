@@ -175,8 +175,8 @@ parameters = {
 'colsample_bytree': [0.5, 1],  # 각 트리 구성에 필요한 컬럼(특성) 샘플링 비율/ 디폴트 1 / 0~1
 'colsample_bylevel': [0.5, 1], #  디폴트 1 / 0~1
 'colsample_bynode': [0.5, 1], #  디폴트 1 / 0~1
-'reg_alpha' : [0],   # 디폴트 0 / 0 ~ inf / L1 절대값 가중치 규제(제한) / alpha
-'reg_lambda' :   [1],   # 디폴트 1 / 0 ~ inf / L2 제곱 가중치 규제(제한) / lambda
+'reg_alpha' : [0, 1],   # 디폴트 0 / 0 ~ inf / L1 절대값 가중치 규제(제한) / alpha
+'reg_lambda' :   [1, 2],   # 디폴트 1 / 0 ~ inf / L2 제곱 가중치 규제(제한) / lambda
 'objective': ['reg:squarederror'],  # 학습 태스크 파라미터
 # 'num_class': [30],
 'verbosity' : [1] 
@@ -194,10 +194,10 @@ model.fit(X_train, y_train,
 import joblib
 
 # 모델 저장
-joblib.dump(model, "c://_data//dacon//income//weights//money_xgb_03_27_4.pkl")
+joblib.dump(model, "c://_data//dacon//income//weights//money_xgb_03_28_2.pkl")
 
 # 저장된 모델 불러오기
-loaded_model = joblib.load("c://_data//dacon//income//weights//money_xgb_03_27_4.pkl")
+loaded_model = joblib.load("c://_data//dacon//income//weights//money_xgb_03_28_2.pkl")
 # 검증 데이터 예측
 y_pred_val = model.predict(X_val)
 
@@ -211,7 +211,7 @@ y_submit = model.predict(test_csv)
 submission_csv['Income'] = y_submit
 print(y_submit)
 
-submission_csv.to_csv(path + "submisson_03_27_4_xgb.csv", index=False)
+submission_csv.to_csv(path + "submisson_03_28_2_xgb.csv", index=False)
 
 # return rmse_val
 # time.sleep(1)

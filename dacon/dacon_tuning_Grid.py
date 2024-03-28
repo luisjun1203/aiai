@@ -18,7 +18,7 @@ n_splits= 7
 kfold = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=42)
 
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.4, random_state=42)
 
 # 데이터 스케일링
 scaler = StandardScaler()
@@ -33,7 +33,7 @@ parameters = [
     {'bootstrap' : [True, False],
      'min_samples_split' : [2, 3, 5, 10]},
     {'ccp_alpha' : [0, 0.3, 0.5, 0.7, 1]},
-    {'n_jobs' : [-1, 10, 20], 'min_samples_split' : [2, 3, 5, 10]}   
+    {'n_jobs' : [10], 'min_samples_split' : [2, 3, 5, 10]}   
 ]
 
     # n_estimators = trial.suggest_int('n_estimators', 100, 1000)
@@ -67,7 +67,7 @@ for param, value in best_params.items():
     if param in submission_csv.columns:
         submission_csv[param] = value
 
-submission_csv.to_csv(path + "sample_submission_03_27_15_.csv", index=False)
+submission_csv.to_csv(path + "sample_submission_03_28_3_.csv", index=False)
 
 
 
