@@ -13,6 +13,10 @@ tf.random.set_seed(3)
 np.random.seed(3)
 random.seed(3)
 
+lae = LabelEncoder()
+
+
+
 import time
 path = "c:\\_data\\dacon\\income\\"
 
@@ -50,6 +54,33 @@ test_csv.loc[test_csv['Employment_Status']=='Part-Time (Usually Part-Time)', 'Em
 
 train_csv.loc[train_csv['Employment_Status']=='Part-Time (Usually Full-Time)', 'Employment_Status'] = 'Full-Time'
 test_csv.loc[test_csv['Employment_Status']=='Part-Time (Usually Full-Time)', 'Employment_Status'] = 'Full-Time'
+
+
+
+for col in ['Gains', 'Losses', 'Dividends']:
+    threshold = train_csv[col].quantile(0.90)
+    train_csv[col] = train_csv[col].apply(lambda x: x if x <= threshold else threshold)
+    test_csv[col] = test_csv[col].apply(lambda x: x if x <= threshold else threshold)
+
+# Birth_Country 컬럼만 유지하고 나머지는 제거
+train_csv.drop(['Birth_Country (Father)', 'Birth_Country (Mother)'], axis=1, inplace=True)
+test_csv.drop(['Birth_Country (Father)', 'Birth_Country (Mother)'], axis=1, inplace=True)
+
+def age_group(age):
+    if age < 18:
+        return 'Youth'
+    elif age < 65:
+        return 'Adult'
+    else:
+        return 'Senior'
+
+train_csv['Age_Group'] = train_csv['Age'].apply(age_group)
+test_csv['Age_Group'] = test_csv['Age'].apply(age_group)
+
+train_csv['Age_Group'] = lae.fit_transform(train_csv['Age_Group'])
+test_csv['Age_Group'] = lae.fit_transform(test_csv['Age_Group'])
+
+# print(train_csv.head())
 
 
 education_levels = {
@@ -116,13 +147,7 @@ lae.fit(train_csv['Birth_Country'])
 train_csv['Birth_Country'] = lae.transform(train_csv['Birth_Country'])
 test_csv['Birth_Country'] = lae.transform(test_csv['Birth_Country'])  
 
-lae.fit(train_csv['Birth_Country (Mother)'])
-train_csv['Birth_Country (Mother)'] = lae.transform(train_csv['Birth_Country (Mother)'])
-test_csv['Birth_Country (Mother)'] = lae.transform(test_csv['Birth_Country (Mother)'])
 
-lae.fit(train_csv['Birth_Country (Father)'])
-train_csv['Birth_Country (Father)'] = lae.transform(train_csv['Birth_Country (Father)'])
-test_csv['Birth_Country (Father)'] = lae.transform(test_csv['Birth_Country (Father)'])
 
 lae.fit(train_csv['Tax_Status'])
 train_csv['Tax_Status'] = lae.transform(train_csv['Tax_Status'])
@@ -161,50 +186,18 @@ test_csv['Household_Status'] = lae.fit_transform(classified_data2)
 
 
 
-
-# print(train_csv[['Education_Status']])
-
-
-
-
-
-
-# print(np.unique(train_csv['Education_Status'], return_counts=True))       
-# print(np.unique(test_csv['Education_Status'], return_counts=True))
-
-# print(np.unique(train_csv['Household_Status'], return_counts=True))       
-# # print(np.unique(test_csv['Household_Status'], return_counts=True))
-
 n_splits= 7
 kfold = KFold(n_splits=n_splits, shuffle=True, random_state=123)
 
-train_csv = train_csv.drop(['Gains', 'Losses', 'Dividends'], axis=1)
-test_csv = test_csv.drop(['Gains', 'Losses', 'Dividends'], axis=1)
+# train_csv = train_csv.drop(['Gains', 'Losses', 'Dividends'], axis=1)
+# test_csv = test_csv.drop(['Gains', 'Losses', 'Dividends'], axis=1)
 
 
 X = train_csv.drop(['Income'], axis=1)
 y = train_csv['Income']
 
 test = test_csv
-# lb = LabelEncoder()
 
-# 라벨 인코딩할 열 목록
-# columns_to_encode = ['Gender','Education_Status','Employment_Status','Industry_Status',
-#                      'Occupation_Status','Race','Hispanic_Origin','Martial_Status',
-#                      'Household_Status','Household_Summary','Citizenship','Birth_Country',
-#                      'Birth_Country (Father)','Birth_Country (Mother)','Tax_Status','Income_Status']
-
-# # 데이터프레임 x의 열에 대해 라벨 인코딩 수행
-# for column in columns_to_encode:
-#     lb.fit(X[column])
-#     X[column] = lb.transform(X[column])
-
-# # 데이터프레임 test_csv의 열에 대해 라벨 인코딩 수행
-# for column in columns_to_encode:
-#     lb.fit(test_csv[column])
-#     test_csv[column] = lb.transform(test_csv[column])
-    
-# 데이터 스케일링
 scaler = StandardScaler()
 # scaler = MinMaxScaler()
 
@@ -214,21 +207,8 @@ test_csv = scaler.transform(test_csv)
 
 r = random.randint(400,500)
 
-# 훈련 데이터와 검증 데이터 분리
 X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.2, random_state=53338046)
 
-# XGBoost 모델 학습
-# xgb_params = {'learning_rate': 0.05,
-#             'n_estimators': 200,
-#             'max_depth': 9,
-#             'min_child_weight': 0.07709868781803283,
-#             'subsample': 0.80309973945344,
-#             'colsample_bytree': 0.9254025887963853,
-#             'gamma': 6.628562492458777e-08,
-#             'reg_alpha': 0.012998871754325427,
-#             'reg_lambda': 0.10637051171111844}
-
-# model = xgb.XGBRegressor(**xgb_params)
 
 parameters = {
 'n_estimators': [300],  # 부스팅 라운드의 수/ 디폴트 100/ 1 ~ inf/ 정수
@@ -246,112 +226,69 @@ parameters = {
 # 'num_class': [30],
 'verbosity' : [2] 
 }
-
-# parameters = {
-#     'n_estimators': [300],  # 부스팅 라운드 수
-#     'learning_rate': [0.01, 0.1, 0.05],  # 학습률
-#     'max_depth': [12],  # 트리의 최대 깊이
-#     'min_child_samples':  [0, 1],  # 자식 노드가 가지고 있어야 할 최소 데이터 개수
-#     'num_leaves': [62],  # 하나의 트리가 가질 수 있는 최대 리프의 수
-#     'bagging_fraction': [0.5, 0.8],  # 데이터 샘플링 비율
-#     'feature_fraction': [0.5, 0.8],  # 특성 샘플링 비율
-#     'reg_alpha' : [0],  # L1 규제
-#     'reg_lambda' :   [1],  # L2 규제
-#     'objective': ['regression'],  # 학습 태스크 파라미터
-#     'verbosity': [1] 
-# }
-
-#2. 모델 구성
 model = GridSearchCV(XGBRegressor(), param_grid=parameters, cv=kfold, verbose=2,
                 # refit = True,     # default
                     n_jobs=-1)
 
-# model = GridSearchCV(LGBMRegressor(), param_grid=parameters, cv=kfold, verbose=1, n_jobs=-1)
 
 model.fit(X_train, y_train,
         #   eval_set=[(X_val, y_val)], early_stopping_rounds=50,0
           verbose=2)
 
-# model.fit(
-#     X_train, y_train,
-#     # eval_set=[(X_val, y_val)],
-#     # early_stopping_rounds=50,
-#     # verbose=1
-# )
 
 import joblib
 
 
 
 # 모델 저장
-# joblib.dump(model, "c://_data//dacon//income//weights//money_LGBM_03_29_5.pkl")
-joblib.dump(model, "c://_data//dacon//income//weights//money_XGB_03_29_5.pkl")
+joblib.dump(model, "c://_data//dacon//income//weights//money_XGB_03_30_4.pkl")
 
-# 저장된 모델 불러오기
-# loaded_model = joblib.load("c://_data//dacon//income//weights//money_LGBM_03_29_5.pkl")
-loaded_model = joblib.load("c://_data//dacon//income//weights//money_XGB_03_29_5.pkl")
+loaded_model = joblib.load("c://_data//dacon//income//weights//money_XGB_03_30_4.pkl")
 
-# 검증 데이터 예측
 y_pred_val = model.predict(X_val)
 best_params = model.best_params_
 
-# 검증 데이터 RMSE 계산
 rmse_val = mean_squared_error(y_val, y_pred_val, squared=False)
 print("Validation RMSE:", rmse_val,'r',r)
 
 y_submit = model.predict(test_csv)  
-# y_submit = lae.inverse_transform(y_submit)
-# y_submit = lae.inverse_transform(y_submit)
 submission_csv['Income'] = y_submit
 print(y_submit)
 print('최적 파라미터 : ',best_params)
-# submission_csv.to_csv(path + "submisson_03_29_5_LGBM.csv", index=False)
-submission_csv.to_csv(path + "submisson_03_29_5_XGB.csv", index=False)
+submission_csv.to_csv(path + "submisson_03_30_4_XGB.csv", index=False)
 
+# 99
+# Validation RMSE: 549.7134128155112 r 430
+# [ 54.16168   32.584335 430.25546  ... 486.685     26.965923 661.0956  ]
+# 최적 파라미터 :  {'colsample_bylevel': 1, 'colsample_bynode': 0.5, 'colsample_bytree': 0.5,
+# 'gamma': 1, 'learning_rate': 0.01, 'max_depth': 12, 'min_child_weight': 5, 'n_estimators': 300, 'objective': 
+# 'reg:squarederror', 'reg_alpha': 0, 'reg_lambda': 1, 'subsample': 0.5, 'verbosity': 2}
 
-# return rmse_val
-# time.sleep(1)
+# 75
+# Validation RMSE: 551.2922966781219 r 430
+# [ 25.408865  28.349987 421.38376  ... 423.93857   27.019299 663.0905  ]
+# 최적 파라미터 :  {'colsample_bylevel': 0.5, 'colsample_bynode': 0.5,
+# 'colsample_bytree': 1, 'gamma': 0, 'learning_rate': 0.01, 'max_depth': 12,
+# 'min_child_weight': 5, 'n_estimators': 300, 'objective': 
+# 'reg:squarederror', 'reg_alpha': 0, 'reg_lambda': 1, 'subsample': 0.5, 'verbosity': 2}
 
-    
-# import random
-# for i in range(10000000):
-#     b = (0.3)
-#     a = random.randrange(1, 100000000)
-#     # a = (79422819)
-#     r = auto(a, 0.3)          
-#     print("random_state : ", a)
-#     if r < 500  :
-#         print("random_state : ", a)
-#         print("rmse : ", r)
-#         break    
-    
-    
-#random_state :  61062186    RMSE: 509.61084521379144
-#random_state :  53338046   rmse :  484.37078689407923
-#random_state :  79422819   rmse :  499.38601065590484
-#random_state :  55973140   rmse :  498.85454619212214
-# random_state :  66409007
+#95
+# Validation RMSE: 549.9060589399403 r 430
+# [ 32.48497   69.11335  419.05032  ... 466.5743    26.951122 633.8182  ]
+# 최적 파라미터 :  {'colsample_bylevel': 1, 'colsample_bynode': 0.5, 'colsample_bytree': 0.5,
+# 'gamma': 1, 'learning_rate': 0.01, 'max_depth': 12, 'min_child_weight': 5, 'n_estimators': 300, 'objective': 
+# 'reg:squarederror', 'reg_alpha': 0, 'reg_lambda': 1, 'subsample': 0.5, 'verbosity': 2}
 
 
 
-
-# random_state :  53338046 , test_size = 0.2            Validation RMSE: 548.2939853261468 r 165                                            -> 542.507924671
-# random_state :  53338046 , test_size = 0.15           Validation RMSE: 509.19259917148514 r 454                                           -> 543.4868875554
-# 전처리 -> random_state :  53338046 , test_size = 0.15 , kfold random state = 123, n_splits= 5  Validation RMSE: 507.5864672233961 r 468    -> 542.1382314334
-# 전처리 -> random_state :  53338046 , test_size = 0.15 , kfold random state = 713, n_splits= 7  Validation RMSE: 507.67958456052907 r 470
-# 전처리 -> random_state :  53338046 , test_size = 0.15 , kfold random state = 123, n_splits= 7  Validation RMSE: 507.54949182279205 r 449    -> 541.1157531034
+#90
 
 
-# Validation RMSE: 509.66099446119154 r 434
-# 최적 파라미터 :  {'bagging_fraction': 0.5, 'feature_fraction': 0.5, 
-#             'learning_rate': 0.01, 'max_depth': 12, 'min_child_samples': 5,
-#             'n_estimators': 300, 'num_leaves': 62, 'objective': 'regression',
-#             'reg_alpha': 0, 'reg_lambda': 1, 'verbosity': 1}
 
 
-# Validation RMSE: 549.2987012817131 r 474
-# [ 64.83928   35.98204  428.5391   ... 538.7156    29.824112 625.8827  ]
-# 최적 파라미터 :  {'colsample_bylevel': 1, 'colsample_bynode': 1, 'colsample_bytree': 0.5,
-#             'gamma': 0, 'learning_rate': 0.01, 'max_depth': 12, 'min_child_weight': 5,
-#             'n_estimators': 300, 'objective': 'reg:squarederror', 
-#             'reg_alpha': 0, 'reg_lambda': 1, 'subsample': 0.5, 'verbosity': 0}
+
+
+
+
+
+
