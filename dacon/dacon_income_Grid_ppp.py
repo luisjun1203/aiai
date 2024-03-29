@@ -7,6 +7,8 @@ from sklearn.metrics import mean_squared_error
 from sklearn.model_selection import GridSearchCV, KFold
 from xgboost import XGBRegressor
 import random
+from lightgbm import LGBMRegressor
+
 
 import time
 path = "c:\\_data\\dacon\\income\\"
@@ -23,6 +25,28 @@ test_csv.loc[test_csv['Industry_Status']=='Armed Forces', 'Industry_Status'] = '
 test_csv.loc[test_csv['Birth_Country']=='Holand-Netherlands', 'Birth_Country'] = 'Unknown'
 
 test_csv.loc[test_csv['Birth_Country (Father)']=='Panama', 'Birth_Country (Father)'] = 'Unknown'
+
+train_csv.loc[train_csv['Martial_Status']=='Married (Armed Force Spouse)', 'Martial_Status'] = 'Married'
+test_csv.loc[test_csv['Martial_Status']=='Married (Armed Force Spouse)', 'Martial_Status'] = 'Married'
+
+train_csv.loc[train_csv['Martial_Status']=='Married (Spouse Absent)', 'Martial_Status'] = 'Separated'
+test_csv.loc[test_csv['Martial_Status']=='Married (Spouse Absent)', 'Martial_Status'] = 'Separated'
+
+train_csv.loc[train_csv['Occupation_Status']=='Armed Forces', 'Occupation_Status'] = 'Unknown'
+test_csv.loc[test_csv['Occupation_Status']=='Armed Forces', 'Occupation_Status'] = 'Unknown'
+
+
+train_csv.loc[train_csv['Employment_Status']=='Seeking Part-Time', 'Employment_Status'] = 'Not Working'
+test_csv.loc[test_csv['Employment_Status']=='Seeking Part-Time', 'Employment_Status'] = 'Not Working'
+
+train_csv.loc[train_csv['Employment_Status']=='Seeking Full-Time', 'Employment_Status'] = 'Not Working'
+test_csv.loc[test_csv['Employment_Status']=='Seeking Full-Time', 'Employment_Status'] = 'Not Working'
+
+train_csv.loc[train_csv['Employment_Status']=='Part-Time (Usually Part-Time)', 'Employment_Status'] = 'Choice Part-Time'
+test_csv.loc[test_csv['Employment_Status']=='Part-Time (Usually Part-Time)', 'Employment_Status'] = 'Choice Part-Time'
+
+train_csv.loc[train_csv['Employment_Status']=='Part-Time (Usually Full-Time)', 'Employment_Status'] = 'Full-Time'
+test_csv.loc[test_csv['Employment_Status']=='Part-Time (Usually Full-Time)', 'Employment_Status'] = 'Full-Time'
 
 
 
@@ -110,13 +134,20 @@ classified_data2 = [classify_data(item) for item in test_csv['Household_Status']
 train_csv['Household_Status'] = lae.fit_transform(classified_data)
 test_csv['Household_Status'] = lae.fit_transform(classified_data2)
 
+
+# print(np.unique(train_csv['Education_Status'], return_counts=True))       
+# print(np.unique(test_csv['Education_Status'], return_counts=True))
+
+# print(np.unique(train_csv['Household_Status'], return_counts=True))       
+# # print(np.unique(test_csv['Household_Status'], return_counts=True))
+
 n_splits= 7
 kfold = KFold(n_splits=n_splits, shuffle=True, random_state=123)
 
 train_csv = train_csv.drop(['Gains', 'Losses', 'Dividends'], axis=1)
 test_csv = test_csv.drop(['Gains', 'Losses', 'Dividends'], axis=1)
 
-  
+
 X = train_csv.drop(['Income'], axis=1)
 y = train_csv['Income']
 
@@ -165,41 +196,67 @@ X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.15, random_s
 
 # model = xgb.XGBRegressor(**xgb_params)
 
+# parameters = {
+# 'n_estimators': [100, 300],  # 부스팅 라운드의 수/ 디폴트 100/ 1 ~ inf/ 정수
+# 'learning_rate': [0.01, 0.05, 0.1],  # 학습률/ 디폴트 0.3/0~1/
+# 'max_depth': [6, 9, 12],  # 트리의 최대 깊이/ 디폴트 6/ 0 ~ inf/ 정수
+# 'min_child_weight':  [0, 1, 5],  # 자식에 필요한 모든 관측치에 대한 가중치 합의 최소/ 디폴트 1 / 0~inf
+# 'gamma': [0, 1],  # 리프 노드를 추가적으로 나눌지 결정하기 위한 최소 손실 감소/ 디폴트 0/ 0~ inf
+# 'subsample': [0.5, 1],  # 각 트리마다의 관측 데이터 샘플링 비율/ 디폴트 1 / 0~1
+# 'colsample_bytree': [0.5, 1],  # 각 트리 구성에 필요한 컬럼(특성) 샘플링 비율/ 디폴트 1 / 0~1
+# 'colsample_bylevel': [0.5, 1], #  디폴트 1 / 0~1
+# 'colsample_bynode': [0.5, 1], #  디폴트 1 / 0~1
+# 'reg_alpha' : [0],   # 디폴트 0 / 0 ~ inf / L1 절대값 가중치 규제(제한) / alpha
+# 'reg_lambda' :   [1],   # 디폴트 1 / 0 ~ inf / L2 제곱 가중치 규제(제한) / lambda
+# 'objective': ['reg:squarederror'],  # 학습 태스크 파라미터
+# # 'num_class': [30],
+# 'verbosity' : [1] 
+# }
+
 parameters = {
-'n_estimators': [100, 300, 500],  # 부스팅 라운드의 수/ 디폴트 100/ 1 ~ inf/ 정수
-'learning_rate': [0.01, 0.05, 0.1],  # 학습률/ 디폴트 0.3/0~1/
-'max_depth': [6, 9, 12],  # 트리의 최대 깊이/ 디폴트 6/ 0 ~ inf/ 정수
-'min_child_weight':  [0, 1, 5],  # 자식에 필요한 모든 관측치에 대한 가중치 합의 최소/ 디폴트 1 / 0~inf
-'gamma': [0, 1],  # 리프 노드를 추가적으로 나눌지 결정하기 위한 최소 손실 감소/ 디폴트 0/ 0~ inf
-'subsample': [0.5, 1],  # 각 트리마다의 관측 데이터 샘플링 비율/ 디폴트 1 / 0~1
-'colsample_bytree': [0.5, 1],  # 각 트리 구성에 필요한 컬럼(특성) 샘플링 비율/ 디폴트 1 / 0~1
-'colsample_bylevel': [0.5, 1], #  디폴트 1 / 0~1
-'colsample_bynode': [0.5, 1], #  디폴트 1 / 0~1
-'reg_alpha' : [0, 1],   # 디폴트 0 / 0 ~ inf / L1 절대값 가중치 규제(제한) / alpha
-'reg_lambda' :   [1, 2],   # 디폴트 1 / 0 ~ inf / L2 제곱 가중치 규제(제한) / lambda
-'objective': ['reg:squarederror'],  # 학습 태스크 파라미터
-# 'num_class': [30],
-'verbosity' : [1] 
+    'n_estimators': [100, 300],  # 부스팅 라운드 수
+    'learning_rate': [0.01, 0.05, 0.1],  # 학습률
+    'max_depth': [6, 9, 12],  # 트리의 최대 깊이
+    'min_child_samples':  [0, 1, 5],  # 자식 노드가 가지고 있어야 할 최소 데이터 개수
+    'num_leaves': [31, 62],  # 하나의 트리가 가질 수 있는 최대 리프의 수
+    'bagging_fraction': [0.5, 1],  # 데이터 샘플링 비율
+    'feature_fraction': [0.5, 1],  # 특성 샘플링 비율
+    'reg_alpha' : [0],  # L1 규제
+    'reg_lambda' :   [1],  # L2 규제
+    'objective': ['regression'],  # 학습 태스크 파라미터
+    'verbosity': [1] 
 }
+
 #2. 모델 구성
-model = GridSearchCV(XGBRegressor(), param_grid=parameters, cv=kfold, verbose=1,
+model = GridSearchCV(LGBMRegressor(), param_grid=parameters, cv=kfold, verbose=1,
                 # refit = True,     # default
                     n_jobs=-1)
 
+# model = GridSearchCV(LGBMRegressor(), param_grid=parameters, cv=kfold, verbose=1, n_jobs=-1)
 
+# model.fit(X_train, y_train,
+#           eval_set=[(X_val, y_val)], early_stopping_rounds=50,
+#           verbose=100)
 
-model.fit(X_train, y_train,
-          eval_set=[(X_val, y_val)], early_stopping_rounds=50,
-          verbose=100)
+model.fit(
+    X_train, y_train,
+    # eval_set=[(X_val, y_val)],
+    # early_stopping_rounds=50,
+    # verbose=1
+)
+
 import joblib
 
+
+
 # 모델 저장
-joblib.dump(model, "c://_data//dacon//income//weights//money_xgb_03_28_2.pkl")
+joblib.dump(model, "c://_data//dacon//income//weights//money_xgb_03_29_2.pkl")
 
 # 저장된 모델 불러오기
-loaded_model = joblib.load("c://_data//dacon//income//weights//money_xgb_03_28_2.pkl")
+loaded_model = joblib.load("c://_data//dacon//income//weights//money_xgb_03_29_2.pkl")
 # 검증 데이터 예측
 y_pred_val = model.predict(X_val)
+best_params = model.best_params_
 
 # 검증 데이터 RMSE 계산
 rmse_val = mean_squared_error(y_val, y_pred_val, squared=False)
@@ -210,8 +267,8 @@ y_submit = model.predict(test_csv)
 # y_submit = lae.inverse_transform(y_submit)
 submission_csv['Income'] = y_submit
 print(y_submit)
-
-submission_csv.to_csv(path + "submisson_03_28_2_xgb.csv", index=False)
+print('최적 파라미터 : ',best_params)
+submission_csv.to_csv(path + "submisson_03_29_2_xgb.csv", index=False)
 
 # return rmse_val
 # time.sleep(1)
@@ -246,5 +303,8 @@ submission_csv.to_csv(path + "submisson_03_28_2_xgb.csv", index=False)
 # 전처리 -> random_state :  53338046 , test_size = 0.15 , kfold random state = 123, n_splits= 7  Validation RMSE: 507.54949182279205 r 449    -> 541.1157531034
 
 
-
-
+# Validation RMSE: 509.66099446119154 r 434
+# 최적 파라미터 :  {'bagging_fraction': 0.5, 'feature_fraction': 0.5, 
+#             'learning_rate': 0.01, 'max_depth': 12, 'min_child_samples': 5,
+#             'n_estimators': 300, 'num_leaves': 62, 'objective': 'regression',
+#             'reg_alpha': 0, 'reg_lambda': 1, 'verbosity': 1}
