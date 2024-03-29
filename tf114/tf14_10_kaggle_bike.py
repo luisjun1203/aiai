@@ -54,7 +54,7 @@ train = optimizer.minimize(loss)
 sess = tf.compat.v1.Session()
 sess.run(tf.compat.v1.global_variables_initializer())
 
-epochs = 1000
+epochs = 10000
 
 for step in range(epochs):
     loss_val, _ = sess.run([loss, train], feed_dict={Xp: X_train, yp: y_train}) 
@@ -94,10 +94,14 @@ sess.close()
 # R2 스코어:  -1.1002236336952875
 # MSE:  68058.07000658798
 
+# Loss:  68010.37
+# R2 스코어:  -1.1000481676517806
+# MSE:  68052.38400244956
 
 
-
-
+# Loss:  67931.83
+# R2 스코어:  -1.0982957885954816
+# MSE:  67995.59788949556
 
 
 

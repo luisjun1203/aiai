@@ -1,7 +1,7 @@
 import tensorflow as tf
 tf.compat.v1.set_random_seed(3)
-from sklearn.metrics import mean_absolute_error, r2_score, mean_squared_error
-
+from sklearn.metrics import mean_absolute_error, r2_score, mean_squared_error, accuracy_score
+import numpy as np
 
 # 1. 데이터
 X_data = [[1,2], [2,3], [3,1], [4,3], [5,3], [6,2]] # (6,2)
@@ -28,7 +28,7 @@ hypothesis = tf.compat.v1.sigmoid(tf.compat.v1.matmul(X, w) + b)
 loss = -tf.reduce_mean(y * tf.log(hypothesis) + (1 - y) * tf.log(1 - hypothesis))   # 'binary_crossentropy'
 
 # optimizer = tf.compat.v1.train.AdamOptimizer(learning_rate=1e-5)
-optimizer = tf.compat.v1.train.GradientDescentOptimizer(learning_rate=1e-5)
+optimizer = tf.compat.v1.train.GradientDescentOptimizer(learning_rate=1e-1)
 
 train = optimizer.minimize(loss)
 
@@ -36,7 +36,7 @@ sess = tf.compat.v1.Session()
 sess.run(tf.compat.v1.global_variables_initializer())
 
 # 3-2. 훈련
-epochs = 19000
+epochs = 1900
 
 for step in range(epochs):
     loss_val, _, w_val, b_val = sess.run([loss, train, w, b], feed_dict={X:X_data, y:y_data})
@@ -49,21 +49,37 @@ for step in range(epochs):
 # print(type(w_val))  # <class 'numpy.ndarray'>
 
 # 4. 평가, 예측
-'''
+
 X_test = tf.compat.v1.placeholder(tf.float32, shape=[None,2])
-y_pred = tf.matmul(X_test, w_val) + b_val
-predict = sess.run(y_pred, feed_dict={X_test : X_data})
-print("결과 :", y_pred)
+y_pred = tf.sigmoid(tf.matmul(X_test, w_val) + b_val)
+predict = sess.run(tf.cast(y_pred > 0.5, dtype=tf.float32), feed_dict={X_test : X_data})
+print("결과 :", predict)
 
-r2 = r2_score(y_data, y_pred)
-mae = mean_squared_error(y_data, y_pred) 
+# y_data = tf.compat.v1.round(y_data)
+# predict = tf.compat.v1.round(predict)
+acc = accuracy_score(y_data, predict)
+print("acc : ", acc)
 
 
-print('MAE : ', mae)
-print("R2 스코어 : ", r2)
 sess.close()
 
-# MAE :  0.1375966469446818
-# R2 스코어 :  0.8837209459409602
-'''
+
+
+# 결과 : [[0.00982884]
+#  [0.11364625]
+#  [0.17883402]
+#  [0.8469039 ]
+#  [0.9732159 ]
+#  [0.99182785]]
+
+# 결과 : [[0.]
+#  [0.]
+#  [0.]
+#  [1.]
+#  [1.]
+#  [1.]]
+# acc :  1.0
+
+
+
 

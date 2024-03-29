@@ -10,17 +10,12 @@ from sklearn.preprocessing import MinMaxScaler, MaxAbsScaler, StandardScaler, Ro
 X, y = fetch_california_housing(return_X_y=True)
 print(X.shape, y.shape) # (20640, 8) (20640,)
 
-
-
-
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=3)
 
 sclaer = MaxAbsScaler()
 sclaer.fit(X_train)
 X_train = sclaer.transform(X_train)
 X_test = sclaer.transform(X_test)
-
-
 
 Xp = tf.compat.v1.placeholder(tf.float32, shape=[None, 8])  # 수정
 yp = tf.compat.v1.placeholder(tf.float32, shape=[None, 1])      # 수정
@@ -34,18 +29,14 @@ print(y_test.shape)
 y_train = np.reshape(y_train, (-1, 1))
 y_test = np.reshape(y_test, (-1, 1))
 
-
-
 # 2. 모델 구성
 hypothesis = tf.compat.v1.matmul(Xp, w) + b  
-
 
 # 3-1. 컴파일
 loss = tf.reduce_mean(tf.square(hypothesis - yp))
 
 optimizer = tf.compat.v1.train.AdamOptimizer(learning_rate=1e-5)
 train = optimizer.minimize(loss)
-
 
 # 3-2. 훈련
 sess = tf.compat.v1.Session()
@@ -70,7 +61,6 @@ print('R2 스코어: ', r2)
 print('MSE: ', mse)
 
 sess.close()
-
 
 # Loss:  5.5004473
 # R2 스코어:  -3.1587809250513104
