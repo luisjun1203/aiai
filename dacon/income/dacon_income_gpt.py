@@ -58,7 +58,7 @@ test_csv.loc[test_csv['Employment_Status']=='Part-Time (Usually Full-Time)', 'Em
 
 
 for col in ['Gains', 'Losses', 'Dividends']:
-    threshold = train_csv[col].quantile(0.90)
+    threshold = train_csv[col].quantile(0.99)
     train_csv[col] = train_csv[col].apply(lambda x: x if x <= threshold else threshold)
     test_csv[col] = test_csv[col].apply(lambda x: x if x <= threshold else threshold)
 
@@ -205,26 +205,26 @@ X = scaler.fit_transform(X)
 test_csv = scaler.transform(test_csv)
 
 
-r = random.randint(400,500)
+r = random.randint(1,500)
 
 X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.2, random_state=53338046)
 
 
 parameters = {
-'n_estimators': [300],  # 부스팅 라운드의 수/ 디폴트 100/ 1 ~ inf/ 정수
-'learning_rate': [0.01],  # 학습률/ 디폴트 0.3/0~1/
-'max_depth': [12],  # 트리의 최대 깊이/ 디폴트 6/ 0 ~ inf/ 정수
+'n_estimators': [100, 300, 500],  # 부스팅 라운드의 수/ 디폴트 100/ 1 ~ inf/ 정수
+'learning_rate': [0.01, 0.05, 0.1],  # 학습률/ 디폴트 0.3/0~1/
+'max_depth': [6, 9, 12],  # 트리의 최대 깊이/ 디폴트 6/ 0 ~ inf/ 정수
 'min_child_weight':  [0, 1, 5],  # 자식에 필요한 모든 관측치에 대한 가중치 합의 최소/ 디폴트 1 / 0~inf
 'gamma': [0, 1],  # 리프 노드를 추가적으로 나눌지 결정하기 위한 최소 손실 감소/ 디폴트 0/ 0~ inf
-'subsample': [0, 0.5, 1],  # 각 트리마다의 관측 데이터 샘플링 비율/ 디폴트 1 / 0~1
-'colsample_bytree': [0, 0.5, 1],  # 각 트리 구성에 필요한 컬럼(특성) 샘플링 비율/ 디폴트 1 / 0~1
-'colsample_bylevel': [0, 0.5, 1], #  디폴트 1 / 0~1
-'colsample_bynode': [0, 0.5, 1], #  디폴트 1 / 0~1
+'subsample': [0.5, 1],  # 각 트리마다의 관측 데이터 샘플링 비율/ 디폴트 1 / 0~1
+'colsample_bytree': [0.5, 1],  # 각 트리 구성에 필요한 컬럼(특성) 샘플링 비율/ 디폴트 1 / 0~1
+'colsample_bylevel': [0.5, 1], #  디폴트 1 / 0~1
+'colsample_bynode': [0.5, 1], #  디폴트 1 / 0~1
 'reg_alpha' : [0],   # 디폴트 0 / 0 ~ inf / L1 절대값 가중치 규제(제한) / alpha
 'reg_lambda' :   [1],   # 디폴트 1 / 0 ~ inf / L2 제곱 가중치 규제(제한) / lambda
 'objective': ['reg:squarederror'],  # 학습 태스크 파라미터
 # 'num_class': [30],
-'verbosity' : [2] 
+'verbosity' : [1] 
 }
 model = GridSearchCV(XGBRegressor(), param_grid=parameters, cv=kfold, verbose=2,
                 # refit = True,     # default
@@ -241,9 +241,9 @@ import joblib
 
 
 # 모델 저장
-joblib.dump(model, "c://_data//dacon//income//weights//money_XGB_03_30_4.pkl")
+joblib.dump(model, "c://_data//dacon//income//weights//money_XGB_03_30_2.pkl")
 
-loaded_model = joblib.load("c://_data//dacon//income//weights//money_XGB_03_30_4.pkl")
+loaded_model = joblib.load("c://_data//dacon//income//weights//money_XGB_03_30_2.pkl")
 
 y_pred_val = model.predict(X_val)
 best_params = model.best_params_
@@ -255,7 +255,7 @@ y_submit = model.predict(test_csv)
 submission_csv['Income'] = y_submit
 print(y_submit)
 print('최적 파라미터 : ',best_params)
-submission_csv.to_csv(path + "submisson_03_30_4_XGB.csv", index=False)
+submission_csv.to_csv(path + "submisson_03_30_2_XGB.csv", index=False)
 
 # 99
 # Validation RMSE: 549.7134128155112 r 430
@@ -280,12 +280,29 @@ submission_csv.to_csv(path + "submisson_03_30_4_XGB.csv", index=False)
 # 'reg:squarederror', 'reg_alpha': 0, 'reg_lambda': 1, 'subsample': 0.5, 'verbosity': 2}
 
 
-
 #90
+# Validation RMSE: 551.6303865607747 r 430
+# [ 60.637875  55.13174  424.15762  ... 598.8777    26.983376 683.41516 ]
+# 최적 파라미터 :  {'colsample_bylevel': 1, 'colsample_bynode': 0.5, 'colsample_bytree': 0.5,
+# 'gamma': 0, 'learning_rate': 0.01, 'max_depth': 12, 'min_child_weight': 0, 'n_estimators': 300, 'objective': 
+# 'reg:squarederror', 'reg_alpha': 0, 'reg_lambda': 1, 'subsample': 1, 'verbosity': 2}
+
+#97
+# Validation RMSE: 550.5479238142116 r 430
+# [ 35.109196  58.394943 417.7776   ... 480.23856   26.665348 688.6879  ]
+# 최적 파라미터 :  {'colsample_bylevel': 1, 'colsample_bynode': 0.5, 'colsample_bytree': 0.5, 
+# 'gamma': 0, 'learning_rate': 0.01, 'max_depth': 12, 'min_child_weight': 5, 'n_estimators': 300, 'objective': 
+# 'reg:squarederror', 'reg_alpha': 0, 'reg_lambda': 1, 'subsample': 0.5, 'verbosity': 2}
 
 
 
-
+# submisson_03_30_2_XGB.csv
+# Validation RMSE: 549.0087712353022 r 122
+# [  3.0830472   7.406462  429.5641    ... 373.574       2.815016
+#  625.61096  ]
+# 최적 파라미터 :  {'colsample_bylevel': 1, 'colsample_bynode': 1, 'colsample_bytree': 0.5, 'gamma': 0,
+# 'learning_rate': 0.01, 'max_depth': 6, 'min_child_weight': 0, 'n_estimators': 500, 'objective': 'reg:squarederror',
+# 'reg_alpha': 0, 'reg_lambda': 1, 'subsample': 1, 'verbosity': 1}
 
 
 

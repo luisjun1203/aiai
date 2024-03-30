@@ -80,7 +80,7 @@ print("Accuracy:", acc)
 
 sess.close()
 
-# Accuracy: 0.45
+Accuracy: 0.45
 
 
 
