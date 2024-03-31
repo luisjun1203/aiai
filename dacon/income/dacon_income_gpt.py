@@ -263,7 +263,7 @@ submission_csv.to_csv(path + "submisson_03_30_2_XGB.csv", index=False)
 # 최적 파라미터 :  {'colsample_bylevel': 1, 'colsample_bynode': 0.5, 'colsample_bytree': 0.5,
 # 'gamma': 1, 'learning_rate': 0.01, 'max_depth': 12, 'min_child_weight': 5, 'n_estimators': 300, 'objective': 
 # 'reg:squarederror', 'reg_alpha': 0, 'reg_lambda': 1, 'subsample': 0.5, 'verbosity': 2}
-
+             
 # 75
 # Validation RMSE: 551.2922966781219 r 430
 # [ 25.408865  28.349987 421.38376  ... 423.93857   27.019299 663.0905  ]
