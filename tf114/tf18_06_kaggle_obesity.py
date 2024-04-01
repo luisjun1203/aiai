@@ -140,13 +140,14 @@ b = tf.compat.v1.Variable(tf.zeros([y_data_ohe.shape[1]]), name='bias')
 hypothesis = tf.nn.softmax(tf.matmul(X, w) + b)
 
 loss = tf.reduce_mean(-tf.reduce_sum(y * tf.math.log(hypothesis), axis=1))
-optimizer = tf.compat.v1.train.AdamOptimizer(learning_rate=1e-3)  
+optimizer = tf.compat.v1.train.AdamOptimizer(learning_rate=1e-2)  
 train = optimizer.minimize(loss)
 
 sess = tf.compat.v1.Session()
 sess.run(tf.compat.v1.global_variables_initializer())
 
-epochs = 10000
+epochs = 6000
+
 for step in range(epochs):
     cost_val, _ = sess.run([loss, train], feed_dict={X: X_data_scaled, y: y_data_ohe})
     if step % 50 == 0:
@@ -162,4 +163,4 @@ print("ACC : ", acc)
 sess.close()
 
 
-# ACC :  0.7651026110415261
+# ACC :  0.8518161672608151
