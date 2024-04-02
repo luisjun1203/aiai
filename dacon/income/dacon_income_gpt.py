@@ -207,7 +207,7 @@ test_csv = scaler.transform(test_csv)
 
 r = random.randint(1,500)
 
-X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.2, random_state=53338046)
+X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.2, random_state=42)
 
 
 parameters = {
@@ -241,9 +241,9 @@ import joblib
 
 
 # 모델 저장
-joblib.dump(model, "c://_data//dacon//income//weights//money_XGB_03_30_2.pkl")
+joblib.dump(model, "c://_data//dacon//income//weights//money_XGB_04_02_1.pkl")
 
-loaded_model = joblib.load("c://_data//dacon//income//weights//money_XGB_03_30_2.pkl")
+loaded_model = joblib.load("c://_data//dacon//income//weights//money_XGB_04_02_1.pkl")
 
 y_pred_val = model.predict(X_val)
 best_params = model.best_params_
@@ -255,7 +255,7 @@ y_submit = model.predict(test_csv)
 submission_csv['Income'] = y_submit
 print(y_submit)
 print('최적 파라미터 : ',best_params)
-submission_csv.to_csv(path + "submisson_03_30_2_XGB.csv", index=False)
+submission_csv.to_csv(path + "submisson_04_02_1_XGB.csv", index=False)
 
 # 99
 # Validation RMSE: 549.7134128155112 r 430
