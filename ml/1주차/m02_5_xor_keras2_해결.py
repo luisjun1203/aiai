@@ -24,6 +24,7 @@ model = Sequential()
 model.add(Dense(19, input_shape=(2,)))
 model.add(Dense(97,activation='relu'))
 model.add(Dense(9,activation='relu'))
+model.add(Dense(21,activation='relu'))
 model.add(Dense(1, activation='sigmoid'))
 
 
