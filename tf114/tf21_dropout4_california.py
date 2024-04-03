@@ -50,11 +50,6 @@ layer4 = tf.nn.relu(tf.compat.v1.matmul(layer3, w4) + b4)
 w5 = tf.compat.v1.Variable(tf.random_normal([21,1]), name = 'weight5')
 b5 = tf.compat.v1.Variable(tf.zeros([1]), name = 'bias5')
 
-
-
-
-
-
 # 2. 모델 구성
 hypothesis = tf.compat.v1.matmul(layer4, w5) + b5  
 
@@ -75,42 +70,24 @@ optimizer = tf.compat.v1.train.AdamOptimizer(learning_rate=1e-4)
 train = optimizer.minimize(loss)
 
 # 3-2. 훈련
-# sess = tf.compat.v1.Session()
-# sess.run(tf.compat.v1.global_variables_initializer())
-
-# epochs = 10000
-
-# for step in range(epochs):
-#     loss_val, _ = sess.run([loss, train], feed_dict={Xp: X_train, yp: y_train, keep_prob:0.5}) 
-#     if step % 50 == 0:
-#         print(step, "loss : ", loss_val)
 
 # 4. 평가
-# test_loss = sess.run(loss, feed_dict={Xp: X_test, yp: y_test})  
 
-# y_pred = sess.run(hypothesis, feed_dict={Xp: X_test})
-# r2 = r2_score(y_test, y_pred)
-# mse = mean_squared_error(y_test, y_pred)
-
-# print('Loss: ', test_loss)
-# print('R2 스코어: ', r2)
-# print('MSE: ', mse)
-
-
-prediction = tf.equal(tf.argmax(hypothesis, 1), tf.argmax(y, 1))
-accuracy = tf.reduce_mean(tf.cast(prediction, tf.float32))
 
 with tf.Session() as sess:
     sess.run(tf.global_variables_initializer())
     
     for step in range(5001):
         cost_val, _ = sess.run([loss, train], feed_dict={Xp: X_train, yp: y_train, keep_prob:0.5})
-        if step % 20 == 0:
+        if step % 200 == 0:
             print(step, "loss : ", cost_val)
             
-    acc = sess.run(accuracy, feed_dict={Xp: X_train, yp: y_train, keep_prob:1.0})
+    y_pred = sess.run(hypothesis, feed_dict={Xp: X_test, yp: y_test, keep_prob: 1.0})
+    test_loss = sess.run(loss, feed_dict={Xp: X_test, yp: y_test, keep_prob: 1.0})
     
-    print("acc : ", acc)
+    print('Loss: ', test_loss)
+    print('R2 스코어: ', r2_score(y_test, y_pred))
+    print('MSE: ', mean_squared_error(y_test, y_pred))
 
 # Loss:  5.5004473
 # R2 스코어:  -3.1587809250513104
@@ -120,3 +97,6 @@ with tf.Session() as sess:
 # R2 스코어:  0.49940097036093667
 # MSE:  0.6620976373985781
 
+# Loss:  4.565814
+# R2 스코어:  -2.4521228567401474
+# MSE:  4.565814658300979
