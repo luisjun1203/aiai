@@ -24,7 +24,7 @@ print(y.shape)  # (10886,)
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=3)
 
-sclaer = RobustScaler()
+sclaer = MinMaxScaler()
 sclaer.fit(X_train)
 X_train = sclaer.transform(X_train)
 X_test = sclaer.transform(X_test)
@@ -139,7 +139,9 @@ sess.close()
 
 
 
-
+# Loss:  32417.734
+# R2 스코어:  -0.00023334658020512933
+# MSE:  32412.71549958947
 
 
 
