@@ -31,9 +31,9 @@ path_test = "c:\\_data\\image\\cat_and_dog\\test\\"
 
 xy_train = train_datagen.flow_from_directory(
     path_train, 
-    target_size=(100,100),              # 사이즈 조절
+    target_size=(64,64),              # 사이즈 조절
     batch_size=100,                      # 160이상을 쓰면 x 통데이터로 가져올 수 있다 , 몇 장씩 수치화 시킬건지 정해준다           
-    class_mode='binary',
+    class_mode='categorical',
     shuffle=True)
 
 X = []
