@@ -37,7 +37,7 @@ CFG = {
     'EPOCHS':100,
     'LEARNING_RATE':3e-4,
     'BATCH_SIZE':128,
-    'SEED':713
+    'SEED':921
 }
 
 def seed_everything(seed):
@@ -290,7 +290,7 @@ preds = inference(infer_model, test_loader, device)
 
 submit = pd.read_csv('c:/_data/dacon/bird/open/sample_submission.csv')
 submit['label'] = preds
-submit.to_csv('c:/_data/dacon/bird/open/sub_csv/bird04_10_1.csv', index=False)
+submit.to_csv('c:/_data/dacon/bird/open/sub_csv/bird04_10_2.csv', index=False)
 
 
 # CFG = {
