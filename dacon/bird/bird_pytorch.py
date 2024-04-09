@@ -36,8 +36,8 @@ CFG = {
     'IMG_SIZE':224,
     'EPOCHS':100,
     'LEARNING_RATE':3e-4,
-    'BATCH_SIZE':64,
-    'SEED':3
+    'BATCH_SIZE':128,
+    'SEED':713
 }
 
 def seed_everything(seed):
@@ -163,6 +163,81 @@ def train(model, optimizer, train_loader, val_loader, scheduler, device):
     
     return best_model
 
+# class EarlyStopping:
+#     """Early stops the training if validation loss doesn't improve after a given patience."""
+#     def __init__(self, patience=130, verbose=False, delta=0):
+       
+#         self.patience = patience
+#         self.verbose = verbose
+#         self.counter = 0
+#         self.best_score = None
+#         self.early_stop = False
+#         self.val_score_min = np.Inf
+#         self.delta = delta
+
+#     def __call__(self, val_score, model):
+
+#         score = -val_score
+
+#         if self.best_score is None:
+#             self.best_score = score
+#             self.save_checkpoint(val_score, model)
+#         elif score < self.best_score + self.delta:
+#             self.counter += 1
+#             print(f'EarlyStopping counter: {self.counter} out of {self.patience}')
+#             if self.counter >= self.patience:
+#                 self.early_stop = True
+#         else:
+#             self.best_score = score
+#             self.save_checkpoint(val_score, model)
+#             self.counter = 0
+
+#     def save_checkpoint(self, val_score, model):
+#         if self.verbose:
+#             print(f'Validation score improved ({self.val_score_min:.6f} --> {val_score:.6f}).  Saving model ...')
+#         # Save the model here if you want, or just report the best score
+#         self.val_score_min = val_score
+
+
+# def train(model, optimizer, train_loader, val_loader, scheduler, device, patience=130):
+#     early_stopping = EarlyStopping(patience=patience, verbose=True)
+    
+#     model.to(device)
+#     criterion = nn.CrossEntropyLoss().to(device)
+    
+#     for epoch in range(1, CFG['EPOCHS']+1):
+#         model.train()
+#         train_loss = []
+#         for imgs, labels in tqdm(iter(train_loader)):
+#             imgs = imgs.float().to(device)
+#             labels = labels.to(device)
+            
+#             optimizer.zero_grad()
+            
+#             output = model(imgs)
+#             loss = criterion(output, labels)
+            
+#             loss.backward()
+#             optimizer.step()
+            
+#             train_loss.append(loss.item())
+                    
+#         _val_loss, _val_score = validation(model, criterion, val_loader, device)
+#         print(f'Epoch [{epoch}], Val F1 Score : [{_val_score:.5f}]')
+       
+#         if scheduler is not None:
+#             scheduler.step(_val_score)
+            
+#         early_stopping(_val_score, model)
+        
+#         if early_stopping.early_stop:
+#             print("Early stopping")
+#             break
+    
+#     return model 
+
+
+
 def validation(model, criterion, val_loader, device):
     model.eval()
     val_loss = []
@@ -184,7 +259,7 @@ def validation(model, criterion, val_loader, device):
         
         _val_loss = np.mean(val_loss)
         _val_score = f1_score(true_labels, preds, average='macro')
-    
+        print("확인용 : ", _val_score)
     return _val_loss, _val_score
 
 model = BaseModel()
@@ -215,4 +290,14 @@ preds = inference(infer_model, test_loader, device)
 
 submit = pd.read_csv('c:/_data/dacon/bird/open/sample_submission.csv')
 submit['label'] = preds
-submit.to_csv('c:/_data/dacon/bird/open/sub_csv/bird1.csv', index=False)
+submit.to_csv('c:/_data/dacon/bird/open/sub_csv/bird04_10_1.csv', index=False)
+
+
+# CFG = {
+#     'IMG_SIZE':224,
+#     'EPOCHS':100,
+#     'LEARNING_RATE':3e-4,
+#     'BATCH_SIZE':64,
+#     'SEED':3
+# }              Val F1 Score  : 0.91127, 제출: 0.90531
+
