@@ -20,4 +20,9 @@ if gpus:
     except RuntimeError as e:
         print(e)
 else:
-    print("gpu없다!!!")    
+    print("gpu없다!!!")   
+    
+# Tensorflow1 -> 그래프 연산        
+# Tensorflow2 -> 즉시실행모드
+# tf.compat.v1.enable_eager_execution()   -> 즉시실행모드 켜
+# tf.compat.v1.disable_eager_execution() -> 즉시실행모드 꺼 -> 그래프 연산모드 -> Tensorflow1 코드 사용가능
