@@ -22,7 +22,13 @@ if gpus:
 else:
     print("gpu없다!!!")   
     
-# Tensorflow1 -> 그래프 연산        
-# Tensorflow2 -> 즉시실행모드
-# tf.compat.v1.enable_eager_execution()   -> 즉시실행모드 켜
-# tf.compat.v1.disable_eager_execution() -> 즉시실행모드 꺼 -> 그래프 연산모드 -> Tensorflow1 코드 사용가능
+'''      
+Tensorflow1 -> 그래프 연산        
+Tensorflow2 -> 즉시실행모드
+tf.compat.v1.enable_eager_execution()   -> 즉시실행모드 켜
+                        -> Tensorflow2 의 디폴트
+tf.compat.v1.disable_eager_execution() -> 즉시실행모드 꺼 -> 그래프 연산모드 -> Tensorflow1 코드 사용가능
+
+tf.executing_eagerly() True면 즉시실행모드 -> Tensorflow2 코드만 써야한다
+                        False면 그래프 연산모드 -> Tensorflow1 코드만 써야한다
+'''
