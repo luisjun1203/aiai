@@ -2,7 +2,7 @@ from keras.datasets import cifar100
 import numpy as np
 from keras.datasets import mnist
 import pandas as pd
-from keras.models import Sequential
+from keras.models import Sequential     
 from keras.layers import Dense, Conv2D, Flatten, Dropout, GlobalAveragePooling2D, MaxPooling2D
 import tensorflow as tf
 from sklearn.preprocessing import OneHotEncoder,StandardScaler, RobustScaler
