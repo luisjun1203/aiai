@@ -15,7 +15,7 @@ import matplotlib.pyplot as plt
 
 # print(X_train.shape, y_train.shape)     # (50000, 32, 32, 3) (50000, 1)
 # print(X_test.shape, y_test.shape)       # (10000, 32, 32, 3) (10000, 1)
-
+     
       
 # plt.imshow(X_train[39], 'gray')
 # plt.show()
