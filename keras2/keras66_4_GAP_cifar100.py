@@ -1,4 +1,4 @@
-from keras.datasets import cifar100
+from keras.datasets import cifar100           
 import numpy as np
 from keras.datasets import mnist
 import pandas as pd
