@@ -5,7 +5,7 @@ def extract(fpath, skip_completed=True, dest_dir="aist_baseline_feats"):
 
     if os.path.exists(save_path) and skip_completed:    # 중복 작업을 방지
         return                          
-
+   
     data, _ = librosa.load(fpath, sr=SR)            # librosa.load 함수를 사용하여 오디오 파일을 읽고, 샘플링 레이트 SR으로 리샘플링
 
     envelope = librosa.onset.onset_strength(y=data, sr=SR)  # (seq_len,)    # envelope는 오디오 신호에서 감지된 onset 강도를 계산
