@@ -4,7 +4,7 @@ import time
 from sklearn.metrics import accuracy_score
 tf.compat.v1.disable_eager_execution()
 tf.compat.v1.set_random_seed(777)
-
+     
 #1. 데이터
 from tensorflow.keras.datasets import cifar100
 (x_train, y_train), (x_test, y_test) = cifar100.load_data()
