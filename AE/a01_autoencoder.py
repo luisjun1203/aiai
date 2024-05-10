@@ -47,19 +47,19 @@ decoded_imgs = autoencoder.predict(X_test)
 import matplotlib.pyplot as plt
 
 n=10
-plt.figure(figsize(20,4))
+plt.figure(figsize=(20,4))
 
 for i in range(n):
     ax = plt.subplot(2, n, i+1)
     plt.imshow(X_test[i].reshape(28, 28))
     plt.gray()
-    ax.get_Xaxis().set_visible(False)
+    ax.get_xaxis().set_visible(False)
     ax.get_yaxis().set_visible(False)
 
     ax = plt.subplot(2, n, i+1+n)
     plt.imshow(decoded_imgs[i].reshape(28, 28))
     plt.gray()
-    ax.get_Xaxis().set_visible(False)
+    ax.get_xaxis().set_visible(False)
     ax.get_yaxis().set_visible(False)
 
 plt.show()
