@@ -21,7 +21,7 @@ X = scaler.fit_transform(X_data)
 # y_data = y_data.reshape(-1,1)     # (569, 1)
 
 # print(y_data.shape)
-
+   
 Xp = tf.compat.v1.placeholder(dtype=tf.float32 , shape=[None,30])
 yp = tf.compat.v1.placeholder(dtype=tf.float32 , shape=[None,1])
 
