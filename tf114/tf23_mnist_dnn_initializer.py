@@ -23,7 +23,7 @@ X_test = X_test.reshape(10000, 28*28).astype('float32')/255
 rate = tf.compat.v1.placeholder(tf.float32)
 # print(X_train.shape, X_test.shape)  # (60000, 784) (10000, 784)
 # keep_prob = tf.compat.v1.placeholder(tf.float32)
-
+   
 learning_rate = 1e-3 
 
 X = tf.compat.v1.placeholder(dtype=tf.float32 , shape=[None,784])
