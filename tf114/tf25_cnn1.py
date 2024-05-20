@@ -23,7 +23,7 @@ X = tf.compat.v1.placeholder(tf.float32, [None, 28, 28, 1])     # input_shape
 y = tf.compat.v1.placeholder(tf.float32, [None, 10])
 
 w1 = tf.compat.v1.get_variable('w1', shape=[2, 2, 1, 64])   # kernel_size
-                                            # 커널사이즈, 컬러(채널), 필터(아웃풋)
+                                               # 커널사이즈, 컬러(채널), 필터(아웃풋)
 L1 = tf.nn.conv2d(X, w1, strides=[1, 1, 1, 1], padding='VALID')  # 양끝 두 숫자는 shape 맞춰주기위해 존재
 # model.add(conv2d(64, kernel_size=(2,2), input_shape = (28, 28, 1), stride = 1, padding = 'valid))
 print(w1)
