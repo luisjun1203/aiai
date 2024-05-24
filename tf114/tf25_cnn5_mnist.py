@@ -21,7 +21,7 @@ X_test = X_test.reshape(10000, 28, 28, 1).astype('float32')/255.
 # 2. 모델구성
 X = tf.compat.v1.placeholder(tf.float32, [None, 28, 28, 1])     # input_shape
 y = tf.compat.v1.placeholder(tf.float32, [None, 10])
-
+   
 
 w1 = tf.compat.v1.get_variable('w1', shape=[2, 2, 1, 19], initializer=tf.contrib.layers.xavier_initializer()) 
 b1 = tf.compat.v1.Variable(tf.zeros([19]), name = 'b1')                                   
