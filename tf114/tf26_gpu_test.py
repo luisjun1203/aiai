@@ -21,7 +21,7 @@ if gpus:
         print(e)
 else:
     print("gpu없다!!!")   
-    
+       
 '''      
 Tensorflow1 -> 그래프 연산        
 Tensorflow2 -> 즉시실행모드
