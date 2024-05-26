@@ -16,7 +16,7 @@ y_test = to_categorical(y_test)
 x_train = x_train.reshape(-1,32,32,3).astype('float32')/255.
 x_test = x_test.reshape(-1,32,32,3).astype('float32')/255.
 
-#2. 모델구성
+#2. 모델구성   
 x = tf.compat.v1.placeholder(tf.float32, [None, 32,32,3]) #input_shape
 y = tf.compat.v1.placeholder(tf.float32, [None, 10]) 
 
