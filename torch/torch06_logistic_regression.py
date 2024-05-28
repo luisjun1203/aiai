@@ -112,7 +112,7 @@ print('예측값은 :' , result.tolist() )
 from sklearn.metrics import accuracy_score
 
 """ with torch.no_grad():
-    y_pred = model(x_test).cpu().numpy().squeeze()
+    y_pred = model(x_test).cpu().numpy().squeeze()  
 
 y_test = y_test.cpu().numpy().squeeze() """
 
