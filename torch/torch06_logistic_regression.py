@@ -1,6 +1,5 @@
 # tensor 표로 만들어서 구분해보자
 
-
 import numpy as np
 import torch
 import torch.nn as nn
